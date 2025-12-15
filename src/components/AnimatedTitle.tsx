@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const platforms = ["Vercel", "GitHub", "OnRender"];
+const platforms = ["Vercel", "GitHub", "OnRender", "Lovable", "Bolt", "Netlify", "Replit"];
 
 export function AnimatedTitle() {
   const [currentIndex, setCurrentIndex] = useState(0);

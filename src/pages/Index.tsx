@@ -54,10 +54,10 @@ const Index = () => {
       <main className="relative z-10 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           {/* Hero section */}
-          <div className="text-center py-16 md:py-24">
+          <div className={`text-center ${hasSearched || isLoading ? 'py-8 md:py-12' : 'py-16 md:py-24'} transition-all duration-500`}>
             <AnimatedTitle />
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
-              Discover portfolios, tools, and projects across 11+ hosting platforms including Vercel, GitHub, Netlify, Railway, and more.
+              Discover portfolios, tools, and projects across popular hosting platforms
             </p>
             <div className="animate-fade-up stagger-2 mb-6">
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
@@ -110,10 +110,19 @@ const Index = () => {
         </div>
       </main>
 
+      {/* Big Brand Text */}
+      <div className="relative z-10 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
+        <div className="max-w-8xl mx-auto text-center">
+          <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+            #YOUREL
+          </h2>
+        </div>
+      </div>
+
       {/* Footer */}
       <footer className="relative z-10 border-t border-border py-6 px-6 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>Built with precision for the modern web</p>
+          <p>Built for you</p>
           <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel

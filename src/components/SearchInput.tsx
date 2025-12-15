@@ -38,7 +38,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="Search Vercel sites..."
+          placeholder="Search Anything..."
           className="w-full bg-transparent py-5 pl-14 pr-32 text-lg font-medium placeholder:text-muted-foreground focus:outline-none"
         />
         <button
@@ -50,7 +50,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
         </button>
       </div>
       <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in stagger-2">
-        Powered by Google Custom Search • Finds sites on vercel.app
+        F*ck SEO • Finds Sites & Free Tools
       </p>
     </form>
   );

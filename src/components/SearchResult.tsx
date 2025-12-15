@@ -1,4 +1,5 @@
 import { ExternalLink, Globe } from "lucide-react";
+import { getAutoTag } from "@/lib/autoTagger";
 
 interface SearchResultProps {
   title: string;
@@ -10,6 +11,7 @@ interface SearchResultProps {
 
 export function SearchResult({ title, link, snippet, index, platform }: SearchResultProps) {
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
+  const autoTag = getAutoTag(link);
   
   const getPlatformColor = (platform?: string) => {
     const colors: Record<string, string> = {
@@ -47,6 +49,9 @@ export function SearchResult({ title, link, snippet, index, platform }: SearchRe
             </div>
             <span className="text-sm text-muted-foreground truncate">
               {displayUrl}
+            </span>
+            <span className={`px-2 py-1 rounded-md text-xs font-medium border ${autoTag.color}`}>
+              {autoTag.emoji} {autoTag.label}
             </span>
             {platform && (
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPlatformColor(platform)}`}>
