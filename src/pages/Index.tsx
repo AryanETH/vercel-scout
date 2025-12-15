@@ -1,13 +1,18 @@
+import { useState } from "react";
+import { Settings } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SearchInput } from "@/components/SearchInput";
 import { SearchResult } from "@/components/SearchResult";
 import { SearchSkeleton } from "@/components/SearchSkeleton";
 import { EmptyState } from "@/components/EmptyState";
+import { SetupPrompt } from "@/components/SetupPrompt";
+import { ConfigModal } from "@/components/ConfigModal";
 import { useVercelSearch } from "@/hooks/useVercelSearch";
 
 const Index = () => {
-  const { results, isLoading, error, hasSearched, search } = useVercelSearch();
+  const { results, isLoading, error, hasSearched, search, searchEngineId, saveSearchEngineId, needsConfig } = useVercelSearch();
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -31,7 +36,18 @@ const Index = () => {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          {!needsConfig && (
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="h-10 w-10 rounded-full glass shadow-soft flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+              aria-label="Settings"
+            >
+              <Settings className="h-5 w-5 text-muted-foreground" />
+            </button>
+          )}
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* Main content */}
@@ -45,43 +61,52 @@ const Index = () => {
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-12 animate-fade-up stagger-1">
               Discover portfolios, tools, and projects deployed on Vercel's global edge network.
             </p>
-            <div className="animate-fade-up stagger-2">
-              <SearchInput onSearch={search} isLoading={isLoading} />
-            </div>
+            
+            {!needsConfig && (
+              <div className="animate-fade-up stagger-2">
+                <SearchInput onSearch={search} isLoading={isLoading} />
+              </div>
+            )}
           </div>
 
-          {/* Results section */}
+          {/* Setup or Results section */}
           <div className="pb-20">
-            {error && (
-              <div className="glass rounded-2xl p-6 text-center animate-scale-in">
-                <p className="text-destructive font-medium">{error}</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Please try again or check your connection.
-                </p>
-              </div>
-            )}
+            {needsConfig ? (
+              <SetupPrompt onConfigure={() => setIsConfigOpen(true)} />
+            ) : (
+              <>
+                {error && (
+                  <div className="glass rounded-2xl p-6 text-center animate-scale-in">
+                    <p className="text-destructive font-medium">{error}</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Please try again or check your connection.
+                    </p>
+                  </div>
+                )}
 
-            {isLoading && <SearchSkeleton />}
+                {isLoading && <SearchSkeleton />}
 
-            {!isLoading && !error && results.length > 0 && (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground mb-6 animate-fade-in">
-                  Found {results.length} results
-                </p>
-                {results.map((result, index) => (
-                  <SearchResult
-                    key={result.link}
-                    title={result.title}
-                    link={result.link}
-                    snippet={result.snippet}
-                    index={index}
-                  />
-                ))}
-              </div>
-            )}
+                {!isLoading && !error && results.length > 0 && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground mb-6 animate-fade-in">
+                      Found {results.length} results
+                    </p>
+                    {results.map((result, index) => (
+                      <SearchResult
+                        key={result.link}
+                        title={result.title}
+                        link={result.link}
+                        snippet={result.snippet}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                )}
 
-            {!isLoading && !error && results.length === 0 && (
-              <EmptyState hasSearched={hasSearched} />
+                {!isLoading && !error && results.length === 0 && !needsConfig && (
+                  <EmptyState hasSearched={hasSearched} />
+                )}
+              </>
             )}
           </div>
         </div>
@@ -101,6 +126,14 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Config Modal */}
+      <ConfigModal
+        isOpen={isConfigOpen}
+        onClose={() => setIsConfigOpen(false)}
+        onSave={saveSearchEngineId}
+        currentId={searchEngineId}
+      />
     </div>
   );
 };
