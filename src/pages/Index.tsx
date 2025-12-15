@@ -1,13 +1,29 @@
+import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SearchInput } from "@/components/SearchInput";
 import { SearchResult } from "@/components/SearchResult";
 import { SearchSkeleton } from "@/components/SearchSkeleton";
 import { EmptyState } from "@/components/EmptyState";
-import { useVercelSearch } from "@/hooks/useVercelSearch";
+import { AnimatedTitle } from "@/components/AnimatedTitle";
+import { PlatformFilters, Platform } from "@/components/PlatformFilters";
+import { ResultsPagination } from "@/components/ResultsPagination";
+import { useMultiSearch } from "@/hooks/useMultiSearch";
 
 const Index = () => {
-  const { results, isLoading, error, hasSearched, search } = useVercelSearch();
+  const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, search, changePage, changeFilter } = useMultiSearch();
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
+
+  const handleSearch = (query: string) => {
+    search(query, selectedPlatform, 1);
+  };
+
+  const handleFilterChange = (platform: Platform) => {
+    setSelectedPlatform(platform);
+    if (hasSearched) {
+      changeFilter(platform);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -39,14 +55,15 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           {/* Hero section */}
           <div className="text-center py-16 md:py-24">
-            <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-4 animate-fade-up">
-              Find Vercel Sites
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-12 animate-fade-up stagger-1">
-              Discover portfolios, tools, and projects deployed on Vercel's global edge network.
+            <AnimatedTitle />
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-8 animate-fade-up stagger-1">
+              Discover portfolios, tools, and projects across multiple platforms.
             </p>
-            <div className="animate-fade-up stagger-2">
-              <SearchInput onSearch={search} isLoading={isLoading} />
+            <div className="animate-fade-up stagger-2 mb-6">
+              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+            </div>
+            <div className="animate-fade-up stagger-3">
+              <SearchInput onSearch={handleSearch} isLoading={isLoading} />
             </div>
           </div>
 
@@ -66,17 +83,22 @@ const Index = () => {
             {!isLoading && !error && results.length > 0 && (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground mb-6 animate-fade-in">
-                  Found {results.length} results
+                  Found {totalResults} results
                 </p>
                 {results.map((result, index) => (
                   <SearchResult
-                    key={result.link}
+                    key={`${result.link}-${index}`}
                     title={result.title}
                     link={result.link}
                     snippet={result.snippet}
                     index={index}
                   />
                 ))}
+                <ResultsPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={changePage}
+                />
               </div>
             )}
 
@@ -95,8 +117,11 @@ const Index = () => {
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel
             </a>
-            <a href="https://developers.google.com/custom-search" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Google CSE
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              GitHub
+            </a>
+            <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Render
             </a>
           </div>
         </div>
