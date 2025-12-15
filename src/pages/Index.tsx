@@ -122,7 +122,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="relative z-10 border-t border-border py-6 px-6 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>Built for you</p>
+          <p>Built for you ♥</p>
           <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel
