@@ -56,8 +56,8 @@ const Index = () => {
           {/* Hero section */}
           <div className="text-center py-16 md:py-24">
             <AnimatedTitle />
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-8 animate-fade-up stagger-1">
-              Discover portfolios, tools, and projects across multiple platforms.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
+              Discover portfolios, tools, and projects across 11+ hosting platforms including Vercel, GitHub, Netlify, Railway, and more.
             </p>
             <div className="animate-fade-up stagger-2 mb-6">
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
@@ -91,6 +91,7 @@ const Index = () => {
                     title={result.title}
                     link={result.link}
                     snippet={result.snippet}
+                    platform={result.platform}
                     index={index}
                   />
                 ))}
@@ -113,15 +114,36 @@ const Index = () => {
       <footer className="relative z-10 border-t border-border py-6 px-6 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>Built with precision for the modern web</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel
             </a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               GitHub
             </a>
+            <a href="https://netlify.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Netlify
+            </a>
+            <a href="https://railway.app" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Railway
+            </a>
             <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Render
+            </a>
+            <a href="https://bubble.io" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Bubble
+            </a>
+            <a href="https://framer.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Framer
+            </a>
+            <a href="https://replit.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Replit
+            </a>
+            <a href="https://fly.io" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Fly.io
+            </a>
+            <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              Lovable
             </a>
           </div>
         </div>

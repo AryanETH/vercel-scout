@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type Platform = "all" | "vercel" | "github" | "onrender";
+export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable";
 
 interface PlatformFiltersProps {
   selected: Platform;
@@ -11,7 +11,15 @@ const filters: { id: Platform; label: string }[] = [
   { id: "all", label: "All" },
   { id: "vercel", label: "Vercel" },
   { id: "github", label: "GitHub" },
+  { id: "netlify", label: "Netlify" },
+  { id: "railway", label: "Railway" },
   { id: "onrender", label: "OnRender" },
+  { id: "bubble", label: "Bubble" },
+  { id: "framer", label: "Framer" },
+  { id: "replit", label: "Replit" },
+  { id: "bolt", label: "Bolt" },
+  { id: "fly", label: "Fly.io" },
+  { id: "lovable", label: "Lovable" },
 ];
 
 export function PlatformFilters({ selected, onChange }: PlatformFiltersProps) {

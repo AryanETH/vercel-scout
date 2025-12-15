@@ -6,8 +6,16 @@ const CSE_ID = "c45a3d17b28ad4867";
 
 const PLATFORM_SITES: Record<Exclude<Platform, "all">, string> = {
   vercel: "site:vercel.app",
-  github: "site:github.com",
+  github: "site:github.io",
   onrender: "site:onrender.com",
+  netlify: "site:netlify.app",
+  railway: "site:railway.app",
+  bubble: "site:bubbleapps.io",
+  framer: "site:framer.website",
+  replit: "site:replit.app",
+  bolt: "site:bolt.host",
+  fly: "site:fly.dev",
+  lovable: "site:lovable.app",
 };
 
 export interface SearchResult {
@@ -82,32 +90,28 @@ export function useMultiSearch() {
 
       if (platform === "all") {
         // For mixed results, fetch from all platforms and interleave
-        const platforms: Exclude<Platform, "all">[] = ["vercel", "github", "onrender"];
+        const platforms: Exclude<Platform, "all">[] = [
+          "vercel", "github", "netlify", "railway", "onrender", 
+          "bubble", "framer", "replit", "bolt", "fly", "lovable"
+        ];
+        
+        // Fetch fewer results per platform to stay within API limits
+        const resultsPerPlatform = Math.max(1, Math.floor(10 / platforms.length));
         const platformPromises = platforms.map((p) =>
-          searchPlatform(query, p, 1, 10).catch(() => ({ results: [], total: 0 }))
+          searchPlatform(query, p, 1, resultsPerPlatform).catch(() => ({ results: [], total: 0 }))
         );
 
         const results = await Promise.all(platformPromises);
         
-        // Interleave results: 2 vercel, 2 github, 1 onrender pattern
-        const vercelResults = results[0].results;
-        const githubResults = results[1].results;
-        const onrenderResults = results[2].results;
-
-        let vIdx = 0, gIdx = 0, oIdx = 0;
+        // Round-robin interleaving of results from all platforms
+        const platformResults = results.map(r => r.results);
+        const maxLength = Math.max(...platformResults.map(r => r.length));
         
-        while (allResults.length < 50 && (vIdx < vercelResults.length || gIdx < githubResults.length || oIdx < onrenderResults.length)) {
-          // Add 2 Vercel
-          for (let i = 0; i < 2 && vIdx < vercelResults.length; i++) {
-            allResults.push(vercelResults[vIdx++]);
-          }
-          // Add 2 GitHub
-          for (let i = 0; i < 2 && gIdx < githubResults.length; i++) {
-            allResults.push(githubResults[gIdx++]);
-          }
-          // Add 1 OnRender
-          if (oIdx < onrenderResults.length) {
-            allResults.push(onrenderResults[oIdx++]);
+        for (let i = 0; i < maxLength && allResults.length < 50; i++) {
+          for (let j = 0; j < platformResults.length && allResults.length < 50; j++) {
+            if (platformResults[j][i]) {
+              allResults.push(platformResults[j][i]);
+            }
           }
         }
 

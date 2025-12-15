@@ -1,73 +1,79 @@
-# Welcome to your Lovable project
+# Vercel Scout
 
-## Project info
+A powerful search engine for discovering portfolios, tools, and projects across 11+ hosting platforms.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Multi-Platform Search**: Search across Vercel, GitHub Pages, Netlify, Railway, OnRender, Bubble, Framer, Replit, Bolt, Fly.io, and Lovable
+- **Dual Search Modes**: 
+  - Custom API search with platform filtering and pagination
+  - Google Custom Search Engine integration
+- **Platform Filtering**: Filter results by specific hosting platforms
+- **Responsive Design**: Beautiful, modern UI that works on all devices
+- **Real-time Results**: Fast search with loading states and error handling
 
-There are several ways of editing your application.
+## Supported Platforms
 
-**Use Lovable**
+- **Vercel** (vercel.app)
+- **GitHub Pages** (github.io) 
+- **Netlify** (netlify.app)
+- **Railway** (railway.app)
+- **OnRender** (onrender.com)
+- **Bubble** (bubbleapps.io)
+- **Framer** (framer.website)
+- **Replit** (replit.app)
+- **Bolt** (bolt.host)
+- **Fly.io** (fly.dev)
+- **Lovable** (lovable.app)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Search Modes
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Custom Search
+- Uses Google Custom Search API
+- Platform-specific filtering
+- Pagination support
+- Interleaved results from multiple platforms
 
-**Use GitHub Codespaces**
+### Google CSE
+- Direct Google Custom Search Engine integration
+- Uses your configured CSE with all platforms included
+- Native Google search interface
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+- `src/hooks/useMultiSearch.ts` - Main search logic with multi-platform support
+- `src/components/PlatformFilters.tsx` - Platform selection filters
+- `src/components/SearchResult.tsx` - Individual search result display with platform badges
+- `src/components/GoogleCSE.tsx` - Google Custom Search Engine integration
+- `src/components/SearchModeToggle.tsx` - Toggle between custom and Google search
 
-This project is built with:
+## Technologies Used
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Vite** - Build tool and dev server
+- **React** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **shadcn/ui** - UI components
+- **Google Custom Search API** - Search functionality
 
-## How can I deploy this project?
+## Configuration
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+The app uses Google Custom Search Engine ID: `c45a3d17b28ad4867` which includes all supported platforms:
+- netlify.app
+- railway.app  
+- bubbleapps.io
+- framer.website
+- replit.app
+- bolt.host
+- fly.dev
+- lovable.app
+- vercel.app
+- onrender.com
+- github.io

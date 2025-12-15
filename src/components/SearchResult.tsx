@@ -5,10 +5,28 @@ interface SearchResultProps {
   link: string;
   snippet: string;
   index: number;
+  platform?: string;
 }
 
-export function SearchResult({ title, link, snippet, index }: SearchResultProps) {
+export function SearchResult({ title, link, snippet, index, platform }: SearchResultProps) {
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
+  
+  const getPlatformColor = (platform?: string) => {
+    const colors: Record<string, string> = {
+      vercel: "bg-black text-white",
+      github: "bg-gray-800 text-white",
+      netlify: "bg-teal-500 text-white",
+      railway: "bg-purple-600 text-white",
+      onrender: "bg-green-600 text-white",
+      bubble: "bg-blue-500 text-white",
+      framer: "bg-pink-500 text-white",
+      replit: "bg-orange-500 text-white",
+      bolt: "bg-yellow-500 text-black",
+      fly: "bg-indigo-600 text-white",
+      lovable: "bg-red-500 text-white",
+    };
+    return colors[platform || ""] || "bg-secondary text-muted-foreground";
+  };
 
   return (
     <a
@@ -30,6 +48,11 @@ export function SearchResult({ title, link, snippet, index }: SearchResultProps)
             <span className="text-sm text-muted-foreground truncate">
               {displayUrl}
             </span>
+            {platform && (
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPlatformColor(platform)}`}>
+                {platform.charAt(0).toUpperCase() + platform.slice(1)}
+              </span>
+            )}
           </div>
           <h3 className="font-display text-lg font-semibold mb-2 line-clamp-2 group-hover:text-foreground transition-colors">
             {title}
