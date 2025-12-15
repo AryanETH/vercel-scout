@@ -11,10 +11,10 @@ export function Logo() {
       </div>
       <div>
         <h1 className="font-display text-xl font-bold tracking-tight">
-          VercelFinder
+          Uncovur
         </h1>
         <p className="text-xs text-muted-foreground -mt-0.5">
-          Discover Vercel sites
+          Discover unranked sites
         </p>
       </div>
     </div>
