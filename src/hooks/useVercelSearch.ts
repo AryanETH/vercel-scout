@@ -1,8 +1,6 @@
 import { useState } from "react";
 
 const API_KEY = "AIzaSyByFwruZ-h21A5YUNn6jj9qyBaeHBNgGSQ";
-// Custom Search Engine ID configured to search vercel.app sites
-const CX = "017576662512468239146:omuauf_gy2o";
 
 interface SearchResult {
   title: string;
@@ -25,13 +23,32 @@ export function useVercelSearch() {
     hasSearched: false,
   });
 
+  const [searchEngineId, setSearchEngineId] = useState(() => {
+    return localStorage.getItem("google_cse_id") || "";
+  });
+
+  const saveSearchEngineId = (id: string) => {
+    localStorage.setItem("google_cse_id", id);
+    setSearchEngineId(id);
+  };
+
   const search = async (query: string) => {
+    if (!searchEngineId) {
+      setState({
+        results: [],
+        isLoading: false,
+        error: "Please configure your Google Custom Search Engine ID first.",
+        hasSearched: true,
+      });
+      return;
+    }
+
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       // Append site:vercel.app to restrict results to Vercel sites
       const searchQuery = encodeURIComponent(`site:vercel.app ${query}`);
-      const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${searchQuery}&num=10`;
+      const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${searchEngineId}&q=${searchQuery}&num=10`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -62,5 +79,11 @@ export function useVercelSearch() {
     }
   };
 
-  return { ...state, search };
+  return { 
+    ...state, 
+    search, 
+    searchEngineId, 
+    saveSearchEngineId,
+    needsConfig: !searchEngineId 
+  };
 }
