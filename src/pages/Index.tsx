@@ -8,12 +8,14 @@ import { EmptyState } from "@/components/EmptyState";
 import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
+import { SupportModal } from "@/components/SupportModal";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
 import { analytics } from "@/lib/analytics";
 
 const Index = () => {
   const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, search, changePage, changeFilter } = useMultiSearch();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   // Track page view on mount
   useEffect(() => {
@@ -163,6 +165,11 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <SupportModal 
+        isOpen={showSupportModal} 
+        onClose={() => setShowSupportModal(false)} 
+      />
     </div>
   );
 };
