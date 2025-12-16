@@ -71,7 +71,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
           <button
             type="button"
             onClick={handleVoiceToggle}
-            className="absolute right-20 p-9 rounded-lg transition-all duration-300 hover:bg-accent text-muted-foreground hover:text-foreground"
+            className="absolute right-20 p-9 rounded-lg transition-all duration-300 hover:bg- text-muted-foreground hover:text-foreground"
             title={isListening ? 'Stop listening' : 'Start voice search'}
           >
             {isListening ? (
