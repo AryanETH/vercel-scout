@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { analytics } from "@/lib/analytics";
 
 export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable";
 
@@ -28,13 +29,17 @@ export function PlatformFilters({ selected, onChange }: PlatformFiltersProps) {
       {filters.map((filter) => (
         <button
           key={filter.id}
-          onClick={() => onChange(filter.id)}
+          onClick={() => {
+            // Track platform filter usage
+            analytics.track('platform_filter', { platform: filter.id });
+            onChange(filter.id);
+          }}
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
             "border border-border hover:border-foreground/30",
             selected === filter.id
-              ? "bg-foreground text-background border-foreground"
-              : "bg-transparent text-muted-foreground hover:text-foreground"
+              ? "glass-liquid-button bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500"
+              : "glass-liquid bg-transparent text-muted-foreground hover:text-foreground"
           )}
         >
           {filter.label}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SearchInput } from "@/components/SearchInput";
@@ -9,10 +9,16 @@ import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
+import { analytics } from "@/lib/analytics";
 
 const Index = () => {
   const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, search, changePage, changeFilter } = useMultiSearch();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
+
+  // Track page view on mount
+  useEffect(() => {
+    analytics.track('page_view', { url: window.location.href });
+  }, []);
 
   const handleSearch = (query: string) => {
     search(query, selectedPlatform, 1);

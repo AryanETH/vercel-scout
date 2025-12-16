@@ -16,17 +16,17 @@ interface IndexedSite {
 
 const categoryConfig = {
   ai: {
-    title: "🤖 AI & Next-Gen",
+    title: "AI & Next-Gen",
     icon: Sparkles,
     gradient: "from-purple-500/20 to-pink-500/20"
   },
   devtools: {
-    title: "🛠️ Dev Tools",
+    title: "Dev Tools",
     icon: Wrench,
     gradient: "from-blue-500/20 to-cyan-500/20"
   },
   gems: {
-    title: "💎 Hidden Gems",
+    title: "Hidden Gems",
     icon: Gem,
     gradient: "from-emerald-500/20 to-teal-500/20"
   }
@@ -52,7 +52,31 @@ export function TopPicks() {
       setUsingFallback(false);
       
       try {
-        console.log('🔍 Starting to load top picks...');
+        // First try to load from admin panel (localStorage)
+        const adminData = localStorage.getItem('admin-top-picks');
+        if (adminData) {
+          const adminPicks = JSON.parse(adminData);
+          const categorizedAdminPicks = {
+            ai: adminPicks.filter((item: any) => item.category === 'ai'),
+            devtools: adminPicks.filter((item: any) => item.category === 'devtools'),
+            gems: adminPicks.filter((item: any) => item.category === 'gems')
+          };
+          
+          const totalAdminResults = categorizedAdminPicks.ai.length + categorizedAdminPicks.devtools.length + categorizedAdminPicks.gems.length;
+          
+          if (totalAdminResults > 0) {
+            console.log('📊 Using admin curated picks:', categorizedAdminPicks);
+            setPicks(categorizedAdminPicks);
+            setUsingFallback(false);
+            setLastUpdated(new Date());
+            setError(null);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // Fallback to API if no admin data
+        console.log('🔍 Starting to load top picks from API...');
         await topPicksIndexer.getTopPicks(12);
         const categorizedPicks = topPicksIndexer.getCategorizedPicks();
         
@@ -112,61 +136,13 @@ export function TopPicks() {
               {quotaExceeded ? 'API Quota Exceeded' : 'Failed to Load Top Picks'}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">{error}</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {quotaExceeded && (
-                <button
-                  onClick={() => setShowCSE(true)}
-                  className="text-sm px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                >
-                  🔍 Use Google Search Instead
-                </button>
-              )}
-              <button
-                onClick={async () => {
-                  setIsLoading(true);
-                  setError(null);
-                  setQuotaExceeded(false);
-                  try {
-                    await topPicksIndexer.getTopPicks(12);
-                    const categorizedPicks = topPicksIndexer.getCategorizedPicks();
-                    
-                    const totalResults = categorizedPicks.ai.length + categorizedPicks.devtools.length + categorizedPicks.gems.length;
-                    
-                    if (totalResults === 0) {
-                      setPicks(fallbackTopPicks);
-                      setUsingFallback(true);
-                    } else {
-                      setPicks(categorizedPicks);
-                      setUsingFallback(false);
-                    }
-                    
-                    setLastUpdated(new Date());
-                    setError(null);
-                  } catch (err) {
-                    const errorMessage = err instanceof Error ? err.message : 'Failed to load picks';
-                    
-                    if (errorMessage.includes('Quota exceeded') || errorMessage.includes('quota metric')) {
-                      setQuotaExceeded(true);
-                      setError('API quota exceeded for today');
-                    } else {
-                      setError(errorMessage);
-                    }
-                    
-                    setPicks(fallbackTopPicks);
-                    setUsingFallback(true);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                className="text-sm px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {quotaExceeded ? 'API quota exceeded - showing curated examples' : 'Please try again later'}
+            </p>
           </div>
         </div>
       )}
-      <div className="text-center">
+      <div className="text-center rounded-2xl p-8 mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
           {isLoading ? (
             <>
@@ -197,55 +173,7 @@ export function TopPicks() {
             : 'Real websites discovered through internal search indexing'
           }
         </p>
-        {!isLoading && (
-          <div className="flex gap-2 justify-center">
-            <button
-              onClick={async () => {
-                setIsLoading(true);
-                try {
-                  await topPicksIndexer.getTopPicks(12);
-                  const categorizedPicks = topPicksIndexer.getCategorizedPicks();
-                  
-                  const totalResults = categorizedPicks.ai.length + categorizedPicks.devtools.length + categorizedPicks.gems.length;
-                  
-                  if (totalResults === 0) {
-                    setPicks(fallbackTopPicks);
-                    setUsingFallback(true);
-                  } else {
-                    setPicks(categorizedPicks);
-                    setUsingFallback(false);
-                  }
-                  
-                  setLastUpdated(new Date());
-                } catch (error) {
-                  console.error('Failed to refresh picks:', error);
-                  const errorMessage = error instanceof Error ? error.message : 'Failed to refresh picks';
-                  
-                  if (errorMessage.includes('Quota exceeded') || errorMessage.includes('quota metric')) {
-                    setQuotaExceeded(true);
-                    setError('API quota exceeded for today');
-                  } else {
-                    setError(errorMessage);
-                  }
-                  
-                  setPicks(fallbackTopPicks);
-                  setUsingFallback(true);
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border hover:border-foreground/20"
-            >
-              🔄 Refresh Index
-            </button>
-            <button
-              onClick={() => setShowCSE(true)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border hover:border-foreground/20"
-            >
-              🔍 Search All Sites
-            </button>
-          </div>
-        )}
+
       </div>
 
       {categories.map((categoryKey, categoryIndex) => {

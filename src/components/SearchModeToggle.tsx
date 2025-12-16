@@ -13,7 +13,7 @@ export function SearchModeToggle({ mode, onChange }: SearchModeToggleProps) {
         className={cn(
           "px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
           mode === "custom"
-            ? "bg-background text-foreground shadow-sm"
+            ? "glass-liquid-button bg-blue-600 text-white shadow-sm dark:bg-blue-500"
             : "text-muted-foreground hover:text-foreground"
         )}
       >
@@ -24,7 +24,7 @@ export function SearchModeToggle({ mode, onChange }: SearchModeToggleProps) {
         className={cn(
           "px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
           mode === "google"
-            ? "bg-background text-foreground shadow-sm"
+            ? "glass-liquid-button bg-blue-600 text-white shadow-sm dark:bg-blue-500"
             : "text-muted-foreground hover:text-foreground"
         )}
       >
