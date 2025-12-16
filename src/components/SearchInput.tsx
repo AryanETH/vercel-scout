@@ -71,15 +71,15 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
           <button
             type="button"
             onClick={handleVoiceToggle}
-            className={`absolute right-20 p-9 rounded-lg transition-all duration-300 ${
-              isListening 
-                ? 'bg-red-500 text-white animate-pulse' 
-                : 'hover:bg- text-muted-foreground hover:text-foreground'
-            }`}
+            className="absolute right-20 p-9 rounded-lg transition-all duration-300 hover:bg-accent text-muted-foreground hover:text-foreground"
             title={isListening ? 'Stop listening' : 'Start voice search'}
           >
             {isListening ? (
-              <MicOff className="w-5 h-5" />
+              <div className="w-5 h-5 flex items-center justify-center gap-0.5">
+                <div className="w-0.5 bg-red-500 rounded-full animate-sound-wave-1" style={{height: '12px'}}></div>
+                <div className="w-0.5 bg-red-500 rounded-full animate-sound-wave-2" style={{height: '16px'}}></div>
+                <div className="w-0.5 bg-red-500 rounded-full animate-sound-wave-3" style={{height: '10px'}}></div>
+              </div>
             ) : (
               <Mic className="w-5 h-5" />
             )}
