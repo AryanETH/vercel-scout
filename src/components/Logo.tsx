@@ -3,11 +3,18 @@ import { useImagePreloader } from "@/hooks/useImagePreloader";
 export function Logo() {
   const { isLoaded, cachedSrc } = useImagePreloader('/yourel-logo.png');
 
+  const handleClick = () => {
+    window.location.href = '/';
+  };
+
   return (
-    <div className="flex items-center gap-3 animate-fade-up">
+    <button 
+      onClick={handleClick}
+      className="flex items-center gap-2 animate-fade-up hover:scale-105 transition-transform duration-300"
+    >
       <div
         className="relative flex items-center justify-center"
-        style={{ width: "60px", height: "60px" }}
+        style={{ width: "50px", height: "50px" }}
       >
         {isLoaded && cachedSrc ? (
           <img
@@ -42,10 +49,7 @@ export function Logo() {
         <h1 className="font-display text-2xl font-bold tracking-tight">
           YOUREL
         </h1>
-        <p className="text-sm text-muted-foreground -mt-1">
-          Discover The Undiscovered
-        </p>
       </div>
-    </div>
+    </button>
   );
 }

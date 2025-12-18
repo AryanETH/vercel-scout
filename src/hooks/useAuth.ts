@@ -4,6 +4,7 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
+  username: string;
   password: string;
   inviteCode: string;
   invitedBy?: string;
@@ -54,33 +55,42 @@ export function useAuth() {
     return `YOUREL#${combined}`;
   };
 
-  const authenticate = (inviteCode: string, firstName?: string, lastName?: string, password?: string): boolean => {
-    console.log('Authenticating with:', { inviteCode, firstName, lastName, hasPassword: !!password });
+  const authenticate = (inviteCodeOrUsername: string, firstName?: string, lastName?: string, username?: string, password?: string): boolean => {
+    console.log('Authenticating with:', { inviteCodeOrUsername, firstName, lastName, username, hasPassword: !!password });
+    
+    // Get existing users
+    const existingUsers = JSON.parse(localStorage.getItem('yourel_users') || '[]');
+    console.log('Existing users:', existingUsers.length);
+    
+    // Check if it's a login attempt (username + password)
+    if (!firstName && !lastName && !username && password) {
+      // Login with username
+      const existingUser = existingUsers.find((u: User) => u.username === inviteCodeOrUsername);
+      if (existingUser && existingUser.password === password) {
+        localStorage.setItem('yourel_user', JSON.stringify(existingUser));
+        setUser(existingUser);
+        return true;
+      }
+      return false;
+    }
+    
+    // Registration with invite code
+    const inviteCode = inviteCodeOrUsername;
     
     // Check if it's a valid invite code format
     if (!inviteCode.startsWith('YOUREL#') || inviteCode.length !== 11) {
       console.log('Invalid invite code format');
       return false;
     }
-
-    // Get existing users
-    const existingUsers = JSON.parse(localStorage.getItem('yourel_users') || '[]');
-    console.log('Existing users:', existingUsers.length);
-    
-    // Check if user already exists with this invite code (returning user)
-    const existingUser = existingUsers.find((u: User) => u.inviteCode === inviteCode);
-    if (existingUser) {
-      // Returning user - check password if provided
-      if (password && existingUser.password !== password) {
-        return false;
-      }
-      localStorage.setItem('yourel_user', JSON.stringify(existingUser));
-      setUser(existingUser);
-      return true;
-    }
     
     // New user registration - need all details
-    if (!firstName || !lastName || !password) {
+    if (!firstName || !lastName || !username || !password) {
+      return false;
+    }
+    
+    // Check if username already exists
+    if (existingUsers.some((u: User) => u.username === username)) {
+      console.log('Username already exists');
       return false;
     }
 
@@ -116,6 +126,7 @@ export function useAuth() {
       id: Date.now().toString(),
       firstName,
       lastName,
+      username: username!,
       password,
       inviteCode: newInviteCode,
       invitedBy: inviter?.id,

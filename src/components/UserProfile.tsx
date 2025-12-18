@@ -14,6 +14,7 @@ interface UserProfileProps {
   user: {
     firstName: string;
     lastName: string;
+    username: string;
     inviteCode: string;
     favorites: string[];
   };
@@ -32,17 +33,17 @@ export function UserProfile({ user, onLogout, onShowFavorites, onShowSettings }:
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 glass-liquid rounded-full px-3 py-2 hover:scale-105 transition-all duration-300">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+        <button className="flex items-center gap-2 hover:scale-105 transition-all duration-300">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5C82F4] to-[#8243ED] flex items-center justify-center text-white font-semibold text-sm shadow-lg">
             {initials}
           </div>
-          <span className="text-sm font-medium hidden md:block">{fullName}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 glass-liquid">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{fullName}</p>
+            <p className="text-sm font-medium leading-none">@{user.username}</p>
+            <p className="text-xs leading-none text-muted-foreground">{fullName}</p>
             <p className="text-xs leading-none text-muted-foreground">{user.inviteCode}</p>
           </div>
         </DropdownMenuLabel>

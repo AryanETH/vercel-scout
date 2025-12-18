@@ -156,21 +156,38 @@ const Index = () => {
       <main className="relative z-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           {/* Hero section */}
-          <div className={`text-center ${hasSearched || isLoading ? 'py-8 md:py-12' : 'py-16 md:py-24'} transition-all duration-500`}>
-            <AnimatedTitle />
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
-              Discover portfolios, tools, and projects across popular hosting platforms
-            </p>
-            <div className="animate-fade-up stagger-2 mb-6">
-              <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
+          {!hasSearched && !isLoading && (
+            <div className="text-center py-16 md:py-24 transition-all duration-500">
+              <AnimatedTitle />
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
+                Discover The Undiscovered
+              </p>
+              <div className="animate-fade-up stagger-4 mb-8">
+                <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+              </div>
+              <div className="animate-fade-up stagger-3 mb-6">
+                <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+              </div>
             </div>
-            <div className="animate-fade-up stagger-3 mb-6">
-              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+          )}
+
+          {/* Compact search header when results are shown */}
+          {(hasSearched || isLoading) && (
+            <div className="mb-6 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1 max-w-md">
+                  <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+                </div>
+                <div className="flex items-center gap-4 ml-6">
+                  <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+                </div>
+              </div>
+              {/* Search mode tabs below search bar like Google */}
+              <div className="border-b border-border">
+                <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
+              </div>
             </div>
-            <div className="animate-fade-up stagger-4">
-              <SearchInput onSearch={handleSearch} isLoading={isLoading} />
-            </div>
-          </div>
+          )}
 
           {/* Results section */}
           <div className="pb-20">

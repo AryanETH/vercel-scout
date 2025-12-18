@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 interface InviteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAuthenticate: (code: string, firstName?: string, lastName?: string, password?: string) => boolean;
+  onAuthenticate: (codeOrUsername: string, firstName?: string, lastName?: string, username?: string, password?: string) => boolean;
   userInviteCode?: string;
   inviteText?: string;
   remainingInvites?: number;
@@ -25,19 +25,20 @@ export function InviteModal({
   remainingInvites = 0,
   generatePassword
 }: InviteModalProps) {
-  const [inviteCode, setInviteCode] = useState("");
+  const [inviteCodeOrUsername, setInviteCodeOrUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isNewUser, setIsNewUser] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { toast } = useToast();
 
   const handleAuthenticate = async () => {
-    if (!inviteCode.trim()) return;
+    if (!inviteCodeOrUsername.trim()) return;
     
     if (isNewUser) {
-      if (!firstName.trim() || !lastName.trim() || !password.trim()) {
+      if (!firstName.trim() || !lastName.trim() || !username.trim() || !password.trim()) {
         toast({
           title: "Missing Information",
           description: "Please fill in all fields",
@@ -54,13 +55,23 @@ export function InviteModal({
         });
         return;
       }
+    } else {
+      if (!password.trim()) {
+        toast({
+          title: "Missing Password",
+          description: "Please enter your password",
+          variant: "destructive",
+        });
+        return;
+      }
     }
     
     setIsAuthenticating(true);
     const success = onAuthenticate(
-      inviteCode.trim().toUpperCase(),
+      inviteCodeOrUsername.trim(),
       isNewUser ? firstName.trim() : undefined,
       isNewUser ? lastName.trim() : undefined,
+      isNewUser ? username.trim() : undefined,
       password.trim()
     );
     
@@ -72,10 +83,10 @@ export function InviteModal({
       onClose();
     } else {
       toast({
-        title: isNewUser ? "Invalid Invite Code" : "Authentication Failed",
+        title: isNewUser ? "Registration Failed" : "Login Failed",
         description: isNewUser 
-          ? "Please check your invite code and try again." 
-          : "Invalid invite code or password.",
+          ? "Please check your invite code and details." 
+          : "Invalid username or password.",
         variant: "destructive",
       });
     }
@@ -162,18 +173,18 @@ export function InviteModal({
               </Button>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="invite-code">Invite Code</Label>
-              <Input
-                id="invite-code"
-                placeholder="YOUREL#1234"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-              />
-            </div>
-
-            {isNewUser && (
+            {isNewUser ? (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="invite-code">Invite Code</Label>
+                  <Input
+                    id="invite-code"
+                    placeholder="YOUREL#1234"
+                    value={inviteCodeOrUsername}
+                    onChange={(e) => setInviteCodeOrUsername(e.target.value)}
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="first-name">First Name</Label>
@@ -193,6 +204,16 @@ export function InviteModal({
                       onChange={(e) => setLastName(e.target.value)}
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="johndoe"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  />
                 </div>
                 
                 <div className="space-y-2">
@@ -219,24 +240,34 @@ export function InviteModal({
                   </div>
                 </div>
               </>
-            )}
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="johndoe"
+                    value={inviteCodeOrUsername}
+                    onChange={(e) => setInviteCodeOrUsername(e.target.value)}
+                  />
+                </div>
 
-            {!isNewUser && (
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your 6-digit password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your 6-digit password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </>
             )}
             
             <Button 
               onClick={handleAuthenticate} 
-              disabled={isAuthenticating || !inviteCode.trim() || (!isNewUser && !password.trim())}
+              disabled={isAuthenticating || !inviteCodeOrUsername.trim() || !password.trim()}
               className="w-full"
             >
               {isAuthenticating ? "Authenticating..." : (isNewUser ? "Create Account" : "Sign In")}
