@@ -155,7 +155,7 @@ export function TopPicks() {
             <>
               <div className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? 'bg-orange-500' : 'bg-green-500'}`}></div>
               <span className={`text-xs font-medium uppercase tracking-wider ${usingFallback ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
-                {usingFallback ? 'Curated Examples' : 'Live Index'} • {lastUpdated?.toLocaleDateString('en-US', { 
+                {usingFallback ? 'Trending' : 'Trending'} • {lastUpdated?.toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   month: 'short', 
                   day: 'numeric' 

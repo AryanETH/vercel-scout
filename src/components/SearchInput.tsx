@@ -94,7 +94,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
         </button>
       </div>
       <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in stagger-2">
-        F*CK SEO • Finds Sites & Free Tools
+        F*CK SEO • FIND SITES & FREE TOOL
       </p>
     </form>
   );

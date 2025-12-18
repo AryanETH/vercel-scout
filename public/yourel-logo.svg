@@ -1,0 +1,11 @@
+<svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="120" height="90" rx="15" fill="url(#gradient0_linear_1_1)"/>
+<path d="M30 30L60 60L90 30" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="60" y="75" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">YOUREL</text>
+<defs>
+<linearGradient id="gradient0_linear_1_1" x1="0" y1="0" x2="120" y2="90" gradientUnits="userSpaceOnUse">
+<stop stop-color="#3B82F6"/>
+<stop offset="1" stop-color="#8B5CF6"/>
+</linearGradient>
+</defs>
+</svg>

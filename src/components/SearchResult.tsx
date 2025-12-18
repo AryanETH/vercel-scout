@@ -1,5 +1,6 @@
-import { ExternalLink, Globe } from "lucide-react";
+import { ExternalLink, Globe, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
 import { getAutoTag } from "@/lib/autoTagger";
+import { Button } from "@/components/ui/button";
 
 interface SearchResultProps {
   title: string;
@@ -7,9 +8,27 @@ interface SearchResultProps {
   snippet: string;
   index: number;
   platform?: string;
+  onLike?: (url: string) => void;
+  onDislike?: (url: string) => void;
+  onAddToFavorites?: (url: string) => void;
+  isLiked?: boolean;
+  isDisliked?: boolean;
+  isFavorite?: boolean;
 }
 
-export function SearchResult({ title, link, snippet, index, platform }: SearchResultProps) {
+export function SearchResult({ 
+  title, 
+  link, 
+  snippet, 
+  index, 
+  platform, 
+  onLike, 
+  onDislike, 
+  onAddToFavorites,
+  isLiked = false,
+  isDisliked = false,
+  isFavorite = false
+}: SearchResultProps) {
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
   const autoTag = getAutoTag(link);
   
@@ -65,6 +84,45 @@ export function SearchResult({ title, link, snippet, index, platform }: SearchRe
           <p className="text-sm text-muted-foreground line-clamp-2">
             {snippet}
           </p>
+          
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                onLike?.(link);
+              }}
+              className={`h-8 px-2 ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
+            >
+              <ThumbsUp className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                onDislike?.(link);
+              }}
+              className={`h-8 px-2 ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
+            >
+              <ThumbsDown className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToFavorites?.(link);
+              }}
+              className={`h-8 px-2 ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
+            >
+              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </Button>
+          </div>
         </div>
         <ExternalLink className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 flex-shrink-0" />
       </div>

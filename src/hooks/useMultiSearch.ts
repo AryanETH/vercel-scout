@@ -76,7 +76,7 @@ export function useMultiSearch() {
     return { results, total: Math.min(total, MAX_RESULTS) };
   };
 
-  const search = useCallback(async (query: string, platform: Platform = "all", page: number = 1) => {
+  const search = useCallback(async (query: string, platform: Platform = "all", page: number = 1, favoriteMode: boolean = false) => {
     if (!query.trim()) return;
 
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -125,6 +125,11 @@ export function useMultiSearch() {
         totalResults = total;
       }
 
+      // Apply favorites ranking if in favorites mode
+      if (favoriteMode) {
+        allResults = rankByUserPreferences(allResults);
+      }
+
       setState({
         results: allResults,
         isLoading: false,
@@ -145,12 +150,37 @@ export function useMultiSearch() {
     }
   }, []);
 
-  const changePage = useCallback((page: number) => {
-    search(lastQuery, lastPlatform, page);
+  // Add ranking function based on user preferences
+  const rankByUserPreferences = (results: SearchResult[]): SearchResult[] => {
+    // Get all users' preferences
+    const allUsers = JSON.parse(localStorage.getItem('yourel_users') || '[]');
+    const siteLikes: Record<string, number> = {};
+    const siteDislikes: Record<string, number> = {};
+
+    // Count likes and dislikes for each site
+    allUsers.forEach((user: any) => {
+      user.likedSites?.forEach((site: string) => {
+        siteLikes[site] = (siteLikes[site] || 0) + 1;
+      });
+      user.dislikedSites?.forEach((site: string) => {
+        siteDislikes[site] = (siteDislikes[site] || 0) + 1;
+      });
+    });
+
+    // Sort results by preference score (likes - dislikes)
+    return results.sort((a, b) => {
+      const scoreA = (siteLikes[a.link] || 0) - (siteDislikes[a.link] || 0);
+      const scoreB = (siteLikes[b.link] || 0) - (siteDislikes[b.link] || 0);
+      return scoreB - scoreA; // Higher score first
+    });
+  };
+
+  const changePage = useCallback((page: number, favoriteMode: boolean = false) => {
+    search(lastQuery, lastPlatform, page, favoriteMode);
   }, [lastQuery, lastPlatform, search]);
 
-  const changeFilter = useCallback((platform: Platform) => {
-    search(lastQuery, platform, 1);
+  const changeFilter = useCallback((platform: Platform, favoriteMode: boolean = false) => {
+    search(lastQuery, platform, 1, favoriteMode);
   }, [lastQuery, search]);
 
   return {

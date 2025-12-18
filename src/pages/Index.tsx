@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserProfile } from "@/components/UserProfile";
+import { SearchModeSelector, SearchMode } from "@/components/SearchModeSelector";
+import { FavoritesModal } from "@/components/FavoritesModal";
 import { SearchInput } from "@/components/SearchInput";
 import { SearchResult } from "@/components/SearchResult";
 import { SearchSkeleton } from "@/components/SearchSkeleton";
@@ -8,58 +10,150 @@ import { EmptyState } from "@/components/EmptyState";
 import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
-import { SupportModal } from "@/components/SupportModal";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { InviteModal } from "@/components/InviteModal";
+import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
+import { AdminPanel } from "@/components/AdminPanel";
+import { AnimatedGrid } from "@/components/AnimatedGrid";
+
+import { Button } from "@/components/ui/button";
+import { Users, Plus } from "lucide-react";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
-import { analytics } from "@/lib/analytics";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, search, changePage, changeFilter } = useMultiSearch();
+  const { 
+    user, 
+    isLoading: authLoading, 
+    authenticate, 
+    getInviteText, 
+    generatePassword,
+    likeSite,
+    dislikeSite,
+    addToFavorites,
+    removeFromFavorites,
+    logout,
+    isAuthenticated 
+  } = useAuth();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
-  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const [searchMode, setSearchMode] = useState<SearchMode>("general");
+  const [lastSearchQuery, setLastSearchQuery] = useState("");
 
-  // Track page view on mount
+
+
+
   useEffect(() => {
-    analytics.track('page_view', { url: window.location.href });
+    // Show invite modal if not authenticated after loading
+    if (!authLoading && !isAuthenticated) {
+      setShowInviteModal(true);
+    }
+  }, [authLoading, isAuthenticated]);
+
+  useEffect(() => {
+    // Hidden admin access with keyboard shortcut
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        setShowAdminPanel(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
   const handleSearch = (query: string) => {
-    search(query, selectedPlatform, 1);
+    if (!isAuthenticated) {
+      setShowInviteModal(true);
+      return;
+    }
+    setLastSearchQuery(query);
+    search(query, selectedPlatform, 1, searchMode === "favorites");
   };
 
   const handleFilterChange = (platform: Platform) => {
+    if (!isAuthenticated) {
+      setShowInviteModal(true);
+      return;
+    }
     setSelectedPlatform(platform);
     if (hasSearched) {
-      changeFilter(platform);
+      changeFilter(platform, searchMode === "favorites");
     }
   };
 
+  const handleSearchModeChange = (mode: SearchMode) => {
+    setSearchMode(mode);
+    if (hasSearched && lastSearchQuery) {
+      // Re-run last search with new mode
+      search(lastSearchQuery, selectedPlatform, 1, mode === "favorites");
+    }
+  };
+
+
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Grid Background */}
+      <AnimatedGrid />
+      
       {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-foreground/[0.01] rounded-full blur-3xl" />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
-                            linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }}
-      />
-
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
+      <header className="relative z-20 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          {isAuthenticated && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSuggestModal(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Suggest
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowInviteModal(true)}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Invite
+              </Button>
+              {user && (
+                <UserProfile
+                  user={user}
+                  onLogout={logout}
+                  onShowFavorites={() => setShowFavoritesModal(true)}
+                  onShowSettings={() => {}} // TODO: Implement settings
+                />
+              )}
+            </>
+          )}
+          {!isAuthenticated && (
+            <Button
+              variant="outline"
+              onClick={() => setShowInviteModal(true)}
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 px-6 md:px-12">
+      <main className="relative z-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           {/* Hero section */}
           <div className={`text-center ${hasSearched || isLoading ? 'py-8 md:py-12' : 'py-16 md:py-24'} transition-all duration-500`}>
@@ -68,9 +162,12 @@ const Index = () => {
               Discover portfolios, tools, and projects across popular hosting platforms
             </p>
             <div className="animate-fade-up stagger-2 mb-6">
+              <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
+            </div>
+            <div className="animate-fade-up stagger-3 mb-6">
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
             </div>
-            <div className="animate-fade-up stagger-3">
+            <div className="animate-fade-up stagger-4">
               <SearchInput onSearch={handleSearch} isLoading={isLoading} />
             </div>
           </div>
@@ -101,12 +198,18 @@ const Index = () => {
                     snippet={result.snippet}
                     platform={result.platform}
                     index={index}
+                    onLike={likeSite}
+                    onDislike={dislikeSite}
+                    onAddToFavorites={addToFavorites}
+                    isLiked={user?.likedSites?.includes(result.link) || false}
+                    isDisliked={user?.dislikedSites?.includes(result.link) || false}
+                    isFavorite={user?.favorites?.includes(result.link) || false}
                   />
                 ))}
                 <ResultsPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={changePage}
+                  onPageChange={(page) => changePage(page, searchMode === "favorites")}
                 />
               </div>
             )}
@@ -119,7 +222,7 @@ const Index = () => {
       </main>
 
       {/* Big Brand Text */}
-      <div className="relative z-10 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
+      <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
         <div className="max-w-8xl mx-auto text-center">
           <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
             #YOUREL
@@ -128,7 +231,7 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-border py-6 px-6 md:px-12">
+      <footer className="relative z-20 border-t border-border py-6 px-6 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>Built for you ♥</p>
           <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
@@ -166,10 +269,34 @@ const Index = () => {
         </div>
       </footer>
 
-      <SupportModal 
-        isOpen={showSupportModal} 
-        onClose={() => setShowSupportModal(false)} 
+      <InviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onAuthenticate={authenticate}
+        userInviteCode={user?.inviteCode}
+        inviteText={getInviteText()}
+        remainingInvites={user?.inviteCount || 0}
+        generatePassword={generatePassword}
       />
+
+      <FavoritesModal
+        isOpen={showFavoritesModal}
+        onClose={() => setShowFavoritesModal(false)}
+        favorites={user?.favorites || []}
+        onRemoveFromFavorites={removeFromFavorites}
+      />
+
+      <SuggestWebsiteModal
+        isOpen={showSuggestModal}
+        onClose={() => setShowSuggestModal(false)}
+      />
+
+      <AdminPanel
+        isOpen={showAdminPanel}
+        onClose={() => setShowAdminPanel(false)}
+      />
+
+
     </div>
   );
 };

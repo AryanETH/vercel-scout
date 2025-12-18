@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Logo</title>
+</head>
+<body>
+    <canvas id="canvas" width="120" height="90"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 120, 90);
+        gradient.addColorStop(0, '#3B82F6');
+        gradient.addColorStop(1, '#8B5CF6');
+        
+        // Draw rounded rectangle
+        ctx.fillStyle = gradient;
+        ctx.roundRect(0, 0, 120, 90, 15);
+        ctx.fill();
+        
+        // Draw arrow/chevron
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(30, 30);
+        ctx.lineTo(60, 60);
+        ctx.lineTo(90, 30);
+        ctx.stroke();
+        
+        // Draw text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('YOUREL', 60, 75);
+        
+        // Convert to PNG and download
+        const link = document.createElement('a');
+        link.download = 'yourel-logo.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    </script>
+</body>
+</html>

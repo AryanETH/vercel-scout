@@ -1,15 +1,41 @@
+import { useImagePreloader } from "@/hooks/useImagePreloader";
+
 export function Logo() {
+  const { isLoaded, cachedSrc } = useImagePreloader('/yourel-logo.png');
+
   return (
-    <div className="flex items-center gap-[1px] animate-fade-up">
+    <div className="flex items-center gap-3 animate-fade-up">
       <div
-        className="relative"
-        style={{ width: "80px", height: "60px" }}
+        className="relative flex items-center justify-center"
+        style={{ width: "60px", height: "60px" }}
       >
-        <img
-          src="/yourel-logo.png"
-          alt="Yourel Logo"
-          className="w-full h-full object-contain"
-        />
+        {isLoaded && cachedSrc ? (
+          <img
+            src={cachedSrc}
+            alt="Yourel Logo"
+            className="w-full h-full object-contain rounded-lg"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
+        ) : (
+          // Fallback while loading
+          <div className="w-full h-full rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg flex items-center justify-center">
+            <svg 
+              width="32" 
+              height="24" 
+              viewBox="0 0 32 24" 
+              fill="none" 
+              className="text-white"
+            >
+              <path 
+                d="M4 4L16 16L28 4" 
+                stroke="currentColor" 
+                strokeWidth="3" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        )}
       </div>
 
       <div>
