@@ -44,7 +44,7 @@ export function useSearchSuggestions(query: string) {
 }
 
 function generateFallbackSuggestions(query: string): string[] {
-  const baseTerms = [
+  const commonTerms = [
     'portfolio',
     'dashboard',
     'landing page',
@@ -54,32 +54,32 @@ function generateFallbackSuggestions(query: string): string[] {
     'template',
     'starter',
     'app',
-    'website'
+    'website',
+    'design',
+    'project',
+    'demo',
+    'example'
   ];
 
-  const platforms = ['vercel', 'github', 'netlify'];
-  
   const suggestions: string[] = [];
+  const lowerQuery = query.toLowerCase();
   
-  // Add query variations
-  baseTerms.forEach(term => {
-    if (term.toLowerCase().includes(query.toLowerCase()) || 
-        query.toLowerCase().includes(term.toLowerCase().substring(0, 3))) {
+  // Add query + common terms
+  commonTerms.forEach(term => {
+    if (term.includes(lowerQuery) || lowerQuery.includes(term.substring(0, 3))) {
       suggestions.push(`${query} ${term}`);
-      platforms.forEach(platform => {
-        suggestions.push(`${query} ${term} site:${platform}.app`);
-      });
     }
   });
 
-  // If no matches, suggest with platforms
-  if (suggestions.length === 0) {
-    suggestions.push(`${query} site:vercel.app`);
-    suggestions.push(`${query} site:github.io`);
+  // If few matches, add generic suggestions
+  if (suggestions.length < 5) {
     suggestions.push(`${query} portfolio`);
     suggestions.push(`${query} template`);
     suggestions.push(`${query} dashboard`);
+    suggestions.push(`${query} website`);
+    suggestions.push(`${query} app`);
   }
 
-  return suggestions.slice(0, 8);
+  // Remove duplicates and return
+  return [...new Set(suggestions)].slice(0, 8);
 }
