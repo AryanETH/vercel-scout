@@ -158,10 +158,10 @@ const Index = () => {
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
                 Discover The Undiscovered
               </p>
-              <div className="animate-fade-up stagger-4 mb-8">
+              <div className="animate-fade-up stagger-4 mb-8 relative z-30">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} />
               </div>
-              <div className="animate-fade-up stagger-3 mb-6">
+              <div className="animate-fade-up stagger-3 mb-6 relative z-20">
                 <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
               </div>
             </div>
@@ -171,10 +171,10 @@ const Index = () => {
           {(hasSearched || isLoading) && (
             <div className="mb-6 py-4">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex-1 max-w-md">
+                <div className="flex-1 max-w-md relative z-30">
                   <SearchInput onSearch={handleSearch} isLoading={isLoading} />
                 </div>
-                <div className="flex items-center gap-4 ml-6">
+                <div className="flex items-center gap-4 ml-6 relative z-20">
                   <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
                 </div>
               </div>
