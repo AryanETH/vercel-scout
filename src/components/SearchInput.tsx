@@ -151,7 +151,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
       {showSuggestions && (
         <div 
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-2 glass rounded-xl overflow-hidden shadow-lg z-50 animate-fade-in"
+          className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl overflow-hidden shadow-xl z-[100] animate-fade-in"
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -160,7 +160,7 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
               onClick={() => handleSuggestionClick(suggestion)}
               className={`w-full px-5 py-3 text-left flex items-center gap-3 transition-colors duration-150 ${
                 index === selectedIndex 
-                  ? 'bg-muted/80' 
+                  ? 'bg-muted' 
                   : 'hover:bg-muted/50'
               }`}
             >
