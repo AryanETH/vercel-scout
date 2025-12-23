@@ -119,29 +119,32 @@ const Index = () => {
         <div className="flex items-center gap-2">
           {/* Platform filter dropdown in header when results shown */}
           {(hasSearched || isLoading) && (
-            <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+            <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
           )}
           
           {isAuthenticated && (
             <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSuggestModal(true)}
-                className={hasSearched || isLoading ? 'hidden md:flex' : ''}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Suggest
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowInviteModal(true)}
-                className={hasSearched || isLoading ? 'hidden md:flex' : ''}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Invite
-              </Button>
+              {/* Only show Suggest and Invite on home screen, not on results */}
+              {!hasSearched && !isLoading && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSuggestModal(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Suggest
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowInviteModal(true)}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Invite
+                  </Button>
+                </>
+              )}
               {user && (
                 <UserProfile
                   user={user}
