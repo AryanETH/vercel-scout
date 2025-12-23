@@ -2,7 +2,6 @@ import { ExternalLink, Sparkles, Wrench, Gem, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { topPicksIndexer } from "@/lib/topPicksIndexer";
 import { fallbackTopPicks } from "@/lib/fallbackPicks";
-import { GoogleCSEFallback } from "./GoogleCSEFallback";
 
 interface IndexedSite {
   title: string;
@@ -43,7 +42,6 @@ export function TopPicks() {
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [showCSE, setShowCSE] = useState(false);
 
   useEffect(() => {
     const loadTopPicks = async () => {
@@ -121,11 +119,6 @@ export function TopPicks() {
   }, []);
 
   const categories = Object.keys(categoryConfig) as Array<keyof typeof categoryConfig>;
-
-  // Show Google CSE fallback if requested
-  if (showCSE) {
-    return <GoogleCSEFallback onClose={() => setShowCSE(false)} />;
-  }
 
   return (
     <div className="space-y-12 animate-fade-up">

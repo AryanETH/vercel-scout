@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { AnimatedGrid } from "./AnimatedGrid";
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -25,7 +24,6 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
-      <AnimatedGrid />
       <div className="text-center space-y-8 relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-4 animate-pulse">

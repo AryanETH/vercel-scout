@@ -14,7 +14,6 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { AdminPanel } from "@/components/AdminPanel";
-import { AnimatedGrid } from "@/components/AnimatedGrid";
 
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
@@ -99,9 +98,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated Grid Background */}
-      <AnimatedGrid />
-      
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
