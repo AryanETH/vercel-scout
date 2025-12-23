@@ -1,11 +1,20 @@
 import { cn } from "@/lib/utils";
 import { analytics } from "@/lib/analytics";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Filter } from "lucide-react";
 
 export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable";
 
 interface PlatformFiltersProps {
   selected: Platform;
   onChange: (platform: Platform) => void;
+  variant?: "pills" | "dropdown";
 }
 
 const filters: { id: Platform; label: string }[] = [
@@ -23,14 +32,46 @@ const filters: { id: Platform; label: string }[] = [
   { id: "lovable", label: "Lovable" },
 ];
 
-export function PlatformFilters({ selected, onChange }: PlatformFiltersProps) {
+export function PlatformFilters({ selected, onChange, variant = "pills" }: PlatformFiltersProps) {
+  const selectedLabel = filters.find(f => f.id === selected)?.label || "All";
+
+  if (variant === "dropdown") {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Filter className="w-4 h-4" />
+            {selectedLabel}
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+          {filters.map((filter) => (
+            <DropdownMenuItem
+              key={filter.id}
+              onClick={() => {
+                analytics.track('platform_filter', { platform: filter.id });
+                onChange(filter.id);
+              }}
+              className={cn(
+                "cursor-pointer",
+                selected === filter.id && "bg-accent text-accent-foreground font-medium"
+              )}
+            >
+              {filter.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center gap-2 flex-wrap">
       {filters.map((filter) => (
         <button
           key={filter.id}
           onClick={() => {
-            // Track platform filter usage
             analytics.track('platform_filter', { platform: filter.id });
             onChange(filter.id);
           }}
