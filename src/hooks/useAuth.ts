@@ -182,7 +182,65 @@ export function useAuth() {
   };
 
   const generatePassword = (): string => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    const passwordTypes = [
+      // Numbers only
+      () => Math.floor(100000 + Math.random() * 900000).toString(),
+      
+      // Words + numbers
+      () => {
+        const words = ['scout', 'search', 'find', 'web', 'site', 'app', 'dev', 'code', 'tech', 'cool', 'fast', 'new'];
+        const word = words[Math.floor(Math.random() * words.length)];
+        const num = Math.floor(10 + Math.random() * 90);
+        return word + num;
+      },
+      
+      // Mixed characters (letters + numbers)
+      () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      },
+      
+      // Word combinations
+      () => {
+        const adjectives = ['cool', 'fast', 'new', 'hot', 'top', 'big', 'fun', 'pro'];
+        const nouns = ['site', 'app', 'web', 'dev', 'code', 'tech', 'user', 'find'];
+        const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+        const noun = nouns[Math.floor(Math.random() * nouns.length)];
+        const num = Math.floor(10 + Math.random() * 90);
+        return adj + noun + num;
+      },
+      
+      // Mixed case with symbols
+      () => {
+        const lower = 'abcdefghijklmnopqrstuvwxyz';
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numbers = '0123456789';
+        const symbols = '!@#$%';
+        const all = lower + upper + numbers + symbols;
+        let result = '';
+        
+        // Ensure at least one of each type
+        result += lower[Math.floor(Math.random() * lower.length)];
+        result += upper[Math.floor(Math.random() * upper.length)];
+        result += numbers[Math.floor(Math.random() * numbers.length)];
+        
+        // Fill the rest randomly
+        for (let i = 3; i < 8; i++) {
+          result += all[Math.floor(Math.random() * all.length)];
+        }
+        
+        // Shuffle the result
+        return result.split('').sort(() => Math.random() - 0.5).join('');
+      }
+    ];
+    
+    // Randomly select a password type
+    const selectedType = passwordTypes[Math.floor(Math.random() * passwordTypes.length)];
+    return selectedType();
   };
 
   const likeSite = (url: string) => {

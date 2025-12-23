@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,117 @@ export function InviteModal({
   const [password, setPassword] = useState("");
   const [isNewUser, setIsNewUser] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [usernameSuggestions, setUsernameSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'available' | 'taken' | 'checking' | null>(null);
   const { toast } = useToast();
+
+  // Check if username exists in database
+  const checkUsernameAvailability = (usernameToCheck: string): boolean => {
+    if (!usernameToCheck.trim()) return true;
+    
+    const existingUsers = JSON.parse(localStorage.getItem("yourel_users") || "[]");
+    return !existingUsers.some((user: any) => user.username === usernameToCheck);
+  };
+
+  // Generate username suggestions based on first and last name
+  useEffect(() => {
+    if (firstName.trim() && lastName.trim()) {
+      const suggestions = generateUsernameSuggestions(firstName.trim(), lastName.trim());
+      setUsernameSuggestions(suggestions);
+    } else {
+      setUsernameSuggestions([]);
+    }
+  }, [firstName, lastName]);
+
+  // Check username availability when username changes
+  useEffect(() => {
+    if (username.trim() && isNewUser) {
+      setUsernameStatus('checking');
+      
+      // Debounce the check
+      const timeoutId = setTimeout(() => {
+        const isAvailable = checkUsernameAvailability(username);
+        setUsernameStatus(isAvailable ? 'available' : 'taken');
+        
+        // If username is taken, generate alternative suggestions
+        if (!isAvailable && firstName.trim() && lastName.trim()) {
+          const alternatives = generateAlternativeUsernames(username, firstName, lastName);
+          setUsernameSuggestions(alternatives);
+          setShowSuggestions(true);
+        }
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setUsernameStatus(null);
+    }
+  }, [username, isNewUser, firstName, lastName]);
+
+  const generateUsernameSuggestions = (first: string, last: string): string[] => {
+    const firstLower = first.toLowerCase();
+    const lastLower = last.toLowerCase();
+    const suggestions = [];
+    
+    // Basic combinations
+    suggestions.push(firstLower + lastLower);
+    suggestions.push(firstLower + last.charAt(0).toLowerCase());
+    suggestions.push(first.charAt(0).toLowerCase() + lastLower);
+    
+    // With numbers
+    const randomNums = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 1000), new Date().getFullYear() % 100];
+    suggestions.push(firstLower + randomNums[0]);
+    suggestions.push(lastLower + randomNums[1]);
+    suggestions.push(firstLower + lastLower + randomNums[2]);
+    
+    // With underscores
+    suggestions.push(firstLower + '_' + lastLower);
+    suggestions.push(firstLower + '_' + randomNums[0]);
+    
+    // Creative combinations
+    suggestions.push(firstLower + lastLower.slice(0, 2) + randomNums[0]);
+    suggestions.push(first.charAt(0).toLowerCase() + lastLower + randomNums[1]);
+    
+    // Filter out existing usernames and remove duplicates
+    const uniqueSuggestions = [...new Set(suggestions)];
+    const availableSuggestions = uniqueSuggestions.filter(suggestion => checkUsernameAvailability(suggestion));
+    
+    return availableSuggestions.slice(0, 6);
+  };
+
+  const generateAlternativeUsernames = (takenUsername: string, first: string, last: string): string[] => {
+    const alternatives = [];
+    const firstLower = first.toLowerCase();
+    const lastLower = last.toLowerCase();
+    
+    // Add numbers to the taken username
+    for (let i = 1; i <= 99; i++) {
+      const alternative = takenUsername + i;
+      if (checkUsernameAvailability(alternative)) {
+        alternatives.push(alternative);
+        if (alternatives.length >= 3) break;
+      }
+    }
+    
+    // Add more creative alternatives
+    const moreAlternatives = [
+      takenUsername + '_' + Math.floor(Math.random() * 100),
+      firstLower + '_' + lastLower + Math.floor(Math.random() * 100),
+      first.charAt(0).toLowerCase() + lastLower + Math.floor(Math.random() * 1000),
+      firstLower + lastLower.slice(0, 3) + Math.floor(Math.random() * 100),
+      takenUsername + 'x' + Math.floor(Math.random() * 100),
+      'the' + takenUsername,
+      takenUsername + 'official'
+    ];
+    
+    for (const alt of moreAlternatives) {
+      if (checkUsernameAvailability(alt) && alternatives.length < 6) {
+        alternatives.push(alt);
+      }
+    }
+    
+    return alternatives.slice(0, 6);
+  };
 
   const handleAuthenticate = async () => {
     if (!inviteCodeOrUsername.trim()) return;
@@ -42,15 +152,6 @@ export function InviteModal({
         toast({
           title: "Missing Information",
           description: "Please fill in all fields",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (password.length !== 6 || !/^\d+$/.test(password)) {
-        toast({
-          title: "Invalid Password",
-          description: "Password must be exactly 6 digits",
           variant: "destructive",
         });
         return;
@@ -93,13 +194,9 @@ export function InviteModal({
     setIsAuthenticating(false);
   };
 
-  const handleGeneratePassword = () => {
-    const newPassword = generatePassword();
-    setPassword(newPassword);
-    toast({
-      title: "Password Generated",
-      description: `Your password is: ${newPassword}. Please save it!`,
-    });
+  const handleSuggestionClick = (suggestion: string) => {
+    setUsername(suggestion);
+    setShowSuggestions(false);
   };
 
   const shareInvite = async () => {
@@ -190,7 +287,7 @@ export function InviteModal({
                     <Label htmlFor="first-name">First Name</Label>
                     <Input
                       id="first-name"
-                      placeholder="John"
+                      placeholder="Valya"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                     />
@@ -199,7 +296,7 @@ export function InviteModal({
                     <Label htmlFor="last-name">Last Name</Label>
                     <Input
                       id="last-name"
-                      placeholder="Doe"
+                      placeholder="Patil"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                     />
@@ -208,36 +305,70 @@ export function InviteModal({
 
                 <div className="space-y-2">
                   <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    placeholder="johndoe"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="username"
+                      placeholder="valya686"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      onFocus={() => setShowSuggestions(usernameSuggestions.length > 0)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      className={`${
+                        usernameStatus === 'available' ? 'border-green-500' :
+                        usernameStatus === 'taken' ? 'border-red-500' : ''
+                      }`}
+                    />
+                    
+                    {/* Username Status Indicator */}
+                    {username.trim() && usernameStatus && (
+                      <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${
+                        usernameStatus === 'available' ? 'text-green-600' :
+                        usernameStatus === 'taken' ? 'text-red-600' :
+                        'text-muted-foreground'
+                      }`}>
+                        {usernameStatus === 'checking' && '...'}
+                        {usernameStatus === 'available' && '✓ Available'}
+                        {usernameStatus === 'taken' && '✗ Taken'}
+                      </div>
+                    )}
+                    
+                    {/* Username Suggestions */}
+                    {showSuggestions && usernameSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                        <div className="p-2 text-xs text-muted-foreground border-b">
+                          {usernameStatus === 'taken' ? 'Try these alternatives:' : 'Suggested usernames:'}
+                        </div>
+                        {usernameSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center justify-between"
+                          >
+                            <span>{suggestion}</span>
+                            <span className="text-xs text-green-600">✓</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Username taken message */}
+                  {usernameStatus === 'taken' && (
+                    <p className="text-xs text-red-600">
+                      This username is already taken. Try one of the suggestions above.
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">6-Digit Password</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="password"
-                      type="text"
-                      placeholder="123456"
-                      value={password}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                        setPassword(value);
-                      }}
-                      maxLength={6}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleGeneratePassword}
-                    >
-                      Generate
-                    </Button>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="text"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
               </>
             ) : (
@@ -257,7 +388,7 @@ export function InviteModal({
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your 6-digit password"
+                    placeholder="Enter password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -267,7 +398,7 @@ export function InviteModal({
             
             <Button 
               onClick={handleAuthenticate} 
-              disabled={isAuthenticating || !inviteCodeOrUsername.trim() || !password.trim()}
+              disabled={isAuthenticating || !inviteCodeOrUsername.trim() || !password.trim() || (isNewUser && usernameStatus === 'taken')}
               className="w-full"
             >
               {isAuthenticating ? "Authenticating..." : (isNewUser ? "Create Account" : "Sign In")}
