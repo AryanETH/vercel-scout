@@ -44,6 +44,7 @@ const Index = () => {
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
+  const [fromSuggestion, setFromSuggestion] = useState(false);
 
 
 
@@ -67,13 +68,18 @@ const Index = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (query: string, isSuggestion = false) => {
     if (!isAuthenticated) {
       setShowInviteModal(true);
       return;
     }
+    setFromSuggestion(isSuggestion);
     setLastSearchQuery(query);
     search(query, selectedPlatform, 1, searchMode === "favorites");
+    // Reset the suggestion flag after a short delay
+    if (isSuggestion) {
+      setTimeout(() => setFromSuggestion(false), 500);
+    }
   };
 
   const handleFilterChange = (platform: Platform) => {
@@ -118,7 +124,7 @@ const Index = () => {
         {/* Search bar in header when results are shown */}
         {(hasSearched || isLoading) && (
           <div className="flex-1 max-w-xl mx-4 relative z-50">
-            <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} />
+            <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
           </div>
         )}
         
