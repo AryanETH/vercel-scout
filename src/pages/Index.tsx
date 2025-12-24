@@ -13,6 +13,7 @@ import { ResultsPagination } from "@/components/ResultsPagination";
 import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { AdminPanel } from "@/components/AdminPanel";
+import { AnimatedGrid } from "@/components/AnimatedGrid";
 
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
@@ -96,35 +97,56 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background decoration */}
+      {/* Animated Grid Background */}
+      <AnimatedGrid />
+      
+      {/* Additional background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-foreground/[0.01] rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/[0.03] to-blue-500/[0.03] rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-blue-500/[0.03] to-purple-500/[0.03] rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/[0.01] via-blue-500/[0.01] to-purple-500/[0.01] rounded-full blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
+      {/* Header - changes layout based on search state */}
+      <header className={`relative z-50 flex items-center justify-between px-6 py-4 md:px-12 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
         <Logo />
+        
+        {/* Search bar in header when results are shown */}
+        {(hasSearched || isLoading) && (
+          <div className="flex-1 max-w-xl mx-4 relative z-50">
+            <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+          </div>
+        )}
+        
         <div className="flex items-center gap-2">
+          {/* Platform filter dropdown in header when results shown */}
+          {(hasSearched || isLoading) && (
+            <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+          )}
+          
           {isAuthenticated && (
             <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSuggestModal(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Suggest
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowInviteModal(true)}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Invite
-              </Button>
+              {/* Only show Suggest and Invite on home screen, not on results */}
+              {!hasSearched && !isLoading && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSuggestModal(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Suggest
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowInviteModal(true)}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Invite
+                  </Button>
+                </>
+              )}
               {user && (
                 <UserProfile
                   user={user}
@@ -165,18 +187,9 @@ const Index = () => {
             </div>
           )}
 
-          {/* Compact search header when results are shown */}
+          {/* Search mode tabs when results are shown */}
           {(hasSearched || isLoading) && (
-            <div className="mb-6 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1 max-w-md relative z-30">
-                  <SearchInput onSearch={handleSearch} isLoading={isLoading} />
-                </div>
-                <div className="flex items-center gap-4 ml-6 relative z-20">
-                  <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
-                </div>
-              </div>
-              {/* Search mode tabs below search bar like Google */}
+            <div className="mb-6 pt-2">
               <div className="border-b border-border">
                 <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
               </div>
@@ -232,14 +245,16 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Big Brand Text */}
-      <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
-        <div className="max-w-8xl mx-auto text-center">
-          <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
-            #YOUREL
-          </h2>
+      {/* Big Brand Text - only show on home, not results */}
+      {!hasSearched && !isLoading && (
+        <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
+          <div className="max-w-8xl mx-auto text-center">
+            <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+              #YOUREL
+            </h2>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <footer className="relative z-20 border-t border-border py-6 px-6 md:px-12">
