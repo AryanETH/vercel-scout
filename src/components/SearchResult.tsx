@@ -24,7 +24,7 @@ const platformLogos: Record<string, string> = {
   bubble: "/logos/bubble.png",
   framer: "/logos/framer.png",
   replit: "/logos/replit.png",
-  bolt: "/logos/bolt.ico",
+  bolt: "/logos/bolt.png",
   fly: "/logos/fly.svg",
   lovable: "/logos/lovable.ico",
 };

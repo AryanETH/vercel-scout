@@ -28,7 +28,7 @@ const platformConfig: Record<Platform, { label: string; logo: string; color: str
   bubble: { label: "Bubble", logo: "/logos/bubble.png", color: "from-blue-400 to-blue-600" },
   framer: { label: "Framer", logo: "/logos/framer.png", color: "from-pink-500 to-purple-500" },
   replit: { label: "Replit", logo: "/logos/replit.png", color: "from-orange-400 to-orange-600" },
-  bolt: { label: "Bolt", logo: "/logos/bolt.ico", color: "from-yellow-400 to-yellow-600" },
+  bolt: { label: "Bolt", logo: "/logos/bolt.png", color: "from-yellow-400 to-yellow-600" },
   fly: { label: "Fly.io", logo: "/logos/fly.svg", color: "from-violet-500 to-violet-700" },
   lovable: { label: "Lovable", logo: "/logos/lovable.ico", color: "from-pink-500 to-rose-500" },
 };
