@@ -98,12 +98,85 @@ export function SearchResult({
       target="_blank"
       rel="noopener noreferrer"
       className={`
-        group block overflow-hidden hover:bg-muted/30
-        hover:shadow-lg transition-all duration-300 opacity-0 animate-slide-up
+        group block hover:bg-muted/30
+        transition-all duration-300 opacity-0 animate-slide-up
       `}
       style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
     >
-      <div className="flex">
+      {/* Mobile: Google-style vertical stack */}
+      <div className="md:hidden py-3">
+        {/* URL row with favicon */}
+        <div className="flex items-center gap-2 mb-1">
+          {detectedPlatform && logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt={detectedPlatform} 
+              className="w-4 h-4 object-contain rounded-sm"
+            />
+          ) : (
+            <div className="w-4 h-4 rounded-sm bg-muted flex items-center justify-center">
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                {displayUrl.charAt(0)}
+              </span>
+            </div>
+          )}
+          <span className="text-xs text-muted-foreground truncate">
+            {displayUrl}
+          </span>
+        </div>
+        
+        {/* Title */}
+        <h3 className="text-lg font-normal text-primary leading-snug mb-1 line-clamp-2">
+          {title}
+        </h3>
+        
+        {/* Snippet */}
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {snippet}
+        </p>
+        
+        {/* Action buttons - always visible on mobile */}
+        <div className="flex items-center gap-2 mt-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onLike?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onDislike?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
+          >
+            <ThumbsDown className="w-3.5 h-3.5" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onAddToFavorites?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop: With preview image */}
+      <div className="hidden md:flex">
         {/* Content - Left Side */}
         <div className="flex-1 p-4 min-w-0">
           {/* Platform badge + URL */}
@@ -175,8 +248,8 @@ export function SearchResult({
           </div>
         </div>
         
-        {/* Website Preview Image - Right Side */}
-        <div className="relative w-40 md:w-48 flex-shrink-0 overflow-hidden bg-muted rounded-md">
+        {/* Website Preview Image - Right Side (Desktop only) */}
+        <div className="relative w-48 flex-shrink-0 overflow-hidden bg-muted rounded-md">
           {!imageError ? (
             <>
               {imageLoading && (

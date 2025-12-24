@@ -205,7 +205,7 @@ const Index = () => {
       </header>
 
       {/* Main content */}
-      <main className="relative z-20 px-6 md:px-12">
+      <main className="relative z-20 px-4 md:px-12">
         <div className={hasSearched || isLoading ? "" : "max-w-4xl mx-auto"}>
           {/* Hero section */}
           {!hasSearched && !isLoading && (
@@ -232,8 +232,8 @@ const Index = () => {
                   <Logo />
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="mb-6 pt-2">
+                <div className="min-w-0 flex-1 max-w-2xl">
+                  <div className="mb-4 pt-2">
                     <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
                   </div>
 
