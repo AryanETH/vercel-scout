@@ -134,7 +134,7 @@ export function SearchResult({
         </div>
         
         {/* Title - blue link like Google */}
-        <h3 className="text-xl text-primary font-normal leading-snug mb-1 line-clamp-2">
+        <h3 className="text-lg text-[#8ab4f8] dark:text-[#8ab4f8] font-normal leading-snug mb-1 line-clamp-2 group-hover:underline">
           {title}
         </h3>
         
