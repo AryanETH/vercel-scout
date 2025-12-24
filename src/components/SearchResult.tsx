@@ -63,9 +63,9 @@ function getPlatformFromUrl(url: string): string | null {
 }
 
 function getScreenshotUrl(url: string): string {
-  // Use microlink.io for website screenshots (free tier available)
+  // Use a reliable screenshot service
   const encodedUrl = encodeURIComponent(url);
-  return `https://api.microlink.io/?url=${encodedUrl}&screenshot=true&meta=false&embed=screenshot.url`;
+  return `https://image.thum.io/get/width/400/crop/300/${url}`;
 }
 
 export function SearchResult({ 
