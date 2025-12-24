@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-
-const API_KEY = 'AIzaSyByFwruZ-h21A5YUNn6jj9qyBaeHBNgGSQ';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useSearchSuggestions(query: string) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -14,19 +13,21 @@ export function useSearchSuggestions(query: string) {
 
     setIsLoading(true);
     try {
-      // Use Google's autocomplete API via a CORS proxy or fallback to static suggestions
-      const response = await fetch(
-        `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(searchQuery)}`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data[1]?.slice(0, 8) || []);
+      const { data, error } = await supabase.functions.invoke('search-suggestions', {
+        body: { query: searchQuery },
+      });
+
+      if (error) {
+        console.warn('Suggestions API error:', error);
+        setSuggestions(generateFallbackSuggestions(searchQuery));
+      } else if (data?.success && Array.isArray(data.suggestions)) {
+        setSuggestions(data.suggestions.slice(0, 8));
+      } else {
+        setSuggestions(generateFallbackSuggestions(searchQuery));
       }
     } catch (error) {
-      // Fallback to generated suggestions based on query
-      const platformSuggestions = generateFallbackSuggestions(searchQuery);
-      setSuggestions(platformSuggestions);
+      console.warn('Failed to fetch suggestions:', error);
+      setSuggestions(generateFallbackSuggestions(searchQuery));
     } finally {
       setIsLoading(false);
     }
