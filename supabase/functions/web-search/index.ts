@@ -75,57 +75,110 @@ Deno.serve(async (req) => {
 
     const normalizedLimit = Math.min(Math.max(Number(limit) || 10, 1), 100);
 
-    let effectiveQuery = query.trim();
-    if (platform && platform !== "all" && PLATFORM_SITES[String(platform)]) {
-      effectiveQuery = `${effectiveQuery} ${PLATFORM_SITES[String(platform)]}`;
-    }
+    let results: any[] = [];
 
-    console.log("Web searching:", { query, platform, effectiveQuery, limit: normalizedLimit });
+    // When "all" is selected, search across all platform sites and combine results
+    if (!platform || platform === "all") {
+      const allSiteFilters = Object.values(PLATFORM_SITES).join(" OR ");
+      const effectiveQuery = `${query.trim()} (${allSiteFilters})`;
+      
+      console.log("Web searching ALL platforms:", { query, effectiveQuery, limit: normalizedLimit });
 
-    const firecrawlResp = await fetch("https://api.firecrawl.dev/v1/search", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: effectiveQuery,
-        limit: normalizedLimit,
-      }),
-    });
-
-    const firecrawlJson = await firecrawlResp.json();
-
-    if (!firecrawlResp.ok || !firecrawlJson?.success) {
-      console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
-      return new Response(JSON.stringify({ success: false, error: firecrawlJson?.error || "Search failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      const firecrawlResp = await fetch("https://api.firecrawl.dev/v1/search", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: effectiveQuery,
+          limit: normalizedLimit,
+        }),
       });
-    }
 
-    const list = Array.isArray(firecrawlJson.data)
-      ? firecrawlJson.data
-      : Array.isArray(firecrawlJson.data?.data)
-        ? firecrawlJson.data.data
-        : [];
+      const firecrawlJson = await firecrawlResp.json();
 
-    const results = list
-      .filter((r: any) => r?.url)
-      .map((r: any) => {
-        const url = String(r.url);
-        const detectedPlatform = platform && platform !== "all" ? String(platform) : detectPlatform(url);
-        return {
-          id: url,
-          url,
-          title: String(r.title || new URL(url).hostname),
-          description: r.description ? String(r.description) : null,
-          platform: detectedPlatform,
-          favicon_url: faviconFor(url) || null,
-          search_score: 0,
-          tags: [],
-        };
+      if (!firecrawlResp.ok || !firecrawlJson?.success) {
+        console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
+        return new Response(JSON.stringify({ success: false, error: firecrawlJson?.error || "Search failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const list = Array.isArray(firecrawlJson.data)
+        ? firecrawlJson.data
+        : Array.isArray(firecrawlJson.data?.data)
+          ? firecrawlJson.data.data
+          : [];
+
+      results = list
+        .filter((r: any) => r?.url)
+        .map((r: any) => {
+          const url = String(r.url);
+          return {
+            id: url,
+            url,
+            title: String(r.title || new URL(url).hostname),
+            description: r.description ? String(r.description) : null,
+            platform: detectPlatform(url),
+            favicon_url: faviconFor(url) || null,
+            search_score: 0,
+            tags: [],
+          };
+        });
+    } else {
+      // Single platform search
+      const effectiveQuery = PLATFORM_SITES[String(platform)]
+        ? `${query.trim()} ${PLATFORM_SITES[String(platform)]}`
+        : query.trim();
+
+      console.log("Web searching:", { query, platform, effectiveQuery, limit: normalizedLimit });
+
+      const firecrawlResp = await fetch("https://api.firecrawl.dev/v1/search", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: effectiveQuery,
+          limit: normalizedLimit,
+        }),
       });
+
+      const firecrawlJson = await firecrawlResp.json();
+
+      if (!firecrawlResp.ok || !firecrawlJson?.success) {
+        console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
+        return new Response(JSON.stringify({ success: false, error: firecrawlJson?.error || "Search failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const list = Array.isArray(firecrawlJson.data)
+        ? firecrawlJson.data
+        : Array.isArray(firecrawlJson.data?.data)
+          ? firecrawlJson.data.data
+          : [];
+
+      results = list
+        .filter((r: any) => r?.url)
+        .map((r: any) => {
+          const url = String(r.url);
+          return {
+            id: url,
+            url,
+            title: String(r.title || new URL(url).hostname),
+            description: r.description ? String(r.description) : null,
+            platform: String(platform),
+            favicon_url: faviconFor(url) || null,
+            search_score: 0,
+            tags: [],
+          };
+        });
+    }
 
     // Log for basic analytics
     try {
