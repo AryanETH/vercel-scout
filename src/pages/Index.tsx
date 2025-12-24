@@ -118,7 +118,7 @@ const Index = () => {
         {/* Search bar in header when results are shown */}
         {(hasSearched || isLoading) && (
           <div className="flex-1 max-w-xl mx-4 relative z-50">
-            <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+            <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} />
           </div>
         )}
         
