@@ -206,7 +206,7 @@ const Index = () => {
 
       {/* Main content */}
       <main className="relative z-20 px-6 md:px-12">
-        <div className="max-w-4xl mx-auto">
+        <div className={`${hasSearched || isLoading ? 'max-w-5xl' : 'max-w-4xl mx-auto'}`}>
           {/* Hero section */}
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
@@ -223,9 +223,9 @@ const Index = () => {
             </div>
           )}
 
-          {/* Search mode tabs when results are shown */}
+          {/* Search mode tabs when results are shown - left aligned */}
           {(hasSearched || isLoading) && (
-            <div className="mb-6 pt-2">
+            <div className="mb-6 pt-2 flex justify-start">
               <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
             </div>
           )}
