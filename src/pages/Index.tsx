@@ -206,7 +206,7 @@ const Index = () => {
 
       {/* Main content */}
       <main className="relative z-20 px-6 md:px-12">
-        <div className={`${hasSearched || isLoading ? 'max-w-5xl' : 'max-w-4xl mx-auto'}`}>
+        <div className={hasSearched || isLoading ? "" : "max-w-4xl mx-auto"}>
           {/* Hero section */}
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
@@ -223,67 +223,75 @@ const Index = () => {
             </div>
           )}
 
-          {/* Search mode tabs when results are shown - left aligned */}
+          {/* Results view */}
           {(hasSearched || isLoading) && (
-            <div className="mb-6 pt-2 flex justify-start">
-              <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
+            <div className="pb-20">
+              <div className="flex items-start gap-4 md:gap-6">
+                {/* Desktop spacer: aligns content under the search input (not under the logo) */}
+                <div className="hidden md:block invisible shrink-0" aria-hidden="true">
+                  <Logo />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="mb-6 pt-2">
+                    <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
+                  </div>
+
+                  {error && (
+                    <div className="glass rounded-2xl p-6 text-center animate-scale-in">
+                      <p className="text-destructive font-medium">{error}</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Please try again or check your connection.
+                      </p>
+                    </div>
+                  )}
+
+                  {isLoading && <SearchSkeleton />}
+
+                  {/* AI Summary */}
+                  {!isLoading && !error && hasSearched && (
+                    <AISummaryCard summary={aiSummary} isLoading={isAILoading} searchQuery={lastSearchQuery} />
+                  )}
+
+                  {!isLoading && !error && results.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground mb-4 animate-fade-in">
+                        About {totalResults} results
+                      </p>
+                      {results.map((result, index) => (
+                        <SearchResult
+                          key={`${result.link}-${index}`}
+                          title={result.title}
+                          link={result.link}
+                          snippet={result.snippet}
+                          platform={result.platform}
+                          index={index}
+                          onLike={likeSite}
+                          onDislike={dislikeSite}
+                          onAddToFavorites={addToFavorites}
+                          isLiked={user?.likedSites?.includes(result.link) || false}
+                          isDisliked={user?.dislikedSites?.includes(result.link) || false}
+                          isFavorite={user?.favorites?.includes(result.link) || false}
+                        />
+                      ))}
+                      <ResultsPagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={(page) => changePage(page, searchMode === "favorites")}
+                      />
+
+                      {/* Related Searches */}
+                      <RelatedSearches query={lastSearchQuery} onSearch={handleSearch} />
+                    </div>
+                  )}
+
+                  {!isLoading && !error && results.length === 0 && (
+                    <EmptyState hasSearched={hasSearched} />
+                  )}
+                </div>
+              </div>
             </div>
           )}
-
-          {/* Results section */}
-          <div className="pb-20">
-            {error && (
-              <div className="glass rounded-2xl p-6 text-center animate-scale-in">
-                <p className="text-destructive font-medium">{error}</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Please try again or check your connection.
-                </p>
-              </div>
-            )}
-
-            {isLoading && <SearchSkeleton />}
-
-            {/* AI Summary */}
-            {!isLoading && !error && hasSearched && (
-              <AISummaryCard summary={aiSummary} isLoading={isAILoading} searchQuery={lastSearchQuery} />
-            )}
-
-            {!isLoading && !error && results.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground mb-4 animate-fade-in">
-                  About {totalResults} results
-                </p>
-                {results.map((result, index) => (
-                  <SearchResult
-                    key={`${result.link}-${index}`}
-                    title={result.title}
-                    link={result.link}
-                    snippet={result.snippet}
-                    platform={result.platform}
-                    index={index}
-                    onLike={likeSite}
-                    onDislike={dislikeSite}
-                    onAddToFavorites={addToFavorites}
-                    isLiked={user?.likedSites?.includes(result.link) || false}
-                    isDisliked={user?.dislikedSites?.includes(result.link) || false}
-                    isFavorite={user?.favorites?.includes(result.link) || false}
-                  />
-                ))}
-                <ResultsPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={(page) => changePage(page, searchMode === "favorites")}
-                />
-                
-                {/* Related Searches */}
-                <RelatedSearches query={lastSearchQuery} onSearch={handleSearch} />
-              </div>
-            )}
-
-            {!isLoading && !error && results.length === 0 && (
-              <EmptyState hasSearched={hasSearched} />
-            )}
-          </div>
         </div>
       </main>
 

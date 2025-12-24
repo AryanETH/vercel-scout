@@ -63,9 +63,9 @@ function getPlatformFromUrl(url: string): string | null {
 }
 
 function getScreenshotUrl(url: string): string {
-  // Use a reliable screenshot service
+  // Use WordPress mShots (returns an image directly)
   const encodedUrl = encodeURIComponent(url);
-  return `https://image.thum.io/get/width/400/crop/300/${url}`;
+  return `https://s.wordpress.com/mshots/v1/${encodedUrl}?w=900`;
 }
 
 export function SearchResult({ 
