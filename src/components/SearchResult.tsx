@@ -98,7 +98,7 @@ export function SearchResult({
       target="_blank"
       rel="noopener noreferrer"
       className={`
-        group block rounded-xl overflow-hidden hover:bg-muted/30
+        group block overflow-hidden hover:bg-muted/30
         hover:shadow-lg transition-all duration-300 opacity-0 animate-slide-up
       `}
       style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
