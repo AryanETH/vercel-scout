@@ -243,14 +243,16 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Big Brand Text */}
-      <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
-        <div className="max-w-8xl mx-auto text-center">
-          <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
-            #YOUREL
-          </h2>
+      {/* Big Brand Text - only show on home, not results */}
+      {!hasSearched && !isLoading && (
+        <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
+          <div className="max-w-8xl mx-auto text-center">
+            <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+              #YOUREL
+            </h2>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <footer className="relative z-20 border-t border-border py-6 px-6 md:px-12">
