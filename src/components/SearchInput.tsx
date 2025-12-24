@@ -9,12 +9,13 @@ import { analytics } from "@/lib/analytics";
 interface SearchInputProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
+  externalQuery?: string;
 }
 
 type DropdownPos = { left: number; top: number; width: number };
 
-export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
-  const [query, setQuery] = useState("");
+export function SearchInput({ onSearch, isLoading, externalQuery }: SearchInputProps) {
+  const [query, setQuery] = useState(externalQuery || "");
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -44,6 +45,13 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
       setQuery(transcript);
     }
   }, [transcript]);
+
+  // Sync with external query changes
+  useEffect(() => {
+    if (externalQuery !== undefined) {
+      setQuery(externalQuery);
+    }
+  }, [externalQuery]);
 
   // Show suggestions when we have them and query is long enough
   useEffect(() => {
