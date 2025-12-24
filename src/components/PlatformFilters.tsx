@@ -43,15 +43,20 @@ function PlatformIcon({ platform, size = 16 }: { platform: Platform; size?: numb
   }
   
   return (
-    <img 
-      src={config.logo} 
-      alt={config.label}
-      className="object-contain"
-      style={{ width: size, height: size }}
-      onError={(e) => {
-        e.currentTarget.style.display = 'none';
-      }}
-    />
+    <div 
+      className="rounded-md bg-background/80 p-0.5 flex items-center justify-center"
+      style={{ width: size + 4, height: size + 4 }}
+    >
+      <img 
+        src={config.logo} 
+        alt={config.label}
+        className="object-contain rounded-sm"
+        style={{ width: size, height: size }}
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+    </div>
   );
 }
 
