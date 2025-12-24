@@ -193,9 +193,7 @@ const Index = () => {
           {/* Search mode tabs when results are shown */}
           {(hasSearched || isLoading) && (
             <div className="mb-6 pt-2">
-              <div className="border-b border-border">
-                <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
-              </div>
+              <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
             </div>
           )}
 
