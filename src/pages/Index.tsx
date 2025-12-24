@@ -118,64 +118,90 @@ const Index = () => {
       )}
 
       {/* Header - changes layout based on search state */}
-      <header className={`relative z-50 flex items-center justify-between px-6 py-4 md:px-12 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
-        <Logo />
-        
-        {/* Search bar in header when results are shown */}
-        {(hasSearched || isLoading) && (
-          <div className="flex-1 max-w-xl mx-4 relative z-50">
-            <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
+      <header className={`relative z-50 px-6 py-4 md:px-12 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
+        {/* Results page header layout */}
+        {(hasSearched || isLoading) ? (
+          <div className="flex flex-col gap-3">
+            {/* Top row: Logo, Search bar, Platform filter, User actions */}
+            <div className="flex items-center gap-4">
+              <Logo />
+              
+              {/* Search bar - closer to logo */}
+              <div className="flex-1 max-w-md">
+                <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
+              </div>
+              
+              {/* Platform filter - left side of remaining space */}
+              <div className="hidden md:block">
+                <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+              </div>
+              
+              {/* User actions - right side */}
+              <div className="flex items-center gap-2 ml-auto">
+                {isAuthenticated && user && (
+                  <UserProfile
+                    user={user}
+                    onLogout={logout}
+                    onShowFavorites={() => setShowFavoritesModal(true)}
+                    onShowSettings={() => {}}
+                  />
+                )}
+                {!isAuthenticated && (
+                  <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                    Sign In
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Mobile platform filter */}
+            <div className="md:hidden">
+              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+            </div>
           </div>
-        )}
-        
-        <div className="flex items-center gap-2">
-          {/* Platform filter dropdown in header when results shown */}
-          {(hasSearched || isLoading) && (
-            <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
-          )}
-          
-          {isAuthenticated && (
-            <>
-              {/* Only show Suggest and Invite on home screen, not on results */}
-              {!hasSearched && !isLoading && (
+        ) : (
+          /* Home page header layout */
+          <div className="flex items-center justify-between">
+            <Logo />
+            <div className="flex items-center gap-2 sm:gap-3">
+              {isAuthenticated && (
                 <>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowSuggestModal(true)}
+                    className="px-2 sm:px-3"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add website
+                    <Plus className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Add website</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowInviteModal(true)}
+                    className="px-2 sm:px-3"
                   >
-                    <Users className="w-4 h-4 mr-2" />
-                    Invite
+                    <Users className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Invite</span>
                   </Button>
+                  {user && (
+                    <UserProfile
+                      user={user}
+                      onLogout={logout}
+                      onShowFavorites={() => setShowFavoritesModal(true)}
+                      onShowSettings={() => {}}
+                    />
+                  )}
                 </>
               )}
-              {user && (
-                <UserProfile
-                  user={user}
-                  onLogout={logout}
-                  onShowFavorites={() => setShowFavoritesModal(true)}
-                  onShowSettings={() => {}} // TODO: Implement settings
-                />
+              {!isAuthenticated && (
+                <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                  Sign In
+                </Button>
               )}
-            </>
-          )}
-          {!isAuthenticated && (
-            <Button
-              variant="outline"
-              onClick={() => setShowInviteModal(true)}
-            >
-              Sign In
-            </Button>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main content */}

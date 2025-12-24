@@ -1,4 +1,4 @@
-import { Search, Loader2, Mic } from "lucide-react";
+import { Search, Loader2, Mic, X, Clock } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -21,6 +21,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const { isListening, transcript, isSupported, startListening, stopListening } =
     useVoiceSearch();
@@ -29,6 +30,47 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
 
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Load search history from localStorage
+  useEffect(() => {
+    const savedHistory = localStorage.getItem("yourel_search_history");
+    if (savedHistory) {
+      setSearchHistory(JSON.parse(savedHistory));
+    }
+  }, []);
+
+  // Save search to history
+  const saveToHistory = (searchQuery: string) => {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
+    
+    const updatedHistory = [
+      trimmedQuery,
+      ...searchHistory.filter(h => h.toLowerCase() !== trimmedQuery.toLowerCase())
+    ].slice(0, 10); // Keep only last 10 searches
+    
+    setSearchHistory(updatedHistory);
+    localStorage.setItem("yourel_search_history", JSON.stringify(updatedHistory));
+  };
+
+  // Remove from history
+  const removeFromHistory = (searchQuery: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updatedHistory = searchHistory.filter(h => h !== searchQuery);
+    setSearchHistory(updatedHistory);
+    localStorage.setItem("yourel_search_history", JSON.stringify(updatedHistory));
+  };
+
+  // Get combined suggestions (history + regular suggestions)
+  const getCombinedSuggestions = () => {
+    const historyMatches = searchHistory.filter(h => 
+      h.toLowerCase().includes(query.toLowerCase())
+    );
+    const regularSuggestions = suggestions.filter(s => 
+      !historyMatches.some(h => h.toLowerCase() === s.toLowerCase())
+    );
+    return { historyMatches, regularSuggestions };
+  };
 
   const updateDropdownPos = useCallback(() => {
     if (!inputRef.current) return;
@@ -60,13 +102,18 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
       setShowSuggestions(false);
       return;
     }
-    if (suggestions.length > 0 && query.length >= 2) {
+    const { historyMatches, regularSuggestions } = getCombinedSuggestions();
+    const hasContent = historyMatches.length > 0 || regularSuggestions.length > 0 || (query.length === 0 && searchHistory.length > 0);
+    
+    if (hasContent && isFocused) {
+      setShowSuggestions(true);
+    } else if (query.length >= 2 && suggestions.length > 0) {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
     }
     setSelectedIndex(-1);
-  }, [suggestions, query, suppressSuggestions]);
+  }, [suggestions, query, suppressSuggestions, searchHistory, isFocused]);
 
   // Keep portal dropdown aligned with the input (scroll/resize)
   useEffect(() => {
@@ -108,6 +155,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
+      saveToHistory(query.trim());
       analytics.track("search", { query: query.trim() });
       onSearch(query.trim());
       setShowSuggestions(false);
@@ -117,6 +165,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
+    saveToHistory(suggestion);
     analytics.track("search", { query: suggestion });
     onSearch(suggestion);
     setShowSuggestions(false);
@@ -195,7 +244,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
           <button
             type="button"
             onClick={handleVoiceToggle}
-            className="absolute right-16 p-2 rounded-lg transition-all duration-300 hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="absolute right-16 p-7 rounded-lg transition-all duration-300 hover:bg text-muted-foreground hover:text-foreground"
             title={isListening ? "Stop listening" : "Start voice search"}
           >
             {isListening ? (
@@ -222,7 +271,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
         <button
           type="submit"
           disabled={isLoading || !query.trim()}
-          className="absolute right-2 px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-foreground text-foreground hover:bg-foreground hover:text-background"
+          className="absolute right-2 px-4 py-1.5 rounded-md font-semibold text-xs transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-foreground text-foreground hover:bg-foreground hover:text-background"
         >
           Search
         </button>
@@ -241,19 +290,68 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
               width: dropdownPos.width,
             }}
           >
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleSuggestionClick(suggestion)}
-                className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 ${
-                  index === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
-                }`}
-              >
-                <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm text-foreground truncate">{suggestion}</span>
-              </button>
-            ))}
+            {/* Search History Section */}
+            {(() => {
+              const { historyMatches, regularSuggestions } = getCombinedSuggestions();
+              const showHistory = query.length === 0 ? searchHistory : historyMatches;
+              
+              return (
+                <>
+                  {showHistory.length > 0 && (
+                    <>
+                      <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border/50">
+                        Recent searches
+                      </div>
+                      {showHistory.slice(0, 5).map((historyItem, index) => (
+                        <button
+                          key={`history-${index}`}
+                          type="button"
+                          onClick={() => handleSuggestionClick(historyItem)}
+                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 group ${
+                            index === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
+                          }`}
+                        >
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm text-foreground truncate flex-1">{historyItem}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => removeFromHistory(historyItem, e)}
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/20 rounded transition-all"
+                            title="Remove from history"
+                          >
+                            <X className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Regular Suggestions Section */}
+                  {regularSuggestions.length > 0 && (
+                    <>
+                      {showHistory.length > 0 && (
+                        <div className="px-3 py-2 text-xs text-muted-foreground border-t border-b border-border/50">
+                          Suggestions
+                        </div>
+                      )}
+                      {regularSuggestions.map((suggestion, index) => (
+                        <button
+                          key={`suggestion-${index}`}
+                          type="button"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 ${
+                            index + showHistory.length === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
+                          }`}
+                        >
+                          <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm text-foreground truncate">{suggestion}</span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </>
+              );
+            })()}
           </div>,
           document.body
         )}
