@@ -100,7 +100,7 @@ ${query}
 <2-3 lines explaining that the results consist of FREE, indie-built tools hosted on developer-friendly platforms. State how many free sources were found.>
 
 **Recommended (Free Tools Only - Ranked by Popularity)**
-<For each relevant FREE result, ranked by popularity: URL — 1-line explanation of what it does and why it is useful>
+<List EXACTLY 3 to 4 relevant FREE results (minimum 3, maximum 4), ranked by popularity: URL — 1-line explanation of what it does and why it is useful. Never list more than 4 or fewer than 3.>
 
 **Sources:**
 <comma-separated list of ALL source domains>
