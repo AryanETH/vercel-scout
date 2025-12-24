@@ -17,7 +17,7 @@ import { AnimatedGrid } from "@/components/AnimatedGrid";
 import { AISummaryCard } from "@/components/AISummaryCard";
 
 import { Button } from "@/components/ui/button";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, Heart } from "lucide-react";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -267,7 +267,10 @@ const Index = () => {
       {/* Footer */}
       <footer className="relative z-20 border-t border-border py-6 px-6 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>Built for you ♥</p>
+          <p className="flex items-center gap-2">
+            Built for you 
+            <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
+          </p>
           <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel
