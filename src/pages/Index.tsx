@@ -14,6 +14,7 @@ import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { AdminPanel } from "@/components/AdminPanel";
 import { AnimatedGrid } from "@/components/AnimatedGrid";
+import { AISummaryCard } from "@/components/AISummaryCard";
 
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
@@ -21,7 +22,7 @@ import { useMultiSearch } from "@/hooks/useMultiSearch";
 import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
-  const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, search, changePage, changeFilter } = useMultiSearch();
+  const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, aiSummary, isAILoading, search, changePage, changeFilter } = useMultiSearch();
   const { 
     user, 
     isLoading: authLoading, 
@@ -208,6 +209,11 @@ const Index = () => {
             )}
 
             {isLoading && <SearchSkeleton />}
+
+            {/* AI Summary */}
+            {!isLoading && !error && hasSearched && (
+              <AISummaryCard summary={aiSummary} isLoading={isAILoading} />
+            )}
 
             {!isLoading && !error && results.length > 0 && (
               <div className="space-y-4">
