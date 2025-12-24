@@ -47,7 +47,7 @@ export function TopPicks() {
       setIsLoading(true);
       setError(null);
       setUsingFallback(false);
-      
+
       try {
         // First try to load from admin panel (localStorage)
         const adminData = localStorage.getItem('admin-top-picks');
@@ -58,9 +58,12 @@ export function TopPicks() {
             devtools: adminPicks.filter((item: any) => item.category === 'devtools'),
             gems: adminPicks.filter((item: any) => item.category === 'gems')
           };
-          
-          const totalAdminResults = categorizedAdminPicks.ai.length + categorizedAdminPicks.devtools.length + categorizedAdminPicks.gems.length;
-          
+
+          const totalAdminResults =
+            categorizedAdminPicks.ai.length +
+            categorizedAdminPicks.devtools.length +
+            categorizedAdminPicks.gems.length;
+
           if (totalAdminResults > 0) {
             console.log('📊 Using admin curated picks:', categorizedAdminPicks);
             setPicks(categorizedAdminPicks);
@@ -71,12 +74,16 @@ export function TopPicks() {
             return;
           }
         }
+
         // If no admin data, use curated fallback picks (no external quota dependency)
         setPicks(fallbackTopPicks);
         setUsingFallback(true);
         setLastUpdated(new Date());
         setError(null);
-        return;
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     loadTopPicks();
   }, []);
