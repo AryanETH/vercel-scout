@@ -1,6 +1,20 @@
-import { ExternalLink, Sparkles, Wrench, Gem, Search } from "lucide-react";
+import { ExternalLink, Sparkles, Wrench, Gem, Search, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { fallbackTopPicks } from "@/lib/fallbackPicks";
+
+interface DailyPick {
+  id: string;
+  title: string;
+  url: string;
+  snippet: string | null;
+  platform: string;
+  category: string;
+  search_term: string | null;
+  rank: number;
+  score: number;
+  valid_for_date: string;
+}
 
 interface IndexedSite {
   title: string;
@@ -40,51 +54,126 @@ export function TopPicks() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
-  const [quotaExceeded, setQuotaExceeded] = useState(false);
 
-  useEffect(() => {
-    const loadTopPicks = async () => {
-      setIsLoading(true);
-      setError(null);
-      setUsingFallback(false);
+  const loadTopPicks = async () => {
+    setIsLoading(true);
+    setError(null);
+    setUsingFallback(false);
 
-      try {
-        // First try to load from admin panel (localStorage)
-        const adminData = localStorage.getItem('admin-top-picks');
-        if (adminData) {
-          const adminPicks = JSON.parse(adminData);
-          const categorizedAdminPicks = {
-            ai: adminPicks.filter((item: any) => item.category === 'ai'),
-            devtools: adminPicks.filter((item: any) => item.category === 'devtools'),
-            gems: adminPicks.filter((item: any) => item.category === 'gems')
+    try {
+      // Fetch from daily_top_picks table
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: dailyPicks, error: fetchError } = await supabase
+        .from('daily_top_picks')
+        .select('*')
+        .eq('valid_for_date', today)
+        .order('rank', { ascending: true });
+
+      if (fetchError) {
+        console.error('Error fetching daily picks:', fetchError);
+        throw fetchError;
+      }
+
+      if (dailyPicks && dailyPicks.length > 0) {
+        // Transform to expected format and categorize
+        const categorized = {
+          ai: [] as IndexedSite[],
+          devtools: [] as IndexedSite[],
+          gems: [] as IndexedSite[]
+        };
+
+        dailyPicks.forEach((pick: DailyPick) => {
+          const site: IndexedSite = {
+            title: pick.title,
+            link: pick.url,
+            snippet: pick.snippet || '',
+            platform: pick.platform,
+            searchTerm: pick.search_term || '',
+            rank: pick.rank,
+            score: pick.score
           };
 
-          const totalAdminResults =
-            categorizedAdminPicks.ai.length +
-            categorizedAdminPicks.devtools.length +
-            categorizedAdminPicks.gems.length;
+          if (pick.category === 'ai') {
+            categorized.ai.push(site);
+          } else if (pick.category === 'devtools') {
+            categorized.devtools.push(site);
+          } else if (pick.category === 'gems') {
+            categorized.gems.push(site);
+          }
+        });
 
-          if (totalAdminResults > 0) {
-            console.log('📊 Using admin curated picks:', categorizedAdminPicks);
-            setPicks(categorizedAdminPicks);
-            setUsingFallback(false);
+        console.log('📊 Loaded daily picks from database:', categorized);
+        setPicks(categorized);
+        setLastUpdated(new Date());
+        setUsingFallback(false);
+        return;
+      }
+
+      // If no picks for today, try to trigger update
+      console.log('No picks for today, triggering update...');
+      try {
+        const { error: invokeError } = await supabase.functions.invoke('update-daily-picks');
+        if (!invokeError) {
+          // Retry fetching after update
+          const { data: newPicks } = await supabase
+            .from('daily_top_picks')
+            .select('*')
+            .eq('valid_for_date', today)
+            .order('rank', { ascending: true });
+
+          if (newPicks && newPicks.length > 0) {
+            const categorized = {
+              ai: [] as IndexedSite[],
+              devtools: [] as IndexedSite[],
+              gems: [] as IndexedSite[]
+            };
+
+            newPicks.forEach((pick: DailyPick) => {
+              const site: IndexedSite = {
+                title: pick.title,
+                link: pick.url,
+                snippet: pick.snippet || '',
+                platform: pick.platform,
+                searchTerm: pick.search_term || '',
+                rank: pick.rank,
+                score: pick.score
+              };
+
+              if (pick.category === 'ai') {
+                categorized.ai.push(site);
+              } else if (pick.category === 'devtools') {
+                categorized.devtools.push(site);
+              } else if (pick.category === 'gems') {
+                categorized.gems.push(site);
+              }
+            });
+
+            setPicks(categorized);
             setLastUpdated(new Date());
-            setError(null);
-            setIsLoading(false);
+            setUsingFallback(false);
             return;
           }
         }
-
-        // If no admin data, use curated fallback picks (no external quota dependency)
-        setPicks(fallbackTopPicks);
-        setUsingFallback(true);
-        setLastUpdated(new Date());
-        setError(null);
-      } finally {
-        setIsLoading(false);
+      } catch (invokeErr) {
+        console.error('Error triggering update:', invokeErr);
       }
-    };
 
+      // Fall back to static picks
+      setPicks(fallbackTopPicks);
+      setUsingFallback(true);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Error loading top picks:', err);
+      setPicks(fallbackTopPicks);
+      setUsingFallback(true);
+      setLastUpdated(new Date());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadTopPicks();
   }, []);
 
@@ -96,12 +185,9 @@ export function TopPicks() {
         <div className="text-center py-8">
           <div className="glass rounded-xl p-6 border border-destructive/20">
             <h3 className="font-semibold text-destructive mb-2">
-              {quotaExceeded ? 'API Quota Exceeded' : 'Failed to Load Top Picks'}
+              Failed to Load Top Picks
             </h3>
             <p className="text-sm text-muted-foreground mb-4">{error}</p>
-            <p className="text-sm text-muted-foreground">
-              {quotaExceeded ? 'API quota exceeded - showing curated examples' : 'Please try again later'}
-            </p>
           </div>
         </div>
       )}
@@ -111,19 +197,26 @@ export function TopPicks() {
             <>
               <Search className="w-3 h-3 animate-spin" />
               <span className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                Indexing Top Sites...
+                Loading Today's Picks...
               </span>
             </>
           ) : (
             <>
               <div className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? 'bg-orange-500' : 'bg-green-500'}`}></div>
               <span className={`text-xs font-medium uppercase tracking-wider ${usingFallback ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
-                {usingFallback ? 'Trending' : 'Trending'} • {lastUpdated?.toLocaleDateString('en-US', { 
+                Updated Daily at 12:00 AM • {lastUpdated?.toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   month: 'short', 
                   day: 'numeric' 
                 })}
               </span>
+              <button
+                onClick={loadTopPicks}
+                className="ml-2 p-1 rounded hover:bg-muted transition-colors"
+                title="Refresh picks"
+              >
+                <RefreshCw className="w-3 h-3 text-muted-foreground" />
+              </button>
             </>
           )}
         </div>
@@ -132,11 +225,10 @@ export function TopPicks() {
         </h2>
         <p className="text-muted-foreground text-lg mb-4">
           {usingFallback 
-            ? 'Curated examples of real user-created websites on popular platforms'
-            : 'Real websites discovered through internal search indexing'
+            ? 'Curated examples of real user-created websites'
+            : 'Fresh picks discovered and updated daily at midnight'
           }
         </p>
-
       </div>
 
       {categories.map((categoryKey, categoryIndex) => {
@@ -145,7 +237,7 @@ export function TopPicks() {
         const categoryItems = picks[categoryKey] || [];
         
         if (categoryItems.length === 0 && !isLoading) {
-          return null; // Skip empty categories
+          return null;
         }
 
         return (
@@ -221,7 +313,13 @@ export function TopPicks() {
                         </p>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">
-                            {new URL(item.link).hostname}
+                            {(() => {
+                              try {
+                                return new URL(item.link).hostname;
+                              } catch {
+                                return item.link;
+                              }
+                            })()}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">

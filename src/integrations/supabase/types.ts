@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_top_picks: {
+        Row: {
+          category: string
+          created_at: string
+          favicon_url: string | null
+          id: string
+          platform: string
+          rank: number | null
+          score: number | null
+          search_term: string | null
+          snippet: string | null
+          title: string
+          url: string
+          valid_for_date: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          favicon_url?: string | null
+          id?: string
+          platform: string
+          rank?: number | null
+          score?: number | null
+          search_term?: string | null
+          snippet?: string | null
+          title: string
+          url: string
+          valid_for_date?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          favicon_url?: string | null
+          id?: string
+          platform?: string
+          rank?: number | null
+          score?: number | null
+          search_term?: string | null
+          snippet?: string | null
+          title?: string
+          url?: string
+          valid_for_date?: string
+        }
+        Relationships: []
+      }
       indexed_sites: {
         Row: {
           content: string | null
