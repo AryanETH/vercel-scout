@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Heart } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -19,17 +20,26 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
   const [name, setName] = useState("");
   const [showQR, setShowQR] = useState(false);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
-  const getMessage = () => {
-    const senderName = name.trim() || "Anonymous";
-    return `Cheers to yourel from ${senderName}`;
+  // Auto-fill name from profile if logged in
+  useEffect(() => {
+    if (user?.username && !name) {
+      setName(user.username);
+    }
+  }, [user?.username]);
+
+  const getNote = () => {
+    const senderName = name.trim();
+    return senderName 
+      ? `Cheers to Yourel from ${senderName}` 
+      : "Cheers to Yourel";
   };
 
   const generateUPILink = () => {
-    const message = getMessage();
-    const baseUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("Yourel Support")}&cu=INR&tn=${encodeURIComponent(message)}`;
+    const note = getNote();
     const amountParam = amount ? `&am=${amount}` : "";
-    return baseUrl + amountParam;
+    return `upi://pay?pa=${UPI_ID}&pn=Yourel&cu=INR&tn=${encodeURIComponent(note)}${amountParam}`;
   };
 
   const handleSupport = () => {
@@ -56,7 +66,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
         
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground text-center">
-            Help us keep Yourel ad-free
+            Free • Indie • Community-built
           </p>
           
           {/* Name & Amount in row on desktop */}
@@ -130,7 +140,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
               <div className="text-left space-y-0.5 min-w-0">
                 <p className="text-xs font-medium">Scan to pay ₹{amount}</p>
                 <p className="text-[10px] text-muted-foreground truncate">
-                  {getMessage()}
+                  {getNote()}
                 </p>
                 <p className="text-[9px] text-muted-foreground font-mono truncate">
                   {UPI_ID}
