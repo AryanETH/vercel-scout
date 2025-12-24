@@ -12,6 +12,7 @@ import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
 import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
+import { SupportModal } from "@/components/SupportModal";
 import { AdminPanel } from "@/components/AdminPanel";
 import { AnimatedGrid } from "@/components/AnimatedGrid";
 import { AISummaryCard } from "@/components/AISummaryCard";
@@ -41,6 +42,7 @@ const Index = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
@@ -313,13 +315,27 @@ const Index = () => {
       )}
 
       {/* Footer */}
-      <footer className="relative z-20 border-t border-border py-6 px-6 md:px-12">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p className="flex items-center gap-2">
+      <footer className="relative z-20 border-t border-border py-4 md:py-6 px-4 md:px-12">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-3 md:gap-4 text-sm text-muted-foreground">
+          {/* Mobile: Support button prominent */}
+          <div className="md:hidden w-full">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowSupportModal(true)}
+              className="w-full flex items-center justify-center gap-2 text-xs border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-500"
+            >
+              <Heart className="w-3 h-3" />
+              Support Yourel
+            </Button>
+          </div>
+          
+          <p className="flex items-center gap-2 text-xs md:text-sm">
             Built for you 
-            <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
+            <Heart className="w-3 h-3 md:w-4 md:h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
           </p>
-          <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end text-xs">
+          
+          <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center text-[10px] md:text-xs">
             <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Vercel
             </a>
@@ -350,6 +366,14 @@ const Index = () => {
             <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
               Lovable
             </a>
+            {/* Desktop: Support link inline */}
+            <button 
+              onClick={() => setShowSupportModal(true)}
+              className="hidden md:inline-flex items-center gap-1 text-red-500 hover:text-red-400 transition-colors"
+            >
+              <Heart className="w-3 h-3" />
+              Support
+            </button>
           </div>
         </div>
       </footer>
@@ -381,6 +405,10 @@ const Index = () => {
         onClose={() => setShowAdminPanel(false)}
       />
 
+      <SupportModal
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+      />
 
     </div>
   );
