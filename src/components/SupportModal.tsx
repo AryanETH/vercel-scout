@@ -46,50 +46,50 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[85vw] sm:max-w-md p-4 sm:p-6">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 fill-red-500" />
+      <DialogContent className="max-w-[85vw] sm:max-w-sm p-4">
+        <DialogHeader className="pb-1">
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Heart className="w-4 h-4 text-red-500 fill-red-500" />
             Support Yourel
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <p className="text-xs sm:text-sm text-muted-foreground text-center">
-            Help us keep Yourel running and ad-free
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground text-center">
+            Help us keep Yourel ad-free
           </p>
           
-          {/* Name input */}
-          <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs sm:text-sm">Your Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="h-9 sm:h-10 text-sm"
-            />
-          </div>
-
-          {/* Amount input */}
-          <div className="space-y-1.5">
-            <Label htmlFor="amount" className="text-xs sm:text-sm">Amount (₹)</Label>
-            <Input
-              id="amount"
-              type="number"
-              placeholder="Enter amount"
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-                setShowQR(false);
-              }}
-              className="h-9 sm:h-10 text-sm"
-            />
+          {/* Name & Amount in row on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="name" className="text-xs">Your Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="amount" className="text-xs">Amount (₹)</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setShowQR(false);
+                }}
+                className="h-8 text-sm"
+              />
+            </div>
           </div>
 
           {/* Quick amount buttons */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5">
             {[50, 100, 200, 500].map((preset) => (
               <Button
                 key={preset}
@@ -99,7 +99,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
                   setAmount(String(preset));
                   setShowQR(false);
                 }}
-                className={`flex-1 min-w-[60px] text-xs ${amount === String(preset) ? 'bg-primary text-primary-foreground' : ''}`}
+                className={`flex-1 h-7 text-xs px-2 ${amount === String(preset) ? 'bg-primary text-primary-foreground' : ''}`}
               >
                 ₹{preset}
               </Button>
@@ -110,38 +110,34 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
           <Button
             onClick={handleSupport}
             disabled={!isValid}
-            className="w-full h-10 sm:h-11 text-sm font-medium gap-2"
+            className="w-full h-9 text-sm font-medium gap-1.5"
           >
-            <Heart className="w-4 h-4" />
-            Support with ₹{amount || '0'}
+            <Heart className="w-3.5 h-3.5" />
+            Support ₹{amount || '0'}
           </Button>
 
-          {/* Desktop: QR Code */}
+          {/* Desktop: QR Code - compact */}
           {!isMobile && showQR && isValid && (
-            <div className="flex flex-col items-center gap-3 p-5 bg-background border border-border rounded-xl">
-              <div className="p-3 bg-white rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-background border border-border rounded-lg">
+              <div className="p-2 bg-white rounded-md flex-shrink-0">
                 <QRCodeSVG
                   value={generateUPILink()}
-                  size={160}
+                  size={80}
                   level="H"
                   includeMargin={false}
                 />
               </div>
-              <div className="text-center space-y-1">
-                <p className="text-sm font-medium">Scan to pay ₹{amount}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="text-left space-y-0.5 min-w-0">
+                <p className="text-xs font-medium">Scan to pay ₹{amount}</p>
+                <p className="text-[10px] text-muted-foreground truncate">
                   {getMessage()}
                 </p>
+                <p className="text-[9px] text-muted-foreground font-mono truncate">
+                  {UPI_ID}
+                </p>
               </div>
-              <p className="text-[10px] text-muted-foreground font-mono">
-                {UPI_ID}
-              </p>
             </div>
           )}
-
-          <p className="text-[10px] text-muted-foreground text-center">
-            Payment via UPI • Secure & Instant
-          </p>
         </div>
       </DialogContent>
     </Dialog>
