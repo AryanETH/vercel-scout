@@ -1,10 +1,35 @@
 project_id = "ivmdnkwvtiswzohsajow"
 
-[functions.ai-search]
-verify_jwt = false
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-[functions.crawl-site]
-verify_jwt = false
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
 
 [functions.search]
 verify_jwt = false
@@ -12,5 +37,14 @@ verify_jwt = false
 [functions.web-search]
 verify_jwt = false
 
+[functions.ai-search]
+verify_jwt = false
+
+[functions.crawl-site]
+verify_jwt = false
+
 [functions.search-suggestions]
+verify_jwt = false
+
+[functions.update-daily-picks]
 verify_jwt = false
