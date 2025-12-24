@@ -1,5 +1,6 @@
-import { ExternalLink, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
+import { ExternalLink, ThumbsUp, ThumbsDown, Heart, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface SearchResultProps {
   title: string;
@@ -29,6 +30,20 @@ const platformLogos: Record<string, string> = {
   lovable: "/logos/lovable.ico",
 };
 
+const platformGradients: Record<string, string> = {
+  vercel: "from-gray-900 to-gray-700",
+  github: "from-gray-800 to-gray-600",
+  netlify: "from-teal-500 to-teal-700",
+  railway: "from-purple-600 to-purple-800",
+  onrender: "from-emerald-500 to-emerald-700",
+  bubble: "from-blue-500 to-blue-700",
+  framer: "from-pink-500 to-purple-600",
+  replit: "from-orange-500 to-orange-700",
+  bolt: "from-yellow-500 to-yellow-700",
+  fly: "from-violet-600 to-violet-800",
+  lovable: "from-pink-500 to-rose-600",
+};
+
 function getPlatformFromUrl(url: string): string | null {
   const lowercaseUrl = url.toLowerCase();
   
@@ -47,6 +62,12 @@ function getPlatformFromUrl(url: string): string | null {
   return null;
 }
 
+function getScreenshotUrl(url: string): string {
+  // Use microlink.io for website screenshots (free tier available)
+  const encodedUrl = encodeURIComponent(url);
+  return `https://api.microlink.io/?url=${encodedUrl}&screenshot=true&meta=false&embed=screenshot.url`;
+}
+
 export function SearchResult({ 
   title, 
   link, 
@@ -60,9 +81,16 @@ export function SearchResult({
   isDisliked = false,
   isFavorite = false
 }: SearchResultProps) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
   const detectedPlatform = platform || getPlatformFromUrl(link);
   const logoUrl = detectedPlatform ? platformLogos[detectedPlatform] : null;
+  const gradient = detectedPlatform ? platformGradients[detectedPlatform] : "from-gray-600 to-gray-800";
+  
+  // Generate screenshot URL
+  const screenshotUrl = getScreenshotUrl(link);
 
   return (
     <a
@@ -70,87 +98,130 @@ export function SearchResult({
       target="_blank"
       rel="noopener noreferrer"
       className={`
-        group block bg-card border border-border rounded-lg p-4 hover:border-primary/30 
-        hover:shadow-sm transition-all duration-200 opacity-0 animate-slide-up
+        group block bg-card border border-border rounded-xl overflow-hidden hover:border-primary/30 
+        hover:shadow-lg transition-all duration-300 opacity-0 animate-slide-up
       `}
       style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
     >
-      <div className="flex items-start gap-3">
-        {/* Favicon / Platform Logo */}
-        <div className="flex-shrink-0 w-7 h-7 rounded-md bg-muted flex items-center justify-center overflow-hidden">
-          {logoUrl ? (
+      {/* Website Preview Image */}
+      <div className="relative w-full h-36 overflow-hidden bg-muted">
+        {!imageError ? (
+          <>
+            {imageLoading && (
+              <div className={`absolute inset-0 bg-gradient-to-br ${gradient} animate-pulse`}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {logoUrl && (
+                    <img 
+                      src={logoUrl} 
+                      alt={detectedPlatform || 'platform'} 
+                      className="w-12 h-12 object-contain opacity-30"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
             <img 
-              src={logoUrl} 
-              alt={detectedPlatform || 'website'} 
-              className="w-4 h-4 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              src={screenshotUrl}
+              alt={`Preview of ${title}`}
+              className={`w-full h-full object-cover object-top transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+              onLoad={() => setImageLoading(false)}
+              onError={() => {
+                setImageError(true);
+                setImageLoading(false);
               }}
             />
-          ) : null}
-          <div className={`w-4 h-4 rounded bg-gradient-to-br from-muted-foreground/40 to-muted-foreground/20 ${logoUrl ? 'hidden' : ''}`} />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          {/* URL */}
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs text-muted-foreground truncate">
-              {displayUrl}
-            </span>
+          </>
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={detectedPlatform || 'platform'} 
+                className="w-16 h-16 object-contain opacity-50"
+              />
+            ) : (
+              <ImageOff className="w-8 h-8 text-white/30" />
+            )}
           </div>
-          
-          {/* Title */}
-          <h3 className="text-base font-medium text-primary mb-1 line-clamp-1 group-hover:underline">
-            {title}
-          </h3>
-          
-          {/* Snippet */}
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-            {snippet}
-          </p>
-          
-          {/* Action buttons */}
-          <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-200">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                onLike?.(link);
-              }}
-              className={`h-7 px-2 text-xs ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                onDislike?.(link);
-              }}
-              className={`h-7 px-2 text-xs ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
-            >
-              <ThumbsDown className="w-3.5 h-3.5" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                onAddToFavorites?.(link);
-              }}
-              className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
-            </Button>
+        )}
+        
+        {/* Platform badge */}
+        {detectedPlatform && logoUrl && (
+          <div className="absolute top-2 left-2 bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 flex items-center gap-1.5 shadow-sm">
+            <img 
+              src={logoUrl} 
+              alt={detectedPlatform} 
+              className="w-3.5 h-3.5 object-contain"
+            />
+            <span className="text-xs font-medium text-foreground capitalize">{detectedPlatform}</span>
+          </div>
+        )}
+        
+        {/* External link icon on hover */}
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="bg-background/90 backdrop-blur-sm rounded-md p-1.5 shadow-sm">
+            <ExternalLink className="w-3.5 h-3.5 text-foreground" />
           </div>
         </div>
+      </div>
+      
+      {/* Content */}
+      <div className="p-4">
+        {/* URL */}
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xs text-muted-foreground truncate">
+            {displayUrl}
+          </span>
+        </div>
         
-        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 mt-1" />
+        {/* Title */}
+        <h3 className="text-base font-medium text-foreground mb-1.5 line-clamp-1 group-hover:text-primary transition-colors">
+          {title}
+        </h3>
+        
+        {/* Snippet */}
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {snippet}
+        </p>
+        
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onLike?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onDislike?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
+          >
+            <ThumbsDown className="w-3.5 h-3.5" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              onAddToFavorites?.(link);
+            }}
+            className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
+          </Button>
+        </div>
       </div>
     </a>
   );
