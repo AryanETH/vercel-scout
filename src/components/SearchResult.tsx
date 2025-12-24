@@ -176,7 +176,7 @@ export function SearchResult({
         </div>
         
         {/* Website Preview Image - Right Side */}
-        <div className="relative w-40 md:w-48 flex-shrink-0 overflow-hidden bg-muted">
+        <div className="relative w-40 md:w-48 flex-shrink-0 overflow-hidden bg-muted rounded-md">
           {!imageError ? (
             <>
               {imageLoading && (
