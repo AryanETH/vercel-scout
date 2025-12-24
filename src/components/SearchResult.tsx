@@ -104,75 +104,44 @@ export function SearchResult({
       style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
     >
       {/* Mobile: Google-style vertical stack */}
-      <div className="md:hidden py-3">
-        {/* URL row with favicon */}
-        <div className="flex items-center gap-2 mb-1">
-          {detectedPlatform && logoUrl ? (
-            <img 
-              src={logoUrl} 
-              alt={detectedPlatform} 
-              className="w-4 h-4 object-contain rounded-sm"
-            />
-          ) : (
-            <div className="w-4 h-4 rounded-sm bg-muted flex items-center justify-center">
-              <span className="text-[10px] font-medium text-muted-foreground uppercase">
+      <div className="md:hidden py-4 border-b border-border/50">
+        {/* Site info row - favicon + domain + URL */}
+        <div className="flex items-center gap-2.5 mb-2">
+          {/* Favicon container - rounded circle like Google */}
+          <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {detectedPlatform && logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={detectedPlatform} 
+                className="w-4 h-4 object-contain"
+              />
+            ) : (
+              <span className="text-xs font-semibold text-muted-foreground uppercase">
                 {displayUrl.charAt(0)}
               </span>
-            </div>
-          )}
-          <span className="text-xs text-muted-foreground truncate">
-            {displayUrl}
-          </span>
+            )}
+          </div>
+          
+          {/* Domain info - stacked like Google */}
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm text-foreground truncate leading-tight">
+              {displayUrl.split('.')[0]}
+            </span>
+            <span className="text-xs text-muted-foreground truncate leading-tight">
+              {link.replace(/^https?:\/\//, '').split('?')[0]}
+            </span>
+          </div>
         </div>
         
-        {/* Title */}
-        <h3 className="text-lg font-normal text-primary leading-snug mb-1 line-clamp-2">
+        {/* Title - blue link like Google */}
+        <h3 className="text-xl text-primary font-normal leading-snug mb-1 line-clamp-2">
           {title}
         </h3>
         
-        {/* Snippet */}
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        {/* Snippet - gray text */}
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
           {snippet}
         </p>
-        
-        {/* Action buttons - always visible on mobile */}
-        <div className="flex items-center gap-2 mt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              onLike?.(link);
-            }}
-            className={`h-7 px-2 text-xs ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
-          >
-            <ThumbsUp className="w-3.5 h-3.5" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              onDislike?.(link);
-            }}
-            className={`h-7 px-2 text-xs ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
-          >
-            <ThumbsDown className="w-3.5 h-3.5" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              onAddToFavorites?.(link);
-            }}
-            className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
-          >
-            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
-          </Button>
-        </div>
       </div>
 
       {/* Desktop: With preview image */}
