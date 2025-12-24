@@ -1,5 +1,4 @@
-import { ExternalLink, Globe, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
-import { getAutoTag } from "@/lib/autoTagger";
+import { ExternalLink, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchResultProps {
@@ -16,6 +15,38 @@ interface SearchResultProps {
   isFavorite?: boolean;
 }
 
+const platformLogos: Record<string, string> = {
+  vercel: "https://assets.vercel.com/image/upload/front/favicon/vercel/favicon.ico",
+  github: "https://github.githubassets.com/favicons/favicon.svg",
+  netlify: "https://www.netlify.com/favicon.ico",
+  railway: "https://railway.app/favicon.ico",
+  onrender: "https://render.com/favicon.ico",
+  bubble: "https://bubble.io/favicon.ico",
+  framer: "https://framer.com/favicon.ico",
+  replit: "https://replit.com/public/icons/favicon-196.png",
+  bolt: "https://bolt.new/favicon.ico",
+  fly: "https://fly.io/static/images/favicon.png",
+  lovable: "https://lovable.dev/favicon.ico",
+};
+
+function getPlatformFromUrl(url: string): string | null {
+  const lowercaseUrl = url.toLowerCase();
+  
+  if (lowercaseUrl.includes('vercel.app') || lowercaseUrl.includes('vercel.com')) return 'vercel';
+  if (lowercaseUrl.includes('github.io') || lowercaseUrl.includes('github.com')) return 'github';
+  if (lowercaseUrl.includes('netlify.app') || lowercaseUrl.includes('netlify.com')) return 'netlify';
+  if (lowercaseUrl.includes('railway.app')) return 'railway';
+  if (lowercaseUrl.includes('onrender.com') || lowercaseUrl.includes('render.com')) return 'onrender';
+  if (lowercaseUrl.includes('bubble.io')) return 'bubble';
+  if (lowercaseUrl.includes('framer.site') || lowercaseUrl.includes('framer.com')) return 'framer';
+  if (lowercaseUrl.includes('replit.com') || lowercaseUrl.includes('repl.co')) return 'replit';
+  if (lowercaseUrl.includes('bolt.new')) return 'bolt';
+  if (lowercaseUrl.includes('fly.io') || lowercaseUrl.includes('fly.dev')) return 'fly';
+  if (lowercaseUrl.includes('lovable.dev') || lowercaseUrl.includes('lovable.app')) return 'lovable';
+  
+  return null;
+}
+
 export function SearchResult({ 
   title, 
   link, 
@@ -30,24 +61,8 @@ export function SearchResult({
   isFavorite = false
 }: SearchResultProps) {
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
-  const autoTag = getAutoTag(link);
-  
-  const getPlatformColor = (platform?: string) => {
-    const colors: Record<string, string> = {
-      vercel: "bg-black text-white",
-      github: "bg-gray-800 text-white",
-      netlify: "bg-teal-500 text-white",
-      railway: "bg-purple-600 text-white",
-      onrender: "bg-green-600 text-white",
-      bubble: "bg-blue-500 text-white",
-      framer: "bg-pink-500 text-white",
-      replit: "bg-orange-500 text-white",
-      bolt: "bg-yellow-500 text-black",
-      fly: "bg-indigo-600 text-white",
-      lovable: "bg-red-500 text-white",
-    };
-    return colors[platform || ""] || "bg-secondary text-muted-foreground";
-  };
+  const detectedPlatform = platform || getPlatformFromUrl(link);
+  const logoUrl = detectedPlatform ? platformLogos[detectedPlatform] : null;
 
   return (
     <a
@@ -55,38 +70,48 @@ export function SearchResult({
       target="_blank"
       rel="noopener noreferrer"
       className={`
-        group block glass rounded-2xl p-6 hover-lift opacity-0 animate-slide-up
-        hover:bg-accent/50 transition-colors duration-300
+        group block bg-card border border-border rounded-lg p-4 hover:border-primary/30 
+        hover:shadow-sm transition-all duration-200 opacity-0 animate-slide-up
       `}
-      style={{ animationDelay: `${index * 0.1}s`, animationFillMode: "forwards" }}
+      style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        {/* Favicon / Platform Logo */}
+        <div className="flex-shrink-0 w-7 h-7 rounded-md bg-muted flex items-center justify-center overflow-hidden">
+          {logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt={detectedPlatform || 'website'} 
+              className="w-4 h-4 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`w-4 h-4 rounded bg-gradient-to-br from-muted-foreground/40 to-muted-foreground/20 ${logoUrl ? 'hidden' : ''}`} />
+        </div>
+        
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-secondary">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <span className="text-sm text-muted-foreground truncate">
+          {/* URL */}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs text-muted-foreground truncate">
               {displayUrl}
             </span>
-            <span className={`px-2 py-1 rounded-md text-xs font-medium border ${autoTag.color}`}>
-              {autoTag.emoji} {autoTag.label}
-            </span>
-            {platform && (
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPlatformColor(platform)}`}>
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}
-              </span>
-            )}
           </div>
-          <h3 className="font-display text-lg font-semibold mb-2 line-clamp-2 group-hover:text-foreground transition-colors">
+          
+          {/* Title */}
+          <h3 className="text-base font-medium text-primary mb-1 line-clamp-1 group-hover:underline">
             {title}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          
+          {/* Snippet */}
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {snippet}
           </p>
           
           {/* Action buttons */}
-          <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-200">
             <Button
               variant="ghost"
               size="sm"
@@ -94,9 +119,9 @@ export function SearchResult({
                 e.preventDefault();
                 onLike?.(link);
               }}
-              className={`h-8 px-2 ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
+              className={`h-7 px-2 text-xs ${isLiked ? 'text-green-600 bg-green-50 dark:bg-green-900/20' : ''}`}
             >
-              <ThumbsUp className="w-4 h-4" />
+              <ThumbsUp className="w-3.5 h-3.5" />
             </Button>
             
             <Button
@@ -106,9 +131,9 @@ export function SearchResult({
                 e.preventDefault();
                 onDislike?.(link);
               }}
-              className={`h-8 px-2 ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
+              className={`h-7 px-2 text-xs ${isDisliked ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : ''}`}
             >
-              <ThumbsDown className="w-4 h-4" />
+              <ThumbsDown className="w-3.5 h-3.5" />
             </Button>
             
             <Button
@@ -118,13 +143,14 @@ export function SearchResult({
                 e.preventDefault();
                 onAddToFavorites?.(link);
               }}
-              className={`h-8 px-2 ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
+              className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : ''}`}
             >
-              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
             </Button>
           </div>
         </div>
-        <ExternalLink className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 flex-shrink-0" />
+        
+        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 mt-1" />
       </div>
     </a>
   );

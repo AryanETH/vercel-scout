@@ -176,9 +176,6 @@ const Index = () => {
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
               <AnimatedTitle />
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up stagger-1">
-                Discover The Undiscovered
-              </p>
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} />
               </div>
@@ -216,9 +213,9 @@ const Index = () => {
             )}
 
             {!isLoading && !error && results.length > 0 && (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground mb-6 animate-fade-in">
-                  Found {totalResults} results
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground mb-4 animate-fade-in">
+                  About {totalResults} results
                 </p>
                 {results.map((result, index) => (
                   <SearchResult
