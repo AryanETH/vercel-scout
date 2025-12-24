@@ -214,7 +214,7 @@ const Index = () => {
 
             {/* AI Summary */}
             {!isLoading && !error && hasSearched && (
-              <AISummaryCard summary={aiSummary} isLoading={isAILoading} />
+              <AISummaryCard summary={aiSummary} isLoading={isAILoading} searchQuery={lastSearchQuery} />
             )}
 
             {!isLoading && !error && results.length > 0 && (

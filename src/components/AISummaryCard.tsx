@@ -1,9 +1,10 @@
-import { Sparkles, Loader2, ExternalLink, BookOpen } from "lucide-react";
-import { useMemo } from "react";
+import { Sparkles, Loader2, ExternalLink, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { useMemo, useState } from "react";
 
 interface AISummaryCardProps {
   summary: string | null;
   isLoading: boolean;
+  searchQuery?: string;
 }
 
 interface ParsedSummary {
@@ -51,9 +52,9 @@ function parseSummary(summary: string): ParsedSummary {
     const line = lines[i].trim();
     const lowerLine = line.toLowerCase();
     
-    // Detect topic (usually first meaningful line or after "topic:" prefix)
-    if (!result.topic && (lowerLine.startsWith('topic:') || i === 0)) {
-      result.topic = line.replace(/^topic:\s*/i, '').replace(/^you're looking for\s*/i, '');
+    // Detect keywords section (replaces topic)
+    if (!result.topic && (lowerLine.startsWith('keywords:') || lowerLine.startsWith('topic:') || i === 0)) {
+      result.topic = line.replace(/^keywords?:\s*/i, '').replace(/^topic:\s*/i, '').replace(/^you're looking for\s*/i, '');
       continue;
     }
     
@@ -107,12 +108,13 @@ function parseSummary(summary: string): ParsedSummary {
   return result;
 }
 
-export function AISummaryCard({ summary, isLoading }: AISummaryCardProps) {
+export function AISummaryCard({ summary, isLoading, searchQuery }: AISummaryCardProps) {
+  const [sourcesExpanded, setSourcesExpanded] = useState(false);
+  
   const parsed = useMemo(() => {
     if (!summary) return null;
     return parseSummary(summary);
   }, [summary]);
-
   if (!isLoading && !summary) return null;
 
   return (
@@ -139,11 +141,20 @@ export function AISummaryCard({ summary, isLoading }: AISummaryCardProps) {
             </div>
           ) : parsed && (
             <div className="space-y-4">
-              {/* Topic */}
-              {parsed.topic && (
+              {/* Keywords (Search Terms) */}
+              {(searchQuery || parsed.topic) && (
                 <div>
-                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Topic</h4>
-                  <p className="text-sm text-foreground font-medium">{parsed.topic}</p>
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Keywords</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(searchQuery || parsed.topic).split(/\s+/).filter(Boolean).map((keyword, idx) => (
+                      <span 
+                        key={idx}
+                        className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
               
@@ -191,17 +202,39 @@ export function AISummaryCard({ summary, isLoading }: AISummaryCardProps) {
                 </div>
               )}
               
-              {/* Sources */}
+              {/* Sources - Expandable */}
               {parsed.sources.length > 0 && (
                 <div className="pt-2 border-t border-border">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <button
+                    onClick={() => setSourcesExpanded(!sourcesExpanded)}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
+                  >
                     <BookOpen className="w-3 h-3" />
                     <span>Sources:</span>
                     <span className="text-foreground/70">
-                      {[...new Set(parsed.sources)].slice(0, 3).join(', ')}
-                      {parsed.sources.length > 3 && ` +${parsed.sources.length - 3} more`}
+                      {sourcesExpanded 
+                        ? [...new Set(parsed.sources)].join(', ')
+                        : `+${[...new Set(parsed.sources)].length} sources`
+                      }
                     </span>
-                  </div>
+                    {sourcesExpanded ? (
+                      <ChevronUp className="w-3 h-3 ml-auto" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3 ml-auto" />
+                    )}
+                  </button>
+                  {sourcesExpanded && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {[...new Set(parsed.sources)].map((source, idx) => (
+                        <span 
+                          key={idx}
+                          className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full"
+                        >
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

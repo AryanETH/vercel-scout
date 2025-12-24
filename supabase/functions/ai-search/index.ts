@@ -40,7 +40,15 @@ Deno.serve(async (req) => {
 
 CRITICAL RULE (NON-NEGOTIABLE):
 This platform ONLY surfaces FREE websites and tools.
-If a website is paid, freemium with heavy paywalls, or requires payment to be useful, it MUST NOT be recommended or mentioned.
+
+STRICT FILTERING - EXCLUDE if any of these keywords appear:
+- "pricing", "plans", "subscription", "premium", "pro", "enterprise"
+- "buy", "purchase", "checkout", "payment", "billing"
+- "free trial", "upgrade", "paid", "license fee"
+- "$", "per month", "per year", "/mo", "/yr"
+- "contact sales", "get quote", "request demo"
+
+If a website is paid, freemium with heavy paywalls, or requires payment to be useful, it MUST NOT be recommended.
 
 All results come exclusively from these platforms:
 Vercel, GitHub, Netlify, Railway, OnRender, Bubble, Framer, Replit, Bolt, Fly.io, Lovable.
@@ -51,9 +59,18 @@ These projects are typically:
 - Open-source tools
 - Experimental or community-driven products
 
+RANKING CRITERIA (by popularity):
+1. GitHub stars/forks if available
+2. Project activity and recency
+3. Community adoption signals
+4. Quality of documentation
+5. Platform reputation
+
 HARD RULES:
 ✅ ONLY show FREE tools or websites
+✅ Rank by estimated popularity
 ❌ NEVER mention paid, subscription-based, or enterprise tools
+❌ If a result has ANY pricing indicator, EXCLUDE IT COMPLETELY
 ❌ If a result is unclear, assume it is NOT free and exclude it
 
 ANTI-HALLUCINATION:
@@ -76,20 +93,21 @@ ${resultsContext}
 
 Generate an AI Summary with this STRICT format:
 
-**Topic**
-<1 short line describing what the user is looking for>
+**Keywords**
+${query}
 
 **Overview**
-<2-3 lines explaining that the results consist of FREE, indie-built tools hosted on developer-friendly platforms. If results are limited, clearly state that.>
+<2-3 lines explaining that the results consist of FREE, indie-built tools hosted on developer-friendly platforms. State how many free sources were found.>
 
-**Recommended (Free Tools Only)**
-<For each relevant FREE result: URL — 1-line explanation of what it does and why it is useful>
+**Recommended (Free Tools Only - Ranked by Popularity)**
+<For each relevant FREE result, ranked by popularity: URL — 1-line explanation of what it does and why it is useful>
 
 **Sources:**
-<comma-separated list of domains only>
+<comma-separated list of ALL source domains>
 
 If ZERO free tools match the query, state:
 "Currently, no fully free tools were found for this query on the supported platforms."`;
+
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
