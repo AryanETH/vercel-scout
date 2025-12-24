@@ -118,25 +118,35 @@ const Index = () => {
       )}
 
       {/* Header - changes layout based on search state */}
-      <header className={`relative z-50 px-6 py-4 md:px-12 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
+      <header className={`relative z-50 px-4 py-3 md:px-12 md:py-4 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
         {/* Results page header layout */}
         {(hasSearched || isLoading) ? (
-          <div className="flex flex-col gap-3">
-            {/* Top row: Logo, Search bar, Platform filter, User actions */}
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2">
+            {/* Mobile: Logo centered, search bar full width below */}
+            <div className="md:hidden">
+              <div className="flex items-center justify-between mb-3">
+                <Logo />
+                <div className="flex items-center gap-2">
+                  {isAuthenticated && user && (
+                    <UserProfile
+                      user={user}
+                      onLogout={logout}
+                      onShowFavorites={() => setShowFavoritesModal(true)}
+                      onShowSettings={() => {}}
+                    />
+                  )}
+                </div>
+              </div>
+              <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
+            </div>
+            
+            {/* Desktop: Logo + search bar + filters + user in one row */}
+            <div className="hidden md:flex items-center gap-4">
               <Logo />
-              
-              {/* Search bar - closer to logo */}
               <div className="flex-1 max-w-md">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
               </div>
-              
-              {/* Platform filter - left side of remaining space */}
-              <div className="hidden md:block">
-                <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
-              </div>
-              
-              {/* User actions - right side */}
+              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
               <div className="flex items-center gap-2 ml-auto">
                 {isAuthenticated && user && (
                   <UserProfile
@@ -152,11 +162,6 @@ const Index = () => {
                   </Button>
                 )}
               </div>
-            </div>
-            
-            {/* Mobile platform filter */}
-            <div className="md:hidden">
-              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
             </div>
           </div>
         ) : (
@@ -233,7 +238,8 @@ const Index = () => {
                 </div>
 
                 <div className="min-w-0 flex-1 max-w-2xl">
-                  <div className="mb-4 pt-2">
+                  {/* Search mode tabs - horizontal scroll on mobile like Google */}
+                  <div className="mb-3 md:mb-4 pt-1 md:pt-2 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
                     <SearchModeSelector mode={searchMode} onChange={handleSearchModeChange} />
                   </div>
 
@@ -254,8 +260,8 @@ const Index = () => {
                   )}
 
                   {!isLoading && !error && results.length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-xs text-muted-foreground mb-4 animate-fade-in">
+                    <div className="space-y-0 md:space-y-3">
+                      <p className="text-xs text-muted-foreground mb-2 md:mb-4 animate-fade-in">
                         About {totalResults} results
                       </p>
                       {results.map((result, index) => (
