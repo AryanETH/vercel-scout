@@ -10,11 +10,12 @@ interface SearchInputProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
   externalQuery?: string;
+  suppressSuggestions?: boolean;
 }
 
 type DropdownPos = { left: number; top: number; width: number };
 
-export function SearchInput({ onSearch, isLoading, externalQuery }: SearchInputProps) {
+export function SearchInput({ onSearch, isLoading, externalQuery, suppressSuggestions }: SearchInputProps) {
   const [query, setQuery] = useState(externalQuery || "");
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -55,13 +56,17 @@ export function SearchInput({ onSearch, isLoading, externalQuery }: SearchInputP
 
   // Show suggestions when we have them and query is long enough
   useEffect(() => {
+    if (suppressSuggestions) {
+      setShowSuggestions(false);
+      return;
+    }
     if (suggestions.length > 0 && query.length >= 2) {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
     }
     setSelectedIndex(-1);
-  }, [suggestions, query]);
+  }, [suggestions, query, suppressSuggestions]);
 
   // Keep portal dropdown aligned with the input (scroll/resize)
   useEffect(() => {

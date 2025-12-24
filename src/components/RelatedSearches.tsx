@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 interface RelatedSearchesProps {
   query: string;
-  onSearch: (query: string) => void;
+  onSearch: (query: string, isSuggestion?: boolean) => void;
 }
 
 // Generate related searches based on the query
@@ -57,7 +57,7 @@ export function RelatedSearches({ query, onSearch }: RelatedSearchesProps) {
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
-            onClick={() => onSearch(suggestion)}
+            onClick={() => onSearch(suggestion, true)}
             className="flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted rounded-md text-left transition-colors group"
           >
             <Search className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
