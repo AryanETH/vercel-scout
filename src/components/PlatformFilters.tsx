@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Globe, Github, Layers } from "lucide-react";
+import { ChevronDown, Layers } from "lucide-react";
 
 export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable";
 
@@ -20,17 +20,17 @@ interface PlatformFiltersProps {
 // Platform configurations with logos and colors
 const platformConfig: Record<Platform, { label: string; logo: string; color: string }> = {
   all: { label: "All", logo: "", color: "from-blue-500 to-purple-500" },
-  vercel: { label: "Vercel", logo: "https://assets.vercel.com/image/upload/front/favicon/vercel/favicon.ico", color: "from-black to-gray-800" },
-  github: { label: "GitHub", logo: "", color: "from-gray-700 to-gray-900" },
-  netlify: { label: "Netlify", logo: "https://www.netlify.com/favicon.ico", color: "from-teal-400 to-teal-600" },
-  railway: { label: "Railway", logo: "https://railway.app/favicon.ico", color: "from-purple-500 to-purple-700" },
-  onrender: { label: "Render", logo: "https://render.com/favicon.ico", color: "from-emerald-400 to-emerald-600" },
-  bubble: { label: "Bubble", logo: "https://bubble.io/favicon.ico", color: "from-blue-400 to-blue-600" },
-  framer: { label: "Framer", logo: "https://framer.com/favicon.ico", color: "from-pink-500 to-purple-500" },
-  replit: { label: "Replit", logo: "https://replit.com/public/icons/favicon-196.png", color: "from-orange-400 to-orange-600" },
-  bolt: { label: "Bolt", logo: "https://bolt.new/favicon.ico", color: "from-yellow-400 to-yellow-600" },
-  fly: { label: "Fly.io", logo: "https://fly.io/favicon.ico", color: "from-violet-500 to-violet-700" },
-  lovable: { label: "Lovable", logo: "https://lovable.dev/favicon.ico", color: "from-pink-500 to-rose-500" },
+  vercel: { label: "Vercel", logo: "/logos/vercel.ico", color: "from-black to-gray-800" },
+  github: { label: "GitHub", logo: "/logos/github.svg", color: "from-gray-700 to-gray-900" },
+  netlify: { label: "Netlify", logo: "/logos/netlify.ico", color: "from-teal-400 to-teal-600" },
+  railway: { label: "Railway", logo: "/logos/railway.ico", color: "from-purple-500 to-purple-700" },
+  onrender: { label: "Render", logo: "/logos/render.png", color: "from-emerald-400 to-emerald-600" },
+  bubble: { label: "Bubble", logo: "/logos/bubble.png", color: "from-blue-400 to-blue-600" },
+  framer: { label: "Framer", logo: "/logos/framer.png", color: "from-pink-500 to-purple-500" },
+  replit: { label: "Replit", logo: "/logos/replit.png", color: "from-orange-400 to-orange-600" },
+  bolt: { label: "Bolt", logo: "/logos/bolt.ico", color: "from-yellow-400 to-yellow-600" },
+  fly: { label: "Fly.io", logo: "/logos/fly.svg", color: "from-violet-500 to-violet-700" },
+  lovable: { label: "Lovable", logo: "/logos/lovable.ico", color: "from-pink-500 to-rose-500" },
 };
 
 const filters: Platform[] = ["all", "vercel", "github", "netlify", "railway", "onrender", "bubble", "framer", "replit", "bolt", "fly", "lovable"];
@@ -40,10 +40,6 @@ function PlatformIcon({ platform, size = 16 }: { platform: Platform; size?: numb
   
   if (platform === "all") {
     return <Layers className="w-4 h-4" style={{ width: size, height: size }} />;
-  }
-  
-  if (platform === "github") {
-    return <Github className="w-4 h-4" style={{ width: size, height: size }} />;
   }
   
   return (
