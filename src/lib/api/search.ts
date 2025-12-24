@@ -64,6 +64,36 @@ export const searchApi = {
     }
   },
 
+  // Web search (Google-like) powered by Firecrawl
+  async webSearch(
+    query: string,
+    platform: string = "all",
+    page: number = 1,
+    limit: number = 50
+  ): Promise<SearchResponse> {
+    try {
+      const { data, error } = await supabase.functions.invoke("web-search", {
+        body: { query, platform, limit },
+      });
+
+      if (error) {
+        console.error("Web search API error:", error);
+        return { success: false, results: [], total: 0, page, error: error.message };
+      }
+
+      return data as SearchResponse;
+    } catch (err) {
+      console.error("Web search error:", err);
+      return {
+        success: false,
+        results: [],
+        total: 0,
+        page,
+        error: err instanceof Error ? err.message : "Web search failed",
+      };
+    }
+  },
+
   // Get AI-powered summary for search results
   async getAISummary(
     query: string,

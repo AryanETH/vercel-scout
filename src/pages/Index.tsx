@@ -136,7 +136,7 @@ const Index = () => {
                     onClick={() => setShowSuggestModal(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Suggest
+                    Add website
                   </Button>
                   <Button
                     variant="outline"
