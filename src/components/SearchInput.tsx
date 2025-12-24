@@ -45,11 +45,15 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
     }
   }, [transcript]);
 
-  // Show suggestions when we have them and input is focused
+  // Show suggestions when we have them and query is long enough
   useEffect(() => {
-    setShowSuggestions(isFocused && suggestions.length > 0 && query.length >= 2);
+    if (suggestions.length > 0 && query.length >= 2) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
     setSelectedIndex(-1);
-  }, [suggestions, isFocused, query]);
+  }, [suggestions, query]);
 
   // Keep portal dropdown aligned with the input (scroll/resize)
   useEffect(() => {
@@ -165,7 +169,9 @@ export function SearchInput({ onSearch, isLoading }: SearchInputProps) {
             setIsFocused(true);
             updateDropdownPos();
           }}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+          onBlur={() => {
+            setTimeout(() => setIsFocused(false), 150);
+          }}
           onKeyDown={handleKeyDown}
           placeholder={isFocused ? "Search Anything..." : animatedPlaceholder}
           className="w-full bg-transparent py-5 pl-14 pr-36 text-lg font-medium placeholder:text-muted-foreground focus:outline-none"
