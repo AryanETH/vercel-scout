@@ -1,5 +1,10 @@
-import { SearchResult } from "@/hooks/useMultiSearch";
-
+// Local type (independent of hook) used for Google CSE results
+interface SearchResultInternal {
+  title: string;
+  link: string;
+  snippet: string;
+  platform: string;
+}
 const API_KEY = "AIzaSyByFwruZ-h21A5YUNn6jj9qyBaeHBNgGSQ";
 const CSE_ID = "c45a3d17b28ad4867";
 
@@ -46,7 +51,7 @@ class TopPicksIndexer {
     query: string,
     platform: string,
     num: number = 5
-  ): Promise<SearchResult[]> {
+  ): Promise<SearchResultInternal[]> {
     const searchQuery = encodeURIComponent(`${query} ${PLATFORM_SITES[platform]}`);
     const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CSE_ID}&q=${searchQuery}&num=${num}`;
 
@@ -193,7 +198,7 @@ class TopPicksIndexer {
     console.log(`✅ Indexed ${this.indexedSites.length} unique sites`);
   }
 
-  private calculateScore(result: SearchResult, searchTerm: string, rank: number): number {
+  private calculateScore(result: SearchResultInternal, searchTerm: string, rank: number): number {
     let score = 100 - (rank * 10); // Base score decreases with rank
 
     // Boost for popular platforms hosting user content
