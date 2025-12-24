@@ -178,6 +178,9 @@ const Index = () => {
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
               <AnimatedTitle />
+              <p className="text-sm md:text-base text-muted-foreground font-medium tracking-widest uppercase mb-8 animate-fade-up stagger-2">
+                F*CK SEO • FIND SITES & FREE TOOLS
+              </p>
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} />
               </div>
