@@ -159,18 +159,16 @@ export function AISummaryCard({ summary, isLoading }: AISummaryCardProps) {
               {parsed.links.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Recommended</h4>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {parsed.links.map((link, index) => (
-                      <a
+                      <div
                         key={index}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-2 group hover:bg-accent/50 rounded-lg p-2 -mx-2 transition-colors"
+                        className="flex items-start gap-2 rounded-lg p-2 -mx-2 hover:bg-accent/50 transition-colors cursor-pointer"
+                        onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
                       >
                         <ExternalLink className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                         <div className="min-w-0">
-                          <span className="text-sm text-primary font-medium group-hover:underline block truncate">
+                          <span className="text-sm text-primary font-medium hover:underline block truncate">
                             {link.title}
                           </span>
                           {link.description && (
@@ -179,7 +177,7 @@ export function AISummaryCard({ summary, isLoading }: AISummaryCardProps) {
                             </span>
                           )}
                         </div>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 </div>

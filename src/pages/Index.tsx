@@ -98,15 +98,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated Grid Background */}
-      <AnimatedGrid />
+      {/* Animated Grid Background - only on home page */}
+      {!hasSearched && !isLoading && <AnimatedGrid />}
       
-      {/* Additional background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/[0.03] to-blue-500/[0.03] rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-blue-500/[0.03] to-purple-500/[0.03] rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/[0.01] via-blue-500/[0.01] to-purple-500/[0.01] rounded-full blur-3xl" />
-      </div>
+      {/* Additional background decoration - only on home page */}
+      {!hasSearched && !isLoading && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/[0.03] to-blue-500/[0.03] rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-blue-500/[0.03] to-purple-500/[0.03] rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/[0.01] via-blue-500/[0.01] to-purple-500/[0.01] rounded-full blur-3xl" />
+        </div>
+      )}
 
       {/* Header - changes layout based on search state */}
       <header className={`relative z-50 flex items-center justify-between px-6 py-4 md:px-12 ${hasSearched || isLoading ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'md:py-6'}`}>
