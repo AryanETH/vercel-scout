@@ -15,6 +15,7 @@ import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { AdminPanel } from "@/components/AdminPanel";
 import { AnimatedGrid } from "@/components/AnimatedGrid";
 import { AISummaryCard } from "@/components/AISummaryCard";
+import { RelatedSearches } from "@/components/RelatedSearches";
 
 import { Button } from "@/components/ui/button";
 import { Users, Plus, Heart } from "lucide-react";
@@ -241,6 +242,9 @@ const Index = () => {
                   totalPages={totalPages}
                   onPageChange={(page) => changePage(page, searchMode === "favorites")}
                 />
+                
+                {/* Related Searches */}
+                <RelatedSearches query={lastSearchQuery} onSearch={handleSearch} />
               </div>
             )}
 
