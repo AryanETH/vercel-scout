@@ -22,7 +22,7 @@ const platformLogos: Record<string, string> = {
   railway: "https://railway.app/favicon.ico",
   onrender: "https://render.com/favicon.ico",
   bubble: "https://bubble.io/favicon.ico",
-  framer: "https://framer.com/favicon.ico",
+  framer: "https://framerusercontent.com/images/3vyTpx6PRhS2G1WGJvYPZ0qsA.png",
   replit: "https://replit.com/public/icons/favicon-196.png",
   bolt: "https://bolt.new/favicon.ico",
   fly: "https://fly.io/static/images/favicon.png",
