@@ -10,7 +10,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { AdminPanel } from "@/components/AdminPanel";
@@ -36,7 +35,6 @@ const Index = () => {
     isAuthenticated 
   } = useAuth();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
