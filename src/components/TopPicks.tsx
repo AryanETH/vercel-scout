@@ -1,6 +1,5 @@
 import { ExternalLink, Sparkles, Wrench, Gem, Search } from "lucide-react";
 import { useState, useEffect } from "react";
-import { topPicksIndexer } from "@/lib/topPicksIndexer";
 import { fallbackTopPicks } from "@/lib/fallbackPicks";
 
 interface IndexedSite {
@@ -72,48 +71,12 @@ export function TopPicks() {
             return;
           }
         }
-        
-        // Fallback to API if no admin data
-        console.log('🔍 Starting to load top picks from API...');
-        await topPicksIndexer.getTopPicks(12);
-        const categorizedPicks = topPicksIndexer.getCategorizedPicks();
-        
-        console.log('📊 Categorized picks:', categorizedPicks);
-        
-        // Check if we got any results
-        const totalResults = categorizedPicks.ai.length + categorizedPicks.devtools.length + categorizedPicks.gems.length;
-        
-        if (totalResults === 0) {
-          console.log('⚠️ No results from indexer, using fallback');
-          setPicks(fallbackTopPicks);
-          setUsingFallback(true);
-        } else {
-          setPicks(categorizedPicks);
-          setUsingFallback(false);
-        }
-        
-        setLastUpdated(new Date());
-        setError(null);
-      } catch (err) {
-        console.error('❌ Failed to load top picks:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load picks';
-        
-        // Check if it's a quota exceeded error
-        if (errorMessage.includes('Quota exceeded') || errorMessage.includes('quota metric')) {
-          console.log('📊 API quota exceeded, offering Google CSE fallback');
-          setQuotaExceeded(true);
-          setError('API quota exceeded for today');
-        } else {
-          console.log('🔄 Using fallback picks');
-          setError(errorMessage);
-        }
-        
+        // If no admin data, use curated fallback picks (no external quota dependency)
         setPicks(fallbackTopPicks);
         setUsingFallback(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        setLastUpdated(new Date());
+        setError(null);
+        return;
 
     loadTopPicks();
   }, []);

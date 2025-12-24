@@ -2,29 +2,11 @@ import { useState, useCallback } from "react";
 import { Platform } from "@/components/PlatformFilters";
 import { searchApi, SearchResult as ApiSearchResult } from "@/lib/api/search";
 
-// Legacy Google CSE config (fallback)
-const API_KEY = "AIzaSyByFwruZ-h21A5YUNn6jj9qyBaeHBNgGSQ";
-const CSE_ID = "c45a3d17b28ad4867";
-
-const PLATFORM_SITES: Record<Exclude<Platform, "all">, string> = {
-  vercel: "site:vercel.app",
-  github: "site:github.io",
-  onrender: "site:onrender.com",
-  netlify: "site:netlify.app",
-  railway: "site:railway.app",
-  bubble: "site:bubbleapps.io",
-  framer: "site:framer.website",
-  replit: "site:replit.app",
-  bolt: "site:bolt.host",
-  fly: "site:fly.dev",
-  lovable: "site:lovable.app",
-};
-
 export interface SearchResult {
   title: string;
   link: string;
   snippet: string;
-  platform: Exclude<Platform, "all">;
+  platform?: string;
   favicon?: string;
 }
 
@@ -42,6 +24,55 @@ interface SearchState {
 const RESULTS_PER_PAGE = 20;
 const MAX_RESULTS = 100;
 
+function toDisplayResult(r: ApiSearchResult): SearchResult {
+  return {
+    title: r.title,
+    link: r.url,
+    snippet: r.description || "",
+    platform: r.platform || undefined,
+    favicon: r.favicon_url || undefined,
+  };
+}
+
+function toApiResult(r: SearchResult, fallbackPlatform: string): ApiSearchResult {
+  return {
+    id: r.link,
+    url: r.link,
+    title: r.title,
+    description: r.snippet,
+    platform: r.platform || fallbackPlatform,
+    favicon_url: r.favicon || null,
+    search_score: 0,
+    tags: [],
+  };
+}
+
+function rankByUserPreferences(results: SearchResult[]): SearchResult[] {
+  const allUsers = JSON.parse(localStorage.getItem("yourel_users") || "[]");
+  const siteLikes: Record<string, number> = {};
+  const siteDislikes: Record<string, number> = {};
+
+  allUsers.forEach((user: any) => {
+    user.likedSites?.forEach((site: string) => {
+      siteLikes[site] = (siteLikes[site] || 0) + 1;
+    });
+    user.dislikedSites?.forEach((site: string) => {
+      siteDislikes[site] = (siteDislikes[site] || 0) + 1;
+    });
+  });
+
+  return [...results].sort((a, b) => {
+    const scoreA = (siteLikes[a.link] || 0) - (siteDislikes[a.link] || 0);
+    const scoreB = (siteLikes[b.link] || 0) - (siteDislikes[b.link] || 0);
+    return scoreB - scoreA;
+  });
+}
+
+function slicePage(results: SearchResult[], page: number): SearchResult[] {
+  const start = (page - 1) * RESULTS_PER_PAGE;
+  return results.slice(start, start + RESULTS_PER_PAGE);
+}
+
 export function useMultiSearch() {
   const [state, setState] = useState<SearchState>({
     results: [],
@@ -53,67 +84,39 @@ export function useMultiSearch() {
     aiSummary: null,
     isAILoading: false,
   });
+
   const [lastQuery, setLastQuery] = useState("");
   const [lastPlatform, setLastPlatform] = useState<Platform>("all");
 
-  // Convert API result to display format
-  const convertResult = (r: ApiSearchResult): SearchResult => ({
-    title: r.title,
-    link: r.url,
-    snippet: r.description || "",
-    platform: (r.platform as Exclude<Platform, "all">) || "vercel",
-    favicon: r.favicon_url || undefined,
-  });
+  // Cache full result set so pagination doesn't re-hit the network
+  const [fullResultsKey, setFullResultsKey] = useState("");
+  const [fullResults, setFullResults] = useState<SearchResult[]>([]);
 
-  // Fallback to Google CSE when database is empty
-  const searchGoogleCSE = async (
-    query: string,
-    platform: Exclude<Platform, "all"> | null,
-    start: number,
-    num: number
-  ): Promise<{ results: SearchResult[]; total: number }> => {
-    let searchQuery = query;
-    if (platform) {
-      searchQuery = `${query} ${PLATFORM_SITES[platform]}`;
-    }
-    
-    const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CSE_ID}&q=${encodeURIComponent(searchQuery)}&start=${start}&num=${num}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message);
+  const runAISummary = useCallback(async (query: string, platform: Platform, pageResults: SearchResult[]) => {
+    if (pageResults.length === 0) {
+      setState((prev) => ({ ...prev, aiSummary: null, isAILoading: false }));
+      return;
     }
 
-    const results: SearchResult[] = (data.items || []).map((item: any) => {
-      // Detect platform from URL
-      let detectedPlatform: Exclude<Platform, "all"> = "vercel";
-      for (const [p, pattern] of Object.entries(PLATFORM_SITES)) {
-        if (item.link?.includes(pattern.replace("site:", ""))) {
-          detectedPlatform = p as Exclude<Platform, "all">;
-          break;
-        }
+    try {
+      const aiResponse = await searchApi.getAISummary(
+        query,
+        platform,
+        pageResults.map((r) => toApiResult(r, platform === "all" ? "web" : platform))
+      );
+
+      if (aiResponse.success) {
+        setState((prev) => ({ ...prev, aiSummary: aiResponse.summary, isAILoading: false }));
+      } else {
+        setState((prev) => ({ ...prev, isAILoading: false }));
       }
-
-      return {
-        title: item.title || "Untitled",
-        link: item.link,
-        snippet: item.snippet || "",
-        platform: detectedPlatform,
-      };
-    });
-
-    const total = parseInt(data.searchInformation?.totalResults || "0", 10);
-    return { results, total: Math.min(total, MAX_RESULTS) };
-  };
+    } catch {
+      setState((prev) => ({ ...prev, isAILoading: false }));
+    }
+  }, []);
 
   const search = useCallback(
-    async (
-      query: string,
-      platform: Platform = "all",
-      page: number = 1,
-      favoriteMode: boolean = false
-    ) => {
+    async (query: string, platform: Platform = "all", page: number = 1, favoriteMode: boolean = false) => {
       if (!query.trim()) return;
 
       setState((prev) => ({
@@ -123,116 +126,46 @@ export function useMultiSearch() {
         aiSummary: null,
         isAILoading: false,
       }));
+
       setLastQuery(query);
       setLastPlatform(platform);
 
+      const key = `${query}::${platform}::${favoriteMode ? "fav" : "all"}`;
+
       try {
-        // First, try our indexed database
-        const dbResponse = await searchApi.search(query, platform, page, RESULTS_PER_PAGE);
+        let computedFullResults = fullResults;
 
-        let allResults: SearchResult[] = [];
-        let totalResults = 0;
+        if (key !== fullResultsKey) {
+          const webResponse = await searchApi.webSearch(query, platform, 1, MAX_RESULTS);
 
-        if (dbResponse.success && dbResponse.results.length > 0) {
-          // Use database results
-          allResults = dbResponse.results.map(convertResult);
-          totalResults = dbResponse.total;
-          console.log("Using database results:", allResults.length);
-        } else {
-          // Fallback to Google CSE
-          console.log("Falling back to Google CSE");
-          const startIndex = (page - 1) * 10 + 1;
-
-          if (platform === "all") {
-            // Fetch from multiple platforms
-            const platforms: Exclude<Platform, "all">[] = [
-              "vercel", "github", "netlify", "railway", "onrender",
-              "bubble", "framer", "replit", "bolt", "fly", "lovable",
-            ];
-
-            const resultsPerPlatform = 1;
-            const platformPromises = platforms.map((p) =>
-              searchGoogleCSE(query, p, 1, resultsPerPlatform).catch(() => ({
-                results: [],
-                total: 0,
-              }))
-            );
-
-            const results = await Promise.all(platformPromises);
-
-            // Interleave results
-            const platformResults = results.map((r) => r.results);
-            const maxLength = Math.max(...platformResults.map((r) => r.length));
-
-            for (let i = 0; i < maxLength && allResults.length < 50; i++) {
-              for (let j = 0; j < platformResults.length && allResults.length < 50; j++) {
-                if (platformResults[j][i]) {
-                  allResults.push(platformResults[j][i]);
-                }
-              }
-            }
-
-            totalResults = Math.min(
-              results.reduce((sum, r) => sum + r.total, 0),
-              MAX_RESULTS
-            );
-          } else {
-            const { results, total } = await searchGoogleCSE(
-              query,
-              platform,
-              startIndex,
-              10
-            );
-            allResults = results;
-            totalResults = total;
+          if (!webResponse.success) {
+            throw new Error(webResponse.error || "Search failed");
           }
+
+          computedFullResults = webResponse.results.map(toDisplayResult);
+          if (favoriteMode) {
+            computedFullResults = rankByUserPreferences(computedFullResults);
+          }
+
+          setFullResultsKey(key);
+          setFullResults(computedFullResults);
         }
 
-        // Apply favorites ranking if in favorites mode
-        if (favoriteMode) {
-          allResults = rankByUserPreferences(allResults);
-        }
+        const pageResults = slicePage(computedFullResults, page);
 
         setState({
-          results: allResults,
+          results: pageResults,
           isLoading: false,
           error: null,
           hasSearched: true,
-          totalResults,
+          totalResults: computedFullResults.length,
           currentPage: page,
           aiSummary: null,
-          isAILoading: true,
+          isAILoading: pageResults.length > 0,
         });
 
         // Fetch AI summary in background
-        if (allResults.length > 0) {
-          const aiResponse = await searchApi.getAISummary(
-            query,
-            platform,
-            allResults.map((r) => ({
-              id: "",
-              url: r.link,
-              title: r.title,
-              description: r.snippet,
-              platform: r.platform,
-              favicon_url: r.favicon || null,
-              search_score: 0,
-              tags: [],
-            }))
-          );
-
-          if (aiResponse.success) {
-            setState((prev) => ({
-              ...prev,
-              aiSummary: aiResponse.summary,
-              isAILoading: false,
-            }));
-          } else {
-            setState((prev) => ({ ...prev, isAILoading: false }));
-          }
-        } else {
-          setState((prev) => ({ ...prev, isAILoading: false }));
-        }
+        await runAISummary(query, platform, pageResults);
       } catch (error) {
         setState({
           results: [],
@@ -246,36 +179,14 @@ export function useMultiSearch() {
         });
       }
     },
-    []
+    [fullResults, fullResultsKey, runAISummary]
   );
-
-  // Ranking function based on user preferences
-  const rankByUserPreferences = (results: SearchResult[]): SearchResult[] => {
-    const allUsers = JSON.parse(localStorage.getItem("yourel_users") || "[]");
-    const siteLikes: Record<string, number> = {};
-    const siteDislikes: Record<string, number> = {};
-
-    allUsers.forEach((user: any) => {
-      user.likedSites?.forEach((site: string) => {
-        siteLikes[site] = (siteLikes[site] || 0) + 1;
-      });
-      user.dislikedSites?.forEach((site: string) => {
-        siteDislikes[site] = (siteDislikes[site] || 0) + 1;
-      });
-    });
-
-    return results.sort((a, b) => {
-      const scoreA = (siteLikes[a.link] || 0) - (siteDislikes[a.link] || 0);
-      const scoreB = (siteLikes[b.link] || 0) - (siteDislikes[b.link] || 0);
-      return scoreB - scoreA;
-    });
-  };
 
   const changePage = useCallback(
     (page: number, favoriteMode: boolean = false) => {
       search(lastQuery, lastPlatform, page, favoriteMode);
     },
-    [lastQuery, lastPlatform, search]
+    [lastPlatform, lastQuery, search]
   );
 
   const changeFilter = useCallback(
@@ -290,6 +201,6 @@ export function useMultiSearch() {
     search,
     changePage,
     changeFilter,
-    totalPages: Math.ceil(state.totalResults / RESULTS_PER_PAGE),
+    totalPages: Math.ceil(state.totalResults / RESULTS_PER_PAGE) || 1,
   };
 }

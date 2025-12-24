@@ -1,4 +1,4 @@
-import { Search, Heart } from "lucide-react";
+import { Search } from "lucide-react";
 import { TopPicks } from "./TopPicks";
 
 interface EmptyStateProps {
@@ -12,22 +12,10 @@ export function EmptyState({ hasSearched }: EmptyStateProps) {
         <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mb-6 animate-float">
           <Search className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="font-display text-xl font-semibold mb-2">
-          Support This Project
-        </h3>
-        <p className="text-muted-foreground max-w-md mb-6">
-          Currently Out of Search Quota Limit
+        <h3 className="font-display text-xl font-semibold mb-2">No results found</h3>
+        <p className="text-muted-foreground max-w-md">
+          Try different keywords, or change the platform filter.
         </p>
-        
-        <a
-          href="https://ko-fi.com/yourel"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="glass px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 hover:scale-105"
-        >
-          <Heart className="w-5 h-5" />
-          Support Us
-        </a>
       </div>
     );
   }
