@@ -14,13 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      indexed_sites: {
+        Row: {
+          content: string | null
+          description: string | null
+          favicon_url: string | null
+          id: string
+          indexed_at: string
+          metadata: Json | null
+          platform: string
+          screenshot_url: string | null
+          search_score: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          content?: string | null
+          description?: string | null
+          favicon_url?: string | null
+          id?: string
+          indexed_at?: string
+          metadata?: Json | null
+          platform: string
+          screenshot_url?: string | null
+          search_score?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          content?: string | null
+          description?: string | null
+          favicon_url?: string | null
+          id?: string
+          indexed_at?: string
+          metadata?: Json | null
+          platform?: string
+          screenshot_url?: string | null
+          search_score?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          id: string
+          query: string
+          results_count: number | null
+          searched_at: string
+        }
+        Insert: {
+          id?: string
+          query: string
+          results_count?: number | null
+          searched_at?: string
+        }
+        Update: {
+          id?: string
+          query?: string
+          results_count?: number | null
+          searched_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_sites: {
+        Args: {
+          platform_filter?: string
+          result_limit?: number
+          search_query: string
+        }
+        Returns: {
+          description: string
+          favicon_url: string
+          id: string
+          platform: string
+          rank: number
+          search_score: number
+          tags: string[]
+          title: string
+          url: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
