@@ -9,14 +9,14 @@ interface SearchModeSelectorProps {
 
 export function SearchModeSelector({ mode, onChange }: SearchModeSelectorProps) {
   return (
-    <div className="flex items-center justify-center gap-1 p-1 bg-secondary rounded-lg">
+    <div className="flex items-center gap-4">
       <button
         onClick={() => onChange("general")}
         className={cn(
-          "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+          "px-3 py-1.5 text-sm font-medium transition-all duration-200 border-b-2",
           mode === "general"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+            ? "border-primary text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground"
         )}
       >
         General
@@ -24,10 +24,10 @@ export function SearchModeSelector({ mode, onChange }: SearchModeSelectorProps) 
       <button
         onClick={() => onChange("favorites")}
         className={cn(
-          "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+          "px-3 py-1.5 text-sm font-medium transition-all duration-200 border-b-2",
           mode === "favorites"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+            ? "border-primary text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground"
         )}
       >
         User Favorites
