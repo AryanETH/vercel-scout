@@ -16,17 +16,17 @@ interface SearchResultProps {
 }
 
 const platformLogos: Record<string, string> = {
-  vercel: "https://assets.vercel.com/image/upload/front/favicon/vercel/favicon.ico",
-  github: "https://github.githubassets.com/favicons/favicon.svg",
-  netlify: "https://www.netlify.com/favicon.ico",
-  railway: "https://railway.app/favicon.ico",
-  onrender: "https://render.com/favicon.ico",
-  bubble: "https://bubble.io/favicon.ico",
-  framer: "https://framerusercontent.com/images/3vyTpx6PRhS2G1WGJvYPZ0qsA.png",
-  replit: "https://replit.com/public/icons/favicon-196.png",
-  bolt: "https://bolt.new/favicon.ico",
-  fly: "https://fly.io/static/images/favicon.png",
-  lovable: "https://lovable.dev/favicon.ico",
+  vercel: "/logos/vercel.ico",
+  github: "/logos/github.svg",
+  netlify: "/logos/netlify.ico",
+  railway: "/logos/railway.ico",
+  onrender: "/logos/render.png",
+  bubble: "/logos/bubble.png",
+  framer: "/logos/framer.png",
+  replit: "/logos/replit.png",
+  bolt: "/logos/bolt.ico",
+  fly: "/logos/fly.svg",
+  lovable: "/logos/lovable.ico",
 };
 
 function getPlatformFromUrl(url: string): string | null {

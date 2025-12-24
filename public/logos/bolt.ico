@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><!--remix-island-start--><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Favicon.Ico (duplicated) - Bolt.new</title><meta property="description" content="Prompt, run, edit &amp; publish apps"/><meta property="og:type" content="object"/><meta property="og:site_name" content="bolt.new"/><meta property="og:title" content="Favicon.Ico (duplicated) - Bolt.new"/><meta property="og:image" content="https://social-img.staticblitz.com/bolt-projects/favicon.ico"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Favicon.Ico (duplicated) - Bolt.new"/><meta name="twitter:description" content="Prompt, run, edit &amp; publish apps"/><meta name="twitter:image" content="https://social-img.staticblitz.com/bolt-projects/favicon.ico"/><meta name="twitter:site" content="@StackBlitz"/><meta name="bolt-version" content="8d0c733"/><link rel="stylesheet" href="/assets/root-Bq2D9EXt.css"/><link rel="stylesheet" href="/assets/LightRaysCloud-DqVcXTCJ.css"/><link rel="stylesheet" href="/assets/LightRays-apN2LHcc.css"/><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"/><link rel="stylesheet" href="/assets/ReactToastify-Bh76j7cs.css"/><link rel="stylesheet" href="/assets/tailwind-compat-Bwh-BmjE.css"/><link rel="stylesheet" href="/assets/index-DF4VX-Yn.css"/><link rel="stylesheet" href="/assets/xterm-LZoznX6r.css"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link rel="preload" href="/static/fonts/inter-display-semibold.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><link rel="preload" href="/static/fonts/inter-display-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"/><link rel="stylesheet" href="/static/fonts/fonts.css"/><link rel="stylesheet" href="/assets/SupabaseLogo-CzqnVCjZ.css"/><link rel="stylesheet" href="/assets/Chat-CX6IgRL_.css"/><script>(function createWorkaroundGlobal() {
+  window["__name"] = () => {
+  };
+})();</script><script>(function blockDOMMutations() {
+  const observer = new MutationObserver((mutations) => {
+    observer.disconnect();
+    mutations.reverse().forEach((mutation) => {
+      if (mutation.type === "childList") {
+        mutation.addedNodes.forEach((node2) => {
+          if ([document.head, document.body, document.documentElement].includes(node2.parentNode)) {
+            return;
+          }
+          if (node2.parentNode) {
+            node2.parentNode.removeChild(node2);
+          }
+        });
+        mutation.removedNodes.forEach((node2) => {
+          if (mutation.previousSibling) {
+            mutation.target.insertBefore(node2, mutation.previousSibling.nextSibling);
+          } else if (mutation.target) {
+            mutation.target.appendChild(node2);
+          }
+        });
+      }
+      if (mutation.type === "attributes") {
+        const { target, attributeName, oldValue } = mutation;
+        if (attributeName) {
+          if (oldValue === null) {
+            target.removeAttribute(attributeName);
+          } else {
+            target.setAttribute(attributeName, oldValue);
+          }
+        }
+      }
+      if (mutation.type === "characterData") {
+        mutation.target.data = mutation.oldValue ?? "";
+      }
+    });
+    observe();
+  });
+  function observe() {
+    observer.observe(document, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeOldValue: true,
+      characterData: true,
+      characterDataOldValue: true
+    });
+  }
+  __name(observe, "observe");
+  window.addEventListener("DOMContentLoaded", observe);
+  window.__allowDOMMutations = () => {
+    observer.disconnect();
+    window.__loadingPrompt = document.querySelector("textarea")?.value;
+  };
+})();</script><script>(function themeCode(storageKey, defaultTheme) {
+  if (window.location.pathname !== "/figma") {
+    setBoltTheme();
+  }
+  function setBoltTheme() {
+    const htmlElement = document.querySelector("html");
+    const localTheme = localStorage.getItem(storageKey);
+    const metaElement = document.querySelector("meta[name=bolt-theme]");
+    let theme3 = metaElement?.content ?? localTheme ?? defaultTheme;
+    htmlElement.setAttribute("data-theme-option", theme3);
+    if (theme3 === "system") {
+      const prefersDark2 = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      theme3 = prefersDark2 ? "dark" : "light";
+    }
+    htmlElement.setAttribute("data-theme", theme3);
+  }
+  __name(setBoltTheme, "setBoltTheme");
+})("bolt_theme", "dark");</script><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-58KJM59B');</script><!--remix-island-end--></head><body class="bg-bolt-elements-background-depth-1"><div id="root" class="w-full h-full"><div class="flex flex-col h-full w-full"><header class="flex shrink-0 select-none selection-accent items-center pl-5 pr-4 border-b h-[var(--header-height)] z-21 fixed w-full backdrop-blur-[17px] border-bolt-elements-borderColor"><div class="flex grow-1 basis-60 items-center gap-2 text-bolt-elements-textPrimary"><div class="z-logo"><a href="/" class="text-2xl font-semibold text-accent flex items-center"><span class="i-bolt:logos-bolt-new?mask w-[70.5px] inline-block"></span></a></div></div><div class="flex grow-1 basis-60 justify-end items-center gap-3"></div></header></div><script>((STORAGE_KEY2, restoreKey) => {
+    if (!window.history.state || !window.history.state.key) {
+      let key2 = Math.random().toString(32).slice(2);
+      window.history.replaceState({
+        key: key2
+      }, "");
+    }
+    try {
+      let positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY2) || "{}");
+      let storedY = positions[restoreKey || window.history.state.key];
+      if (typeof storedY === "number") {
+        window.scrollTo(0, storedY);
+      }
+    } catch (error6) {
+      console.error(error6);
+      sessionStorage.removeItem(STORAGE_KEY2);
+    }
+  })("positions", null)</script><link rel="modulepreload" href="/assets/manifest-bc3e2612.js"/><link rel="modulepreload" href="/assets/entry.client-CTwtGG9u.js"/><link rel="modulepreload" href="/assets/jsx-runtime-C0qhcQhD.js"/><link rel="modulepreload" href="/assets/index-C2hVi5px.js"/><link rel="modulepreload" href="/assets/sentry.client-B_Oq5T6b.js"/><link rel="modulepreload" href="/assets/performance-BwdCRVwJ.js"/><link rel="modulepreload" href="/assets/node-C9goC9Df.js"/><link rel="modulepreload" href="/assets/breadcrumbs-DBRIJCUY.js"/><link rel="modulepreload" href="/assets/index-B64fLDXr.js"/><link rel="modulepreload" href="/assets/components-ClifTJOs.js"/><link rel="modulepreload" href="/assets/index-BT4HuoY2.js"/><link rel="modulepreload" href="/assets/queryClient-BRL_Qkhz.js"/><link rel="modulepreload" href="/assets/QueryClientProvider-BQfkqNrT.js"/><link rel="modulepreload" href="/assets/react-toastify.esm-D8QuSuND.js"/><link rel="modulepreload" href="/assets/server.browser-qFJv1vmU.js"/><link rel="modulepreload" href="/assets/client-only-CFmS--OG.js"/><link rel="modulepreload" href="/assets/analytics-WcsZUKEu.js"/><link rel="modulepreload" href="/assets/Button-D4IyT5Lq.js"/><link rel="modulepreload" href="/assets/stripIndent-DGW-_fLL.js"/><link rel="modulepreload" href="/assets/ErrorBoundary-CG7VKFVJ.js"/><link rel="modulepreload" href="/assets/theme-C1Ecj0y7.js"/><link rel="modulepreload" href="/assets/Alert-B4onKSKA.js"/><link rel="modulepreload" href="/assets/login-H-nQe9qC.js"/><link rel="modulepreload" href="/assets/constants-D4xd8UqB.js"/><link rel="modulepreload" href="/assets/invariant-DHsuEGNz.js"/><link rel="modulepreload" href="/assets/classNames-DSSoQbPU.js"/><link rel="modulepreload" href="/assets/IconButton-e-shu7Ss.js"/><link rel="modulepreload" href="/assets/Header-B-AvIc82.js"/><link rel="modulepreload" href="/assets/Logo-CAPY_RNg.js"/><link rel="modulepreload" href="/assets/chat-ByvUdY83.js"/><link rel="modulepreload" href="/assets/settings-C1h3GB99.js"/><link rel="modulepreload" href="/assets/Link-B59G5AuM.js"/><link rel="modulepreload" href="/assets/description-DTV_ZNDi.js"/><link rel="modulepreload" href="/assets/token-D9YjTmms.js"/><link rel="modulepreload" href="/assets/LightRays.client-CFahm4Xy.js"/><link rel="modulepreload" href="/assets/LightRaysCore-C7adAsRM.js"/><link rel="modulepreload" href="/assets/LightRays.module-DgHaNh4q.js"/><link rel="modulepreload" href="/assets/LegacyIconButton-DImABMQd.js"/><link rel="modulepreload" href="/assets/LightRaysCloud.client-Bymenhl6.js"/><link rel="modulepreload" href="/assets/LoadingDots-Co42wCR1.js"/><link rel="modulepreload" href="/assets/root-ZRzHYJb9.js"/><link rel="modulepreload" href="/assets/SupabaseLogo-BtfrjsZ4.js"/><link rel="modulepreload" href="/assets/Input-CZOT9W5T.js"/><link rel="modulepreload" href="/assets/AccountDisplay-BXZ1ITEv.js"/><link rel="modulepreload" href="/assets/Switch-D95Xj0-9.js"/><link rel="modulepreload" href="/assets/tokens-stats-CkYkn6Y0.js"/><link rel="modulepreload" href="/assets/withSpinner-CECNe4HW.js"/><link rel="modulepreload" href="/assets/format-VIU6NSsZ.js"/><link rel="modulepreload" href="/assets/Table-B5RPJwIj.js"/><link rel="modulepreload" href="/assets/workbench-C90NIHxo.js"/><link rel="modulepreload" href="/assets/LegacyDialog-DwmL7bUE.js"/><link rel="modulepreload" href="/assets/helpers-BhIfdv7X.js"/><link rel="modulepreload" href="/assets/index-F2xQrcv7.js"/><link rel="modulepreload" href="/assets/applicationManager-DL622Nup.js"/><link rel="modulepreload" href="/assets/connect._provider-W_RuaoM0.js"/><link rel="modulepreload" href="/assets/util-CHNqPh7R.js"/><link rel="modulepreload" href="/assets/IndexLayout-BOYzsfvq.js"/><link rel="modulepreload" href="/assets/useMutation-DsgQwNFa.js"/><link rel="modulepreload" href="/assets/download-DkF6NYFe.js"/><link rel="modulepreload" href="/assets/api-C4U81jgw.js"/><link rel="modulepreload" href="/assets/Accordion-Ct4m0q4M.js"/><link rel="modulepreload" href="/assets/overlay-Cx1UK7LF.js"/><link rel="modulepreload" href="/assets/github-BMQYUStn.js"/><link rel="modulepreload" href="/assets/useProjectVisibility-DHQWqA11.js"/><link rel="modulepreload" href="/assets/sheetNavigation-CeLhk2EA.js"/><link rel="modulepreload" href="/assets/version-history-shig9g9q.js"/><link rel="modulepreload" href="/assets/stripe--PWE2Zbe.js"/><link rel="modulepreload" href="/assets/prepare-body-nyXQcOLO.js"/><link rel="modulepreload" href="/assets/client-github-D6gj8vFQ.js"/><link rel="modulepreload" href="/assets/ai-CIazCx9G.js"/><link rel="modulepreload" href="/assets/importStore-t1mL_ZRI.js"/><link rel="modulepreload" href="/assets/openWithStackblitzAuth-Y2TmYKGH.js"/><link rel="modulepreload" href="/assets/index-DU43oUqs.js"/><link rel="modulepreload" href="/assets/bolt-connect-BMbhxMlk.js"/><link rel="modulepreload" href="/assets/_chat-DHFTA_Jp.js"/><link rel="modulepreload" href="/assets/Chat.client-plm7qZ_k.js"/><link rel="modulepreload" href="/assets/meta-C9qPDd3d.js"/><link rel="modulepreload" href="/assets/ConnectToFigmaDialog-D9GbJe7W.js"/><link rel="modulepreload" href="/assets/DiscordSupportModal-BjmhTqb8.js"/><link rel="modulepreload" href="/assets/Sheet-u85cQkOb.js"/><link rel="modulepreload" href="/assets/Pricing.client-CtH_K1hM.js"/><link rel="modulepreload" href="/assets/date-binning-sIsUxLEZ.js"/><link rel="modulepreload" href="/assets/isYesterday-D5Btfag6.js"/><link rel="modulepreload" href="/assets/AccountSelector.client-DMv5QUMm.js"/><link rel="modulepreload" href="/assets/getRoundingMethod--qyXQtny.js"/><link rel="modulepreload" href="/assets/formatDistanceToNow-CJ7v0gAG.js"/><link rel="modulepreload" href="/assets/current-user-rails-client-BK76biNv.js"/><link rel="modulepreload" href="/assets/_chat.~._slug-iuCL4pBj.js"/><script>window.__remixContext = {"basename":"/","future":{"v3_fetcherPersist":true,"v3_relativeSplatPath":true,"v3_throwAbortReason":true,"v3_singleFetch":false,"v3_lazyRouteDiscovery":false,"unstable_optimizeDeps":false},"isSpaMode":false,"state":{"loaderData":{"root":{"user":null,"loggedIn":false,"token":null,"swk":"ta1kDK49qdEDEfd8KYxI37mW0GPkLKn1"},"routes/_chat.~.$slug":{"slug":"favicon.ico","projectId":"null","projectInfo":{"id":"null","slug":"favicon.ico","title":"Favicon.Ico (duplicated)","description":null},"loggedIn":false,"user":null},"routes/_chat":null},"actionData":null,"errors":null}};</script><script type="module" async="">import "/assets/manifest-bc3e2612.js";
+import * as route0 from "/assets/root-ZRzHYJb9.js";
+import * as route1 from "/assets/_chat-DHFTA_Jp.js";
+import * as route2 from "/assets/_chat.~._slug-iuCL4pBj.js";
+
+window.__remixRouteModules = {"root":route0,"routes/_chat":route1,"routes/_chat.~.$slug":route2};
+
+import("/assets/entry.client-CTwtGG9u.js");</script></div></body></html>
