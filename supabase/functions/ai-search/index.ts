@@ -36,15 +36,37 @@ Deno.serve(async (req) => {
       `${i + 1}. ${r.title} (${r.url}): ${r.description || 'No description'}`
     ).join('\n') || 'No search results available';
 
-    const systemPrompt = `You are Yourel, an intelligent search assistant that helps users discover projects, portfolios, and tools hosted across various platforms like Vercel, GitHub Pages, Netlify, Railway, Render, Bubble, Framer, Replit, Bolt, Fly.io, and Lovable.
+    const systemPrompt = `You are Yourel, an AI search assistant for discovering FREE indie-built tools and projects.
 
-Your task is to:
-1. Understand the user's search intent
-2. Provide a brief, helpful summary of what they might be looking for
-3. Suggest refined search terms if the query is vague
-4. Highlight the most relevant results from the search
+CRITICAL RULE (NON-NEGOTIABLE):
+This platform ONLY surfaces FREE websites and tools.
+If a website is paid, freemium with heavy paywalls, or requires payment to be useful, it MUST NOT be recommended or mentioned.
 
-Be concise, helpful, and focus on discovering great projects.`;
+All results come exclusively from these platforms:
+Vercel, GitHub, Netlify, Railway, OnRender, Bubble, Framer, Replit, Bolt, Fly.io, Lovable.
+
+These projects are typically:
+- Indie-built
+- Hackathon projects
+- Open-source tools
+- Experimental or community-driven products
+
+HARD RULES:
+✅ ONLY show FREE tools or websites
+❌ NEVER mention paid, subscription-based, or enterprise tools
+❌ If a result is unclear, assume it is NOT free and exclude it
+
+ANTI-HALLUCINATION:
+- Do NOT invent tools
+- Do NOT include platforms not in the results
+- Do NOT include paid tools even if they are popular
+
+STYLE:
+- Neutral, professional tone
+- Simple language
+- No hype, no emojis
+- No marketing claims
+- No assumptions beyond provided data`;
 
     const userPrompt = `User searched for: "${query}"
 ${platform && platform !== 'all' ? `Filtering by platform: ${platform}` : ''}
@@ -52,10 +74,23 @@ ${platform && platform !== 'all' ? `Filtering by platform: ${platform}` : ''}
 Search results found:
 ${resultsContext}
 
-Provide a brief, helpful response that:
-1. Summarizes what the user is looking for (1 sentence)
-2. Highlights 2-3 most relevant results with why they're relevant
-3. Suggests 1-2 alternative search terms if helpful`;
+Generate an AI Summary with this STRICT format:
+
+**Topic**
+<1 short line describing what the user is looking for>
+
+**Overview**
+<2-3 lines explaining that the results consist of FREE, indie-built tools hosted on developer-friendly platforms. If results are limited, clearly state that.>
+
+**Recommended (Free Tools Only)**
+<For each relevant FREE result: URL — 1-line explanation of what it does and why it is useful>
+
+**Sources:**
+<comma-separated list of domains only>
+
+If ZERO free tools match the query, state:
+"Currently, no fully free tools were found for this query on the supported platforms."`;
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
