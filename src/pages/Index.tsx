@@ -317,18 +317,14 @@ const Index = () => {
       {/* Footer */}
       <footer className="relative z-20 border-t border-border py-4 md:py-6 px-4 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-3 md:gap-4 text-sm text-muted-foreground">
-          {/* Mobile: Support button prominent */}
-          <div className="md:hidden w-full">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowSupportModal(true)}
-              className="w-full flex items-center justify-center gap-2 text-xs border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-500"
-            >
-              <Heart className="w-3 h-3" />
-              Support Yourel
-            </Button>
-          </div>
+          {/* Mobile: Support link */}
+          <button 
+            onClick={() => setShowSupportModal(true)}
+            className="md:hidden flex items-center gap-1 text-red-500 hover:text-red-400 transition-colors text-xs"
+          >
+            <Heart className="w-3 h-3" />
+            Support Yourel
+          </button>
           
           <p className="flex items-center gap-2 text-xs md:text-sm">
             Built for you 
