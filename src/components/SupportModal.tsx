@@ -56,7 +56,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[85vw] sm:max-w-[420px] p-4 sm:p-5">
+      <DialogContent className="max-w-[90vw] sm:max-w-[480px] p-5 sm:p-6">
         <DialogHeader className="pb-1">
           <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
             <Heart className="w-4 h-4 text-red-500 fill-red-500" />
