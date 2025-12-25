@@ -305,9 +305,9 @@ const Index = () => {
 
       {/* Big Brand Text - only show on home, not results */}
       {!hasSearched && !isLoading && (
-        <div className="relative z-20 py-16 md:py-24 px-6 md:px-12 overflow-hidden">
+        <div className="relative z-20 py-8 md:py-24 px-6 md:px-12 overflow-hidden">
           <div className="max-w-8xl mx-auto text-center">
-            <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
               #YOUREL
             </h2>
           </div>
@@ -315,8 +315,8 @@ const Index = () => {
       )}
 
       {/* Footer */}
-      <footer className="relative z-20 border-t border-border py-4 md:py-6 px-4 md:px-12">
-        <div className="max-w-4xl mx-auto flex flex-col items-center gap-3 md:gap-4 text-sm text-muted-foreground">
+      <footer className="relative z-20 border-t border-border py-3 md:py-6 px-4 md:px-12">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 md:gap-4 text-sm text-muted-foreground">
           <p className="flex items-center gap-2 text-xs md:text-sm">
             Built for you 
             <Heart className="w-3 h-3 md:w-4 md:h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
