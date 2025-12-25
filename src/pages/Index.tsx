@@ -106,7 +106,7 @@ const Index = () => {
 
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
       {/* Animated Grid Background - only on home page */}
       {!hasSearched && !isLoading && <AnimatedGrid />}
       
@@ -212,7 +212,7 @@ const Index = () => {
       </header>
 
       {/* Main content */}
-      <main className="relative z-20 px-4 md:px-12">
+      <main className="relative z-20 px-4 md:px-12 flex-1">
         <div className={hasSearched || isLoading ? "" : "max-w-4xl mx-auto"}>
           {/* Hero section */}
           {!hasSearched && !isLoading && (
@@ -303,19 +303,21 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Big Brand Text - only show on home, not results */}
-      {!hasSearched && !isLoading && (
-        <div className="relative z-20 py-8 md:py-24 px-6 md:px-12 overflow-hidden">
-          <div className="max-w-8xl mx-auto text-center">
-            <h2 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
-              #YOUREL
-            </h2>
+      {/* Big Brand Text + Footer - pushed to bottom */}
+      <div className="mt-auto">
+        {/* Big Brand Text - only show on home, not results */}
+        {!hasSearched && !isLoading && (
+          <div className="relative z-20 py-6 md:py-12 px-6 md:px-12 overflow-hidden">
+            <div className="max-w-8xl mx-auto text-center">
+              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+                #YOUREL
+              </h2>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Footer */}
-      <footer className="relative z-20 border-t border-border py-3 md:py-6 px-4 md:px-12">
+        {/* Footer */}
+        <footer className="relative z-20 border-t border-border py-3 md:py-6 px-4 md:px-12">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 md:gap-4 text-sm text-muted-foreground">
           <p className="flex items-center gap-2 text-xs md:text-sm">
             Built for you 
@@ -370,6 +372,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      </div>
 
       <InviteModal
         isOpen={showInviteModal}
