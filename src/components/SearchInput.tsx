@@ -66,8 +66,9 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
 
   // Get combined suggestions (history + regular suggestions)
   const getCombinedSuggestions = () => {
+    const safeQuery = query || "";
     const historyMatches = searchHistory.filter(h => 
-      h.toLowerCase().includes(query.toLowerCase())
+      h.toLowerCase().includes(safeQuery.toLowerCase())
     );
     const regularSuggestions = suggestions.filter(s => 
       !historyMatches.some(h => h.toLowerCase() === s.toLowerCase())
@@ -105,12 +106,13 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
       setShowSuggestions(false);
       return;
     }
+    const safeQuery = query || "";
     const { historyMatches, regularSuggestions } = getCombinedSuggestions();
-    const hasContent = historyMatches.length > 0 || regularSuggestions.length > 0 || (query.length === 0 && searchHistory.length > 0);
+    const hasContent = historyMatches.length > 0 || regularSuggestions.length > 0 || (safeQuery.length === 0 && searchHistory.length > 0);
     
     if (hasContent && isFocused) {
       setShowSuggestions(true);
-    } else if (query.length >= 2 && suggestions.length > 0) {
+    } else if (safeQuery.length >= 2 && suggestions.length > 0) {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
@@ -161,10 +163,11 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
       onAuthRequired?.();
       return;
     }
-    if (query.trim()) {
-      saveToHistory(query.trim());
-      analytics.track("search", { query: query.trim() });
-      onSearch(query.trim());
+    const safeQuery = (query || "").trim();
+    if (safeQuery) {
+      saveToHistory(safeQuery);
+      analytics.track("search", { query: safeQuery });
+      onSearch(safeQuery);
       setShowSuggestions(false);
       setDropdownPos(null);
     }
@@ -286,7 +289,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
 
         <button
           type="submit"
-          disabled={isLoading || !query.trim()}
+          disabled={isLoading || !(query || "").trim()}
           className="absolute right-2 px-4 py-1.5 rounded-md font-semibold text-xs transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-foreground text-foreground hover:bg-foreground hover:text-background"
         >
           Search
@@ -308,8 +311,9 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
           >
             {/* Search History Section */}
             {(() => {
+              const safeQuery = query || "";
               const { historyMatches, regularSuggestions } = getCombinedSuggestions();
-              const showHistory = query.length === 0 ? searchHistory : historyMatches;
+              const showHistory = safeQuery.length === 0 ? searchHistory : historyMatches;
               
               return (
                 <>
