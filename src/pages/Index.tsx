@@ -18,6 +18,7 @@ import { AdminPanel } from "@/components/AdminPanel";
 import { AnimatedGrid } from "@/components/AnimatedGrid";
 import { AISummaryCard } from "@/components/AISummaryCard";
 import { RelatedSearches } from "@/components/RelatedSearches";
+import { TutorialCard } from "@/components/TutorialCard";
 
 import { Button } from "@/components/ui/button";
 import { Plus, Heart, LogIn } from "lucide-react";
@@ -47,6 +48,15 @@ const Index = () => {
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Check if tutorial should be shown (first-time users)
+  useEffect(() => {
+    const tutorialCompleted = localStorage.getItem("yourel_tutorial_completed");
+    if (!tutorialCompleted && isAuthenticated) {
+      setShowTutorial(true);
+    }
+  }, [isAuthenticated]);
 
   // Generate invite code based on user
   const userInviteCode = profile?.username ? `YOUREL#${profile.username.toUpperCase().slice(0, 4)}` : '';
@@ -414,6 +424,11 @@ const Index = () => {
         remainingInvites={0}
         generatePassword={() => ''}
       />
+
+      {/* Tutorial Card */}
+      {showTutorial && (
+        <TutorialCard onComplete={() => setShowTutorial(false)} />
+      )}
 
     </div>
   );
