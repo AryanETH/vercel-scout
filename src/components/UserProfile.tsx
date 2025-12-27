@@ -30,11 +30,15 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
 
   const displayName = user.full_name || user.email || 'User';
   const initials = displayName.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2) || 'U';
+  const closeAnd = (action: () => void) => () => {
+    setIsOpen(false);
+    action();
+  };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 hover:scale-105 transition-all duration-300">
+        <button type="button" className="flex items-center gap-2 hover:scale-105 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5C82F4] to-[#8243ED] flex items-center justify-center text-white font-semibold text-sm shadow-lg">
             {initials}
           </div>
@@ -49,7 +53,7 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={toggleTheme}>
+        <DropdownMenuItem onClick={closeAnd(toggleTheme)}>
           {theme === 'dark' ? (
             <>
               <Sun className="mr-2 h-4 w-4" />
@@ -63,26 +67,26 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
           )}
         </DropdownMenuItem>
         
-        <DropdownMenuItem onClick={onShowFavorites}>
+        <DropdownMenuItem onClick={closeAnd(onShowFavorites)}>
           <Heart className="mr-2 h-4 w-4" />
           <span>Favorites ({favorites.length})</span>
         </DropdownMenuItem>
         
         {onShowInvite && (
-          <DropdownMenuItem onClick={onShowInvite}>
+          <DropdownMenuItem onClick={closeAnd(onShowInvite)}>
             <Users className="mr-2 h-4 w-4" />
             <span>Invite Friends</span>
           </DropdownMenuItem>
         )}
         
-        <DropdownMenuItem onClick={onShowSettings}>
+        <DropdownMenuItem onClick={closeAnd(onShowSettings)}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={onLogout} className="text-destructive">
+        <DropdownMenuItem onClick={closeAnd(onLogout)} className="text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Logout</span>
         </DropdownMenuItem>
