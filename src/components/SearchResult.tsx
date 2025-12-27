@@ -1,6 +1,6 @@
 import { ExternalLink, ThumbsUp, ThumbsDown, Heart, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 interface SearchResultProps {
   title: string;
@@ -83,6 +83,9 @@ export function SearchResult({
 }: SearchResultProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [showMobileActions, setShowMobileActions] = useState(false);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
   
   const displayUrl = link.replace(/^https?:\/\//, "").split("/")[0];
   const detectedPlatform = platform || getPlatformFromUrl(link);
@@ -91,6 +94,31 @@ export function SearchResult({
   
   // Generate screenshot URL
   const screenshotUrl = getScreenshotUrl(link);
+
+  // Long press handlers for mobile
+  const handleTouchStart = useCallback(() => {
+    isLongPressRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      setShowMobileActions(true);
+    }, 500);
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+    // Prevent navigation if it was a long press
+    if (isLongPressRef.current) {
+      e.preventDefault();
+    }
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+  }, []);
 
   return (
     <a
@@ -104,7 +132,12 @@ export function SearchResult({
       style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "forwards" }}
     >
       {/* Mobile: Google-style vertical stack */}
-      <div className="md:hidden py-4 border-b border-border/50">
+      <div 
+        className="md:hidden py-4 border-b border-border/50 relative"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
+      >
         {/* Site info row - favicon + domain + URL */}
         <div className="flex items-center gap-2.5 mb-2">
           {/* Favicon container - rounded circle like Google */}
@@ -123,7 +156,7 @@ export function SearchResult({
           </div>
           
           {/* Domain info - stacked like Google */}
-          <div className="flex flex-col min-w-0">
+          <div className="flex flex-col min-w-0 flex-1">
             <span className="text-sm text-foreground truncate leading-tight">
               {displayUrl.split('.')[0]}
             </span>
@@ -131,6 +164,37 @@ export function SearchResult({
               {link.replace(/^https?:\/\//, '').split('?')[0]}
             </span>
           </div>
+
+          {/* Mobile action buttons - shown on long press */}
+          {showMobileActions && (
+            <div className="flex items-center gap-1 animate-fade-in">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onAddToFavorites?.(link, title);
+                  setShowMobileActions(false);
+                }}
+                className={`h-8 w-8 p-0 ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : 'text-muted-foreground'}`}
+              >
+                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowMobileActions(false);
+                }}
+                className="h-8 w-8 p-0 text-muted-foreground"
+              >
+                ✕
+              </Button>
+            </div>
+          )}
         </div>
         
         {/* Title - blue link like Google */}
@@ -142,6 +206,11 @@ export function SearchResult({
         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
           {snippet}
         </p>
+        
+        {/* Long press hint */}
+        {!showMobileActions && (
+          <p className="text-[10px] text-muted-foreground/50 mt-1">Long press to favorite</p>
+        )}
       </div>
 
       {/* Desktop: With preview image */}
