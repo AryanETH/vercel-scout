@@ -19,7 +19,7 @@ const inviteCodeSchema = z.string().min(4, 'Please enter a valid invite code');
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUpWithOtp, verifyOtp, isAuthenticated, isLoading } = useSupabaseAuth();
+  const { signIn, sendOtp, verifyOtp, isAuthenticated, isLoading } = useSupabaseAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -131,7 +131,7 @@ export default function Auth() {
     
     setIsSubmitting(true);
     
-    const { error } = await signUpWithOtp(signupEmail);
+    const { error } = await sendOtp(signupEmail);
     
     if (error) {
       toast.error(error.message);
@@ -144,8 +144,8 @@ export default function Auth() {
   };
 
   const handleVerifyOtp = async () => {
-    if (otpValue.length !== 6) {
-      toast.error('Please enter the 6-digit code');
+    if (otpValue.length !== 4) {
+      toast.error('Please enter the 4-digit code');
       return;
     }
     
@@ -160,12 +160,11 @@ export default function Auth() {
     
     if (error) {
       toast.error(error.message);
+      setIsSubmitting(false);
     } else {
       toast.success('Account verified successfully!');
-      navigate('/');
+      // The redirect happens in verifyOtp via action_url
     }
-    
-    setIsSubmitting(false);
   };
 
   const handleBackToForm = () => {
@@ -203,14 +202,14 @@ export default function Auth() {
               
               <div className="text-center space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  We sent a 6-digit code to
+                  We sent a 4-digit code to
                 </p>
                 <p className="font-medium">{signupEmail}</p>
               </div>
               
               <div className="flex justify-center">
                 <InputOTP
-                  maxLength={6}
+                  maxLength={4}
                   value={otpValue}
                   onChange={setOtpValue}
                 >
@@ -219,8 +218,6 @@ export default function Auth() {
                     <InputOTPSlot index={1} />
                     <InputOTPSlot index={2} />
                     <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
                   </InputOTPGroup>
                 </InputOTP>
               </div>
@@ -228,7 +225,7 @@ export default function Auth() {
               <Button 
                 onClick={handleVerifyOtp} 
                 className="w-full" 
-                disabled={isSubmitting || otpValue.length !== 6}
+                disabled={isSubmitting || otpValue.length !== 4}
               >
                 {isSubmitting ? (
                   <>
@@ -243,7 +240,7 @@ export default function Auth() {
               <p className="text-center text-xs text-muted-foreground">
                 Didn't receive the code?{' '}
                 <button 
-                  onClick={handleSendOtp}
+                  onClick={(e) => handleSendOtp(e as any)}
                   className="text-primary hover:underline"
                   disabled={isSubmitting}
                 >

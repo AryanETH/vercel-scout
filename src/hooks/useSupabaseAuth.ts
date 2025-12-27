@@ -84,33 +84,41 @@ export function useSupabaseAuth() {
     }
   };
 
-  const signUpWithOtp = async (email: string) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/`
-      }
+  const sendOtp = async (email: string) => {
+    const { data, error } = await supabase.functions.invoke('send-otp', {
+      body: { email }
     });
-    return { data, error };
-  };
-
-  const verifyOtp = async (email: string, token: string, fullName?: string, username?: string) => {
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'email'
-    });
-
-    // Update profile with username after verification
-    if (!error && data.user && username) {
-      await supabase
-        .from('profiles')
-        .update({ username, full_name: fullName })
-        .eq('id', data.user.id);
+    
+    if (error) {
+      return { error };
     }
     
-    return { data, error };
+    if (data?.error) {
+      return { error: new Error(data.error) };
+    }
+    
+    return { data, error: null };
+  };
+
+  const verifyOtp = async (email: string, code: string, fullName?: string, username?: string) => {
+    const { data, error } = await supabase.functions.invoke('verify-otp', {
+      body: { email, code, fullName, username }
+    });
+    
+    if (error) {
+      return { data: null, error };
+    }
+    
+    if (data?.error) {
+      return { data: null, error: new Error(data.error) };
+    }
+
+    // If we got an action URL, redirect to complete auth
+    if (data?.action_url) {
+      window.location.href = data.action_url;
+    }
+    
+    return { data, error: null };
   };
 
   const signUp = async (email: string, password: string, fullName?: string, username?: string) => {
@@ -225,7 +233,7 @@ export function useSupabaseAuth() {
     isLoading,
     isAuthenticated: !!session,
     signUp,
-    signUpWithOtp,
+    sendOtp,
     verifyOtp,
     signIn,
     signOut,
