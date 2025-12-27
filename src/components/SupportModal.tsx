@@ -139,7 +139,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
                 />
                 {/* Circular logo overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-7 h-7 bg-white rounded-full p-0.5 flex items-center justify-center">
+                  <div className="w-7 h-7 bg-black rounded-full p-0.5 flex items-center justify-center">
                     <img 
                       src={oplusLogo} 
                       alt="Oplus" 
