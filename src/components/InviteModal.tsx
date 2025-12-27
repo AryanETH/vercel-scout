@@ -377,7 +377,7 @@ export function InviteModal({
                   <Label htmlFor="username">Username</Label>
                   <Input
                     id="username"
-                    placeholder="johndoe"
+                    placeholder="valyapatil"
                     value={inviteCodeOrUsername}
                     onChange={(e) => setInviteCodeOrUsername(e.target.value)}
                   />

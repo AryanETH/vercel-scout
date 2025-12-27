@@ -259,7 +259,7 @@ export default function Auth() {
                       <Input
                         id="signup-name"
                         type="text"
-                        placeholder="John Doe"
+                        placeholder="Valya Patil"
                         value={signupFullName}
                         onChange={(e) => setSignupFullName(e.target.value)}
                         className="pl-10"
@@ -274,7 +274,7 @@ export default function Auth() {
                       <Input
                         id="signup-username"
                         type="text"
-                        placeholder="johndoe"
+                        placeholder="valya"
                         value={signupUsername}
                         onChange={(e) => setSignupUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                         className="pl-10 pr-10"
