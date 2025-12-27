@@ -60,9 +60,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email with OTP
     const { error: emailError } = await resend.emails.send({
-      from: "Yourel <onboarding@resend.dev>",
+      from: "YOUREL <onboarding@resend.dev>",
       to: [email],
-      subject: "Your Yourel Verification Code",
+      subject: "Your YOUREL Verification Code",
       html: `
         <!DOCTYPE html>
         <html>
@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f4; margin: 0; padding: 40px 20px;">
           <div style="max-width: 400px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h1 style="color: #333; font-size: 24px; margin: 0 0 20px; text-align: center;">Yourel</h1>
+            <h1 style="color: #333; font-size: 24px; margin: 0 0 20px; text-align: center;">YOUREL</h1>
             <p style="color: #666; font-size: 16px; margin: 0 0 30px; text-align: center;">
               Your verification code is:
             </p>
