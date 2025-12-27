@@ -130,21 +130,23 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
           {/* Desktop: QR Code - compact */}
           {!isMobile && showQR && isValid && (
             <div className="flex items-center gap-3 p-3 bg-background border border-border rounded-lg">
-              <div className="p-2 bg-white rounded-md flex-shrink-0">
+              <div className="p-2 bg-white rounded-md flex-shrink-0 relative">
                 <QRCodeSVG
                   value={generateUPILink()}
                   size={100}
                   level="H"
                   includeMargin={false}
-                  imageSettings={{
-                    src: oplusLogo,
-                    x: undefined,
-                    y: undefined,
-                    height: 24,
-                    width: 24,
-                    excavate: true,
-                  }}
                 />
+                {/* Circular logo overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-7 h-7 bg-white rounded-full p-0.5 flex items-center justify-center">
+                    <img 
+                      src={oplusLogo} 
+                      alt="Oplus" 
+                      className="w-5 h-5 object-contain rounded-full"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="text-left space-y-0.5 min-w-0">
                 <p className="text-xs font-medium">Scan to pay ₹{amount}</p>
