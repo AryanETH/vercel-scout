@@ -378,6 +378,7 @@ const Index = () => {
         onClose={() => setShowFavoritesModal(false)}
         favorites={favorites}
         onRemoveFromFavorites={handleRemoveFromFavorites}
+        username={profile?.username}
       />
 
       <SuggestWebsiteModal

@@ -1,24 +1,85 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Heart, ExternalLink, Trash2 } from "lucide-react";
+import { Heart, ExternalLink, Trash2, Share2, Copy } from "lucide-react";
 import { FavoriteItem } from "@/hooks/useSupabaseAuth";
+import { toast } from "sonner";
 
 interface FavoritesModalProps {
   isOpen: boolean;
   onClose: () => void;
   favorites: FavoriteItem[];
   onRemoveFromFavorites: (url: string) => void;
+  username?: string | null;
 }
 
-export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorites }: FavoritesModalProps) {
+export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorites, username }: FavoritesModalProps) {
+  const profileUrl = username ? `${window.location.origin}/u/${username}` : null;
+
+  const handleShare = async () => {
+    if (!profileUrl) {
+      toast.error('Set a username to share your favorites');
+      return;
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${username}'s Favorites on Yourel`,
+          text: `Check out my favorite websites on Yourel!`,
+          url: profileUrl
+        });
+      } catch {
+        copyProfileLink();
+      }
+    } else {
+      copyProfileLink();
+    }
+  };
+
+  const copyProfileLink = () => {
+    if (profileUrl) {
+      navigator.clipboard.writeText(profileUrl);
+      toast.success('Profile link copied to clipboard!');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-pink-600" />
-            Your Favorites ({favorites.length})
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-pink-600" />
+              Your Favorites ({favorites.length})
+            </DialogTitle>
+            {username && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyProfileLink}
+                  className="gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Link
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleShare}
+                  className="gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </Button>
+              </div>
+            )}
+          </div>
+          {username && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Public profile: {profileUrl}
+            </p>
+          )}
         </DialogHeader>
         
         <div className="space-y-3">
