@@ -84,6 +84,35 @@ export function useSupabaseAuth() {
     }
   };
 
+  const signUpWithOtp = async (email: string) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/`
+      }
+    });
+    return { data, error };
+  };
+
+  const verifyOtp = async (email: string, token: string, fullName?: string, username?: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email'
+    });
+
+    // Update profile with username after verification
+    if (!error && data.user && username) {
+      await supabase
+        .from('profiles')
+        .update({ username, full_name: fullName })
+        .eq('id', data.user.id);
+    }
+    
+    return { data, error };
+  };
+
   const signUp = async (email: string, password: string, fullName?: string, username?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
@@ -196,6 +225,8 @@ export function useSupabaseAuth() {
     isLoading,
     isAuthenticated: !!session,
     signUp,
+    signUpWithOtp,
+    verifyOtp,
     signIn,
     signOut,
     updateProfile,
