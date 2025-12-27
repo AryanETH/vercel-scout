@@ -10,7 +10,7 @@ interface SearchResultProps {
   platform?: string;
   onLike?: (url: string) => void;
   onDislike?: (url: string) => void;
-  onAddToFavorites?: (url: string) => void;
+  onAddToFavorites?: (url: string, name: string) => void;
   isLiked?: boolean;
   isDisliked?: boolean;
   isFavorite?: boolean;
@@ -206,7 +206,7 @@ export function SearchResult({
               size="sm"
               onClick={(e) => {
                 e.preventDefault();
-                onAddToFavorites?.(link);
+                onAddToFavorites?.(link, title);
               }}
               className={`h-7 px-2 text-xs ${isFavorite ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20' : 'opacity-0 group-hover:opacity-100'}`}
             >

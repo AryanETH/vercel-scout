@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme";
+import { FavoriteItem } from "@/hooks/useAuth";
 
 interface UserProfileProps {
   user: {
@@ -16,7 +17,7 @@ interface UserProfileProps {
     lastName: string;
     username: string;
     inviteCode: string;
-    favorites: string[];
+    favorites: FavoriteItem[];
   };
   onLogout: () => void;
   onShowFavorites: () => void;

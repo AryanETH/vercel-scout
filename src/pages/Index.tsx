@@ -279,7 +279,7 @@ const Index = () => {
                           onAddToFavorites={addToFavorites}
                           isLiked={user?.likedSites?.includes(result.link) || false}
                           isDisliked={user?.dislikedSites?.includes(result.link) || false}
-                          isFavorite={user?.favorites?.includes(result.link) || false}
+                          isFavorite={user?.favorites?.some(fav => fav.url === result.link) || false}
                         />
                       ))}
                       <ResultsPagination
