@@ -34,38 +34,55 @@ export function AnimatedGrid() {
       gridLine: number;
     }> = [];
 
+    // Track used grid lines separately for vertical and horizontal
+    const usedVerticalLines: Set<number> = new Set();
+    const usedHorizontalLines: Set<number> = new Set();
+
+    const getUniqueGridLine = (isVertical: boolean): number => {
+      const maxLines = isVertical 
+        ? Math.floor(canvas.width / gridSize)
+        : Math.floor(canvas.height / gridSize);
+      const usedLines = isVertical ? usedVerticalLines : usedHorizontalLines;
+      
+      let gridLine: number;
+      let attempts = 0;
+      
+      do {
+        gridLine = Math.floor(Math.random() * maxLines) * gridSize;
+        attempts++;
+      } while (usedLines.has(gridLine) && attempts < 50);
+      
+      usedLines.add(gridLine);
+      return gridLine;
+    };
+
+    const removeGridLine = (gridLine: number, isVertical: boolean) => {
+      if (isVertical) {
+        usedVerticalLines.delete(gridLine);
+      } else {
+        usedHorizontalLines.delete(gridLine);
+      }
+    };
+
     // Initialize comets
     const initComets = () => {
       comets.length = 0;
-      
-      // Always start with exactly 2 comets from different grid lines
-      const usedGridLines: number[] = [];
+      usedVerticalLines.clear();
+      usedHorizontalLines.clear();
       
       for (let i = 0; i < 2; i++) {
-        // Random speed variations: very slow to very fast
         const speedVariations = [
-          0.3 + Math.random() * 0.4,  // Very slow: 0.3-0.7
-          0.8 + Math.random() * 0.6,  // Medium: 0.8-1.4
-          1.5 + Math.random() * 1.0,  // Fast: 1.5-2.5
-          2.5 + Math.random() * 1.5   // Very fast: 2.5-4.0
+          0.3 + Math.random() * 0.4,
+          0.8 + Math.random() * 0.6,
+          1.5 + Math.random() * 1.0,
+          2.5 + Math.random() * 1.5
         ];
         
         const speed = speedVariations[Math.floor(Math.random() * speedVariations.length)];
-        const isVertical = Math.random() > 0.5; // Random direction
-        
-        let gridLine;
-        let attempts = 0;
+        const isVertical = Math.random() > 0.5;
+        const gridLine = getUniqueGridLine(isVertical);
         
         if (isVertical) {
-          // Vertical movement (top to bottom)
-          do {
-            gridLine = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
-            attempts++;
-          } while (
-            usedGridLines.some(used => Math.abs(used - gridLine) < 200) && 
-            attempts < 20
-          );
-          
           comets.push({
             x: gridLine,
             y: Math.random() * canvas.height,
@@ -77,15 +94,6 @@ export function AnimatedGrid() {
             gridLine
           });
         } else {
-          // Horizontal movement (left to right)
-          do {
-            gridLine = Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize;
-            attempts++;
-          } while (
-            usedGridLines.some(used => Math.abs(used - gridLine) < 200) && 
-            attempts < 20
-          );
-          
           comets.push({
             x: Math.random() * canvas.width,
             y: gridLine,
@@ -97,8 +105,6 @@ export function AnimatedGrid() {
             gridLine
           });
         }
-        
-        usedGridLines.push(gridLine);
       }
     };
 
@@ -181,19 +187,25 @@ export function AnimatedGrid() {
         if (comet.isVertical) {
           comet.y += comet.dy;
           
-          // Reset when off screen (top to bottom)
+          // Reset when off screen - get a NEW unique grid line
           if (comet.y > canvas.height + 50) {
+            removeGridLine(comet.gridLine, true);
+            const newGridLine = getUniqueGridLine(true);
+            comet.gridLine = newGridLine;
+            comet.x = newGridLine;
             comet.y = -50;
-            comet.x = comet.gridLine; // Stay on grid line
             comet.trail = [];
           }
         } else {
           comet.x += comet.dx;
           
-          // Reset when off screen (left to right)
+          // Reset when off screen - get a NEW unique grid line
           if (comet.x > canvas.width + 50) {
+            removeGridLine(comet.gridLine, false);
+            const newGridLine = getUniqueGridLine(false);
+            comet.gridLine = newGridLine;
+            comet.y = newGridLine;
             comet.x = -50;
-            comet.y = comet.gridLine; // Stay on grid line
             comet.trail = [];
           }
         }
@@ -201,31 +213,18 @@ export function AnimatedGrid() {
 
       // Spawn new comets when needed to maintain at least 2 on screen
       if (comets.length < 2 && Math.random() < 0.02) {
-        // Random speed variations: very slow to very fast
         const speedVariations = [
-          0.3 + Math.random() * 0.4,  // Very slow: 0.3-0.7
-          0.8 + Math.random() * 0.6,  // Medium: 0.8-1.4
-          1.5 + Math.random() * 1.0,  // Fast: 1.5-2.5
-          2.5 + Math.random() * 1.5   // Very fast: 2.5-4.0
+          0.3 + Math.random() * 0.4,
+          0.8 + Math.random() * 0.6,
+          1.5 + Math.random() * 1.0,
+          2.5 + Math.random() * 1.5
         ];
         
         const speed = speedVariations[Math.floor(Math.random() * speedVariations.length)];
-        const isVertical = Math.random() > 0.5; // Random direction
-        
-        let gridLine;
-        let attempts = 0;
+        const isVertical = Math.random() > 0.5;
+        const gridLine = getUniqueGridLine(isVertical);
         
         if (isVertical) {
-          // Vertical comet (top to bottom)
-          do {
-            gridLine = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
-            attempts++;
-          } while (
-            comets.some(comet => 
-              comet.isVertical && Math.abs(comet.gridLine - gridLine) < 200
-            ) && attempts < 20
-          );
-          
           comets.push({
             x: gridLine,
             y: -50,
@@ -237,16 +236,6 @@ export function AnimatedGrid() {
             gridLine
           });
         } else {
-          // Horizontal comet (left to right)
-          do {
-            gridLine = Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize;
-            attempts++;
-          } while (
-            comets.some(comet => 
-              !comet.isVertical && Math.abs(comet.gridLine - gridLine) < 200
-            ) && attempts < 20
-          );
-          
           comets.push({
             x: -50,
             y: gridLine,
@@ -261,7 +250,8 @@ export function AnimatedGrid() {
         
         // Allow up to 3 comets maximum
         if (comets.length > 3) {
-          comets.splice(0, comets.length - 3);
+          const removed = comets.splice(0, comets.length - 3);
+          removed.forEach(c => removeGridLine(c.gridLine, c.isVertical));
         }
       }
 
