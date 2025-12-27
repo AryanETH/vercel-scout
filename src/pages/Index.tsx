@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 import { UserProfile } from "@/components/UserProfile";
 import { SearchModeSelector, SearchMode } from "@/components/SearchModeSelector";
 import { FavoritesModal } from "@/components/FavoritesModal";
+import { InviteModal } from "@/components/InviteModal";
 import { SearchInput } from "@/components/SearchInput";
 import { SearchResult } from "@/components/SearchResult";
 import { SearchSkeleton } from "@/components/SearchSkeleton";
@@ -42,9 +43,14 @@ const Index = () => {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
+
+  // Generate invite code based on user
+  const userInviteCode = profile?.username ? `YOUREL#${profile.username.toUpperCase().slice(0, 4)}` : '';
+  const inviteText = `Join me on Yourel - the anti-SEO search engine for developers!\n\nUse my invite code: ${userInviteCode}\n\n${window.location.origin}/auth`;
 
   const handleLogout = async () => {
     await signOut();
@@ -143,6 +149,7 @@ const Index = () => {
                       onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => {}}
+                      onShowInvite={() => setShowInviteModal(true)}
                     />
                   )}
                 </div>
@@ -165,6 +172,7 @@ const Index = () => {
                     onLogout={handleLogout}
                     onShowFavorites={() => setShowFavoritesModal(true)}
                     onShowSettings={() => {}}
+                    onShowInvite={() => setShowInviteModal(true)}
                   />
                 )}
                 {!isAuthenticated && (
@@ -199,6 +207,7 @@ const Index = () => {
                       onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => {}}
+                      onShowInvite={() => setShowInviteModal(true)}
                     />
                   )}
                 </>
@@ -394,6 +403,16 @@ const Index = () => {
       <SupportModal
         isOpen={showSupportModal}
         onClose={() => setShowSupportModal(false)}
+      />
+
+      <InviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onAuthenticate={() => true}
+        userInviteCode={userInviteCode}
+        inviteText={inviteText}
+        remainingInvites={0}
+        generatePassword={() => ''}
       />
 
     </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Settings, Heart, Moon, Sun, LogOut } from "lucide-react";
+import { User, Settings, Heart, Moon, Sun, LogOut, Users, Copy } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme";
 import { FavoriteItem } from "@/hooks/useSupabaseAuth";
+import { toast } from "sonner";
 
 interface UserProfileProps {
   user: {
@@ -20,9 +21,10 @@ interface UserProfileProps {
   onLogout: () => void;
   onShowFavorites: () => void;
   onShowSettings: () => void;
+  onShowInvite?: () => void;
 }
 
-export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShowSettings }: UserProfileProps) {
+export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShowSettings, onShowInvite }: UserProfileProps) {
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -65,6 +67,13 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
           <Heart className="mr-2 h-4 w-4" />
           <span>Favorites ({favorites.length})</span>
         </DropdownMenuItem>
+        
+        {onShowInvite && (
+          <DropdownMenuItem onClick={onShowInvite}>
+            <Users className="mr-2 h-4 w-4" />
+            <span>Invite Friends</span>
+          </DropdownMenuItem>
+        )}
         
         <DropdownMenuItem onClick={onShowSettings}>
           <Settings className="mr-2 h-4 w-4" />
