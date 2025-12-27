@@ -50,7 +50,7 @@ const Index = () => {
 
   // Generate invite code based on user
   const userInviteCode = profile?.username ? `YOUREL#${profile.username.toUpperCase().slice(0, 4)}` : '';
-  const inviteText = `Join me on Yourel - the anti-SEO search engine for developers!\n\nUse my invite code: ${userInviteCode}\n\n${window.location.origin}/auth`;
+  const inviteText = `oyy ye dekh kya faadu chiz he be...\n\ye le invite code: ${userInviteCode}\n\n${window.location.origin}/auth`;
 
   const handleLogout = async () => {
     await signOut();
