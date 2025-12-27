@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket, X } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -161,7 +161,18 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 relative">
+      {/* Close/Back button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => navigate('/')}
+        className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-muted"
+        aria-label="Close"
+      >
+        <X className="h-5 w-5" />
+      </Button>
+      
       <Card className="w-full max-w-md border-border/50 shadow-xl">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-bold">Welcome to Yourel</CardTitle>
