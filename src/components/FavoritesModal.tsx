@@ -6,7 +6,7 @@ import { FavoriteItem } from "@/hooks/useAuth";
 interface FavoritesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  favorites: FavoriteItem[];
+  favorites: (FavoriteItem | string)[];
   onRemoveFromFavorites: (url: string) => void;
 }
 
@@ -32,17 +32,23 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
             </div>
           ) : (
             favorites.map((favorite, index) => {
-              const displayUrl = favorite.url.replace(/^https?:\/\//, "").split("/")[0];
+              // Handle both old string format and new object format
+              const url = typeof favorite === 'string' ? favorite : favorite?.url || '';
+              const name = typeof favorite === 'string' ? '' : favorite?.name || '';
+              const displayUrl = url.replace(/^https?:\/\//, "").split("/")[0];
+              
+              if (!url) return null;
+              
               return (
                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1 min-w-0">
                     <a 
-                      href={favorite.url} 
+                      href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline font-medium flex items-center gap-2"
                     >
-                      <span className="truncate">{favorite.name || displayUrl}</span>
+                      <span className="truncate">{name || displayUrl}</span>
                       <ExternalLink className="w-4 h-4 flex-shrink-0" />
                     </a>
                     <p className="text-xs text-muted-foreground truncate mt-1">
@@ -52,7 +58,7 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onRemoveFromFavorites(favorite.url)}
+                    onClick={() => onRemoveFromFavorites(url)}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 className="w-4 h-4" />
