@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,11 +11,31 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface FavoriteItem {
+  id: string;
+  url: string;
+  name: string;
+  created_at: string;
+}
+
 export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchFavorites = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setFavorites(data);
+    }
+  }, []);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -24,13 +44,15 @@ export function useSupabaseAuth() {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Defer profile fetch to avoid deadlock
+        // Defer profile and favorites fetch to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
             fetchProfile(session.user.id);
+            fetchFavorites(session.user.id);
           }, 0);
         } else {
           setProfile(null);
+          setFavorites([]);
         }
       }
     );
@@ -41,12 +63,13 @@ export function useSupabaseAuth() {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+        fetchFavorites(session.user.id);
       }
       setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchFavorites]);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -92,6 +115,7 @@ export function useSupabaseAuth() {
       setUser(null);
       setSession(null);
       setProfile(null);
+      setFavorites([]);
     }
     return { error };
   };
@@ -113,16 +137,60 @@ export function useSupabaseAuth() {
     return { data, error };
   };
 
+  const addToFavorites = async (url: string, name: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    const { data, error } = await supabase
+      .from('favorites')
+      .upsert({ 
+        user_id: user.id, 
+        url, 
+        name 
+      }, { 
+        onConflict: 'user_id,url' 
+      })
+      .select()
+      .single();
+    
+    if (!error && data) {
+      setFavorites(prev => {
+        const filtered = prev.filter(f => f.url !== url);
+        return [data, ...filtered];
+      });
+    }
+    
+    return { data, error };
+  };
+
+  const removeFromFavorites = async (url: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('url', url);
+    
+    if (!error) {
+      setFavorites(prev => prev.filter(f => f.url !== url));
+    }
+    
+    return { error };
+  };
+
   return {
     user,
     session,
     profile,
+    favorites,
     isLoading,
     isAuthenticated: !!session,
     signUp,
     signIn,
     signOut,
     updateProfile,
-    fetchProfile
+    fetchProfile,
+    addToFavorites,
+    removeFromFavorites
   };
 }
