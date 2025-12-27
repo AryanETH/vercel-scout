@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   email: string | null;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
@@ -83,7 +84,7 @@ export function useSupabaseAuth() {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, username?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -92,10 +93,19 @@ export function useSupabaseAuth() {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName || ''
+          full_name: fullName || '',
+          username: username || ''
         }
       }
     });
+
+    // Update username in profile after signup
+    if (!error && data.user && username) {
+      await supabase
+        .from('profiles')
+        .update({ username })
+        .eq('id', data.user.id);
+    }
     
     return { data, error };
   };

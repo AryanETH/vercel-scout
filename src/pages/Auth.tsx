@@ -7,11 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign } from 'lucide-react';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+const usernameSchema = z.string().min(3, 'Username must be at least 3 characters').max(20, 'Username must be 20 characters or less').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores');
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -28,6 +30,36 @@ export default function Auth() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
+  const [signupUsername, setSignupUsername] = useState('');
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+
+  // Check username availability
+  const checkUsername = async (username: string) => {
+    if (username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+    
+    setCheckingUsername(true);
+    const { data } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username.toLowerCase())
+      .maybeSingle();
+    
+    setUsernameAvailable(!data);
+    setCheckingUsername(false);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (signupUsername) {
+        checkUsername(signupUsername);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [signupUsername]);
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
@@ -72,16 +104,24 @@ export default function Auth() {
     try {
       emailSchema.parse(signupEmail);
       passwordSchema.parse(signupPassword);
+      if (signupUsername) {
+        usernameSchema.parse(signupUsername);
+      }
     } catch (err) {
       if (err instanceof z.ZodError) {
         toast.error(err.errors[0].message);
         return;
       }
     }
+
+    if (signupUsername && usernameAvailable === false) {
+      toast.error('Username is already taken');
+      return;
+    }
     
     setIsSubmitting(true);
     
-    const { error } = await signUp(signupEmail, signupPassword, signupFullName);
+    const { error } = await signUp(signupEmail, signupPassword, signupFullName, signupUsername.toLowerCase());
     
     if (error) {
       if (error.message.includes('already registered')) {
@@ -188,6 +228,37 @@ export default function Auth() {
                       className="pl-10"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-username">Username</Label>
+                  <div className="relative">
+                    <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-username"
+                      type="text"
+                      placeholder="johndoe"
+                      value={signupUsername}
+                      onChange={(e) => setSignupUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      className="pl-10 pr-10"
+                    />
+                    {signupUsername.length >= 3 && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingUsername ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : usernameAvailable ? (
+                          <span className="text-green-500 text-xs">✓</span>
+                        ) : usernameAvailable === false ? (
+                          <span className="text-red-500 text-xs">✗</span>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                  {signupUsername && (
+                    <p className="text-xs text-muted-foreground">
+                      Your profile: {window.location.origin}/u/{signupUsername}
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
