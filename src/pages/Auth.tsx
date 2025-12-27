@@ -229,7 +229,11 @@ export default function Auth() {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button 
+                    type="submit" 
+                    className="w-full relative overflow-hidden bg-background/20 backdrop-blur-md border border-white/30 text-foreground shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_24px_rgba(119,77,226,0.4)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[#338CEA] before:to-[#774DE2] before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 [&>*]:relative [&>*]:z-10" 
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -351,7 +355,11 @@ export default function Auth() {
                     </p>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button 
+                    type="submit" 
+                    className="w-full relative overflow-hidden bg-background/20 backdrop-blur-md border border-white/30 text-foreground shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-transparent hover:text-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_24px_rgba(119,77,226,0.4)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-[#338CEA] before:to-[#774DE2] before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 [&>*]:relative [&>*]:z-10" 
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
