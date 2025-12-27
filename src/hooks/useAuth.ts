@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 
+export interface FavoriteItem {
+  url: string;
+  name: string;
+}
+
 interface User {
   id: string;
   firstName: string;
@@ -10,7 +15,7 @@ interface User {
   invitedBy?: string;
   inviteCount: number;
   isAuthenticated: boolean;
-  favorites: string[];
+  favorites: FavoriteItem[];
   likedSites: string[];
   dislikedSites: string[];
 }
@@ -279,12 +284,13 @@ export function useAuth() {
     localStorage.setItem("yourel_users", JSON.stringify(updatedUsers));
   };
 
-  const addToFavorites = (url: string) => {
+  const addToFavorites = (url: string, name: string) => {
     if (!user) return;
 
+    const newFavorite: FavoriteItem = { url, name };
     const updatedUser = {
       ...user,
-      favorites: [...user.favorites.filter((site) => site !== url), url],
+      favorites: [...user.favorites.filter((fav) => fav.url !== url), newFavorite],
     };
 
     setUser(updatedUser);
@@ -301,7 +307,7 @@ export function useAuth() {
 
     const updatedUser = {
       ...user,
-      favorites: user.favorites.filter((site) => site !== url),
+      favorites: user.favorites.filter((fav) => fav.url !== url),
     };
 
     setUser(updatedUser);

@@ -1,11 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Trash2 } from "lucide-react";
+import { FavoriteItem } from "@/hooks/useAuth";
 
 interface FavoritesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  favorites: string[];
+  favorites: FavoriteItem[];
   onRemoveFromFavorites: (url: string) => void;
 }
 
@@ -30,25 +31,28 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
               </p>
             </div>
           ) : (
-            favorites.map((url, index) => {
-              const displayUrl = url.replace(/^https?:\/\//, "").split("/")[0];
+            favorites.map((favorite, index) => {
+              const displayUrl = favorite.url.replace(/^https?:\/\//, "").split("/")[0];
               return (
                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1 min-w-0">
                     <a 
-                      href={url} 
+                      href={favorite.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline font-medium flex items-center gap-2"
                     >
-                      {displayUrl}
-                      <ExternalLink className="w-4 h-4" />
+                      <span className="truncate">{favorite.name || displayUrl}</span>
+                      <ExternalLink className="w-4 h-4 flex-shrink-0" />
                     </a>
+                    <p className="text-xs text-muted-foreground truncate mt-1">
+                      {displayUrl}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onRemoveFromFavorites(url)}
+                    onClick={() => onRemoveFromFavorites(favorite.url)}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 className="w-4 h-4" />
