@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { UserProfile } from "@/components/UserProfile";
 import { SearchModeSelector, SearchMode } from "@/components/SearchModeSelector";
@@ -10,7 +11,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
-import { InviteModal } from "@/components/InviteModal";
 import { SuggestWebsiteModal } from "@/components/SuggestWebsiteModal";
 import { SupportModal } from "@/components/SupportModal";
 import { AdminPanel } from "@/components/AdminPanel";
@@ -19,27 +19,25 @@ import { AISummaryCard } from "@/components/AISummaryCard";
 import { RelatedSearches } from "@/components/RelatedSearches";
 
 import { Button } from "@/components/ui/button";
-import { Users, Plus, Heart } from "lucide-react";
+import { Plus, Heart, LogIn } from "lucide-react";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
-import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { toast } from "sonner";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, aiSummary, isAILoading, search, changePage, changeFilter } = useMultiSearch();
   const { 
-    user, 
-    isLoading: authLoading, 
-    authenticate, 
-    getInviteText, 
-    generatePassword,
-    likeSite,
-    dislikeSite,
+    user,
+    profile,
+    favorites,
+    isLoading: authLoading,
+    isAuthenticated,
+    signOut,
     addToFavorites,
-    removeFromFavorites,
-    logout,
-    isAuthenticated 
-  } = useAuth();
+    removeFromFavorites
+  } = useSupabaseAuth();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -48,15 +46,24 @@ const Index = () => {
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
 
+  const handleLogout = async () => {
+    await signOut();
+    toast.success('Logged out successfully');
+  };
 
-
-
-  useEffect(() => {
-    // Show invite modal if not authenticated after loading
-    if (!authLoading && !isAuthenticated) {
-      setShowInviteModal(true);
+  const handleAddToFavorites = async (url: string, name: string) => {
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
     }
-  }, [authLoading, isAuthenticated]);
+    await addToFavorites(url, name);
+    toast.success('Added to favorites');
+  };
+
+  const handleRemoveFromFavorites = async (url: string) => {
+    await removeFromFavorites(url);
+    toast.success('Removed from favorites');
+  };
 
   useEffect(() => {
     // Hidden admin access with keyboard shortcut
@@ -72,7 +79,7 @@ const Index = () => {
 
   const handleSearch = (query: string, isSuggestion = false) => {
     if (!isAuthenticated) {
-      setShowInviteModal(true);
+      navigate('/auth');
       return;
     }
     setFromSuggestion(isSuggestion);
@@ -86,7 +93,7 @@ const Index = () => {
 
   const handleFilterChange = (platform: Platform) => {
     if (!isAuthenticated) {
-      setShowInviteModal(true);
+      navigate('/auth');
       return;
     }
     setSelectedPlatform(platform);
@@ -129,10 +136,11 @@ const Index = () => {
               <div className="flex items-center justify-between mb-3">
                 <Logo />
                 <div className="flex items-center gap-2">
-                  {isAuthenticated && user && (
+                  {isAuthenticated && profile && (
                     <UserProfile
-                      user={user}
-                      onLogout={logout}
+                      user={{ email: user?.email, full_name: profile?.full_name }}
+                      favorites={favorites}
+                      onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => {}}
                     />
@@ -150,16 +158,18 @@ const Index = () => {
               </div>
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
               <div className="flex items-center gap-2 ml-auto">
-                {isAuthenticated && user && (
+                {isAuthenticated && profile && (
                   <UserProfile
-                    user={user}
-                    onLogout={logout}
+                    user={{ email: user?.email, full_name: profile?.full_name }}
+                    favorites={favorites}
+                    onLogout={handleLogout}
                     onShowFavorites={() => setShowFavoritesModal(true)}
                     onShowSettings={() => {}}
                   />
                 )}
                 {!isAuthenticated && (
-                  <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                  <Button variant="outline" onClick={() => navigate('/auth')}>
+                    <LogIn className="w-4 h-4 mr-2" />
                     Sign In
                   </Button>
                 )}
@@ -182,19 +192,11 @@ const Index = () => {
                     <Plus className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Add website</span>
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowInviteModal(true)}
-                    className="px-2 sm:px-3"
-                  >
-                    <Users className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Invite</span>
-                  </Button>
-                  {user && (
+                  {profile && (
                     <UserProfile
-                      user={user}
-                      onLogout={logout}
+                      user={{ email: user?.email, full_name: profile?.full_name }}
+                      favorites={favorites}
+                      onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => {}}
                     />
@@ -202,7 +204,8 @@ const Index = () => {
                 </>
               )}
               {!isAuthenticated && (
-                <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                <Button variant="outline" onClick={() => navigate('/auth')}>
+                  <LogIn className="w-4 h-4 mr-2" />
                   Sign In
                 </Button>
               )}
@@ -274,12 +277,8 @@ const Index = () => {
                           snippet={result.snippet}
                           platform={result.platform}
                           index={index}
-                          onLike={likeSite}
-                          onDislike={dislikeSite}
-                          onAddToFavorites={addToFavorites}
-                          isLiked={user?.likedSites?.includes(result.link) || false}
-                          isDisliked={user?.dislikedSites?.includes(result.link) || false}
-                          isFavorite={user?.favorites?.some(fav => fav.url === result.link) || false}
+                          onAddToFavorites={handleAddToFavorites}
+                          isFavorite={favorites?.some(fav => fav.url === result.link) || false}
                         />
                       ))}
                       <ResultsPagination
@@ -374,21 +373,11 @@ const Index = () => {
       </footer>
       </div>
 
-      <InviteModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        onAuthenticate={authenticate}
-        userInviteCode={user?.inviteCode}
-        inviteText={getInviteText()}
-        remainingInvites={user?.inviteCount || 0}
-        generatePassword={generatePassword}
-      />
-
       <FavoritesModal
         isOpen={showFavoritesModal}
         onClose={() => setShowFavoritesModal(false)}
-        favorites={user?.favorites || []}
-        onRemoveFromFavorites={removeFromFavorites}
+        favorites={favorites}
+        onRemoveFromFavorites={handleRemoveFromFavorites}
       />
 
       <SuggestWebsiteModal
