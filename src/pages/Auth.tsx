@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,11 +18,11 @@ const inviteCodeSchema = z.string().min(4, 'Please enter a valid invite code');
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, sendMagicLink, isAuthenticated, isLoading } = useSupabaseAuth();
+  const { signIn, signUp, isAuthenticated, isLoading } = useSupabaseAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -30,6 +30,7 @@ export default function Auth() {
   
   // Signup form state
   const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const [signupUsername, setSignupUsername] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -100,11 +101,12 @@ export default function Auth() {
     setIsSubmitting(false);
   };
 
-  const handleSendMagicLink = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       emailSchema.parse(signupEmail);
+      passwordSchema.parse(signupPassword);
       inviteCodeSchema.parse(inviteCode);
       if (signupUsername) {
         usernameSchema.parse(signupUsername);
@@ -129,24 +131,25 @@ export default function Auth() {
     
     setIsSubmitting(true);
     
-    const { error } = await sendMagicLink(
+    const { error } = await signUp(
       signupEmail, 
+      signupPassword,
       signupFullName, 
       signupUsername.toLowerCase()
     );
     
     if (error) {
-      toast.error(error.message);
+      if (error.message.includes('User already registered')) {
+        toast.error('An account with this email already exists');
+      } else {
+        toast.error(error.message);
+      }
     } else {
-      setMagicLinkSent(true);
-      toast.success('Magic link sent! Check your email.');
+      toast.success('Account created! Welcome to Yourel.');
+      navigate('/');
     }
     
     setIsSubmitting(false);
-  };
-
-  const handleBackToForm = () => {
-    setMagicLinkSent(false);
   };
 
   if (isLoading) {
@@ -163,52 +166,11 @@ export default function Auth() {
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-bold">Welcome to Yourel</CardTitle>
           <CardDescription>
-            {magicLinkSent ? 'Check your email for the magic link' : 'Sign in or create a new account'}
+            Sign in or create a new account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {magicLinkSent ? (
-            <div className="space-y-6 text-center py-4">
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-primary" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="font-medium">Magic link sent!</p>
-                <p className="text-sm text-muted-foreground">
-                  We sent a sign-in link to
-                </p>
-                <p className="font-medium text-primary">{signupEmail}</p>
-              </div>
-              
-              <p className="text-sm text-muted-foreground">
-                Click the link in the email to complete your sign up. The link will expire in 1 hour.
-              </p>
-              
-              <div className="pt-4 space-y-3">
-                <Button 
-                  variant="outline" 
-                  onClick={handleBackToForm}
-                  className="w-full"
-                >
-                  Back to sign up
-                </Button>
-                
-                <p className="text-xs text-muted-foreground">
-                  Didn't receive the email?{' '}
-                  <button 
-                    onClick={(e) => handleSendMagicLink(e as any)}
-                    className="text-primary hover:underline"
-                    disabled={isSubmitting}
-                  >
-                    Resend link
-                  </button>
-                </p>
-              </div>
-            </div>
-          ) : (
+          {
             <Tabs defaultValue="signup" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -270,7 +232,7 @@ export default function Auth() {
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSendMagicLink} className="space-y-4">
+                <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="invite-code">Invite Code</Label>
                     <div className="relative">
@@ -350,8 +312,31 @@ export default function Auth() {
                         required
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-password"
+                        type={showSignupPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignupPassword(!showSignupPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      We'll send a magic link to sign you in
+                      At least 6 characters
                     </p>
                   </div>
                   
@@ -359,16 +344,16 @@ export default function Auth() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending link...
+                        Creating account...
                       </>
                     ) : (
-                      'Send Magic Link'
+                      'Create Account'
                     )}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
-          )}
+          }
         </CardContent>
       </Card>
     </div>
