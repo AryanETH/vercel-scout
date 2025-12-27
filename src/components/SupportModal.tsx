@@ -7,6 +7,7 @@ import { Heart } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
+import oplusLogo from "@/assets/oplus-logo.png";
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -132,9 +133,17 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
               <div className="p-2 bg-white rounded-md flex-shrink-0">
                 <QRCodeSVG
                   value={generateUPILink()}
-                  size={80}
+                  size={100}
                   level="H"
                   includeMargin={false}
+                  imageSettings={{
+                    src: oplusLogo,
+                    x: undefined,
+                    y: undefined,
+                    height: 24,
+                    width: 24,
+                    excavate: true,
+                  }}
                 />
               </div>
               <div className="text-left space-y-0.5 min-w-0">
