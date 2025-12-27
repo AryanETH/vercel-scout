@@ -11,11 +11,14 @@ interface SearchInputProps {
   isLoading: boolean;
   externalQuery?: string;
   suppressSuggestions?: boolean;
+  requireAuth?: boolean;
+  isAuthenticated?: boolean;
+  onAuthRequired?: () => void;
 }
 
 type DropdownPos = { left: number; top: number; width: number };
 
-export function SearchInput({ onSearch, isLoading, externalQuery, suppressSuggestions }: SearchInputProps) {
+export function SearchInput({ onSearch, isLoading, externalQuery, suppressSuggestions, requireAuth = false, isAuthenticated = true, onAuthRequired }: SearchInputProps) {
   const [query, setQuery] = useState(externalQuery || "");
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -154,6 +157,10 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (requireAuth && !isAuthenticated) {
+      onAuthRequired?.();
+      return;
+    }
     if (query.trim()) {
       saveToHistory(query.trim());
       analytics.track("search", { query: query.trim() });
@@ -161,6 +168,15 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
       setShowSuggestions(false);
       setDropdownPos(null);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (requireAuth && !isAuthenticated && newValue.length > 0) {
+      onAuthRequired?.();
+      return;
+    }
+    setQuery(newValue);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -226,7 +242,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={handleInputChange}
           onFocus={() => {
             setIsFocused(true);
             updateDropdownPos();

@@ -164,14 +164,14 @@ const Index = () => {
                   )}
                 </div>
               </div>
-              <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
+              <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
             </div>
             
             {/* Desktop: Logo + search bar + filters + user in one row */}
             <div className="hidden md:flex items-center gap-4">
               <Logo />
               <div className="flex-1 max-w-md">
-                <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} />
+                <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
               <div className="flex items-center gap-2 ml-auto">
@@ -244,7 +244,7 @@ const Index = () => {
                 F*CK SEO • FIND SITES & FREE TOOLS
               </p>
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
-                <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+                <SearchInput onSearch={handleSearch} isLoading={isLoading} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
               <div className="animate-fade-up stagger-3 mb-6 relative z-20">
                 <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
