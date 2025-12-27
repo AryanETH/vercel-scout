@@ -7,10 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Loader2, AtSign, Ticket, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -19,12 +18,11 @@ const inviteCodeSchema = z.string().min(4, 'Please enter a valid invite code');
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, sendOtp, verifyOtp, isAuthenticated, isLoading } = useSupabaseAuth();
+  const { signIn, sendMagicLink, isAuthenticated, isLoading } = useSupabaseAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpValue, setOtpValue] = useState('');
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -102,7 +100,7 @@ export default function Auth() {
     setIsSubmitting(false);
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
@@ -131,45 +129,24 @@ export default function Auth() {
     
     setIsSubmitting(true);
     
-    const { error } = await sendOtp(signupEmail);
-    
-    if (error) {
-      toast.error(error.message);
-    } else {
-      setOtpSent(true);
-      toast.success('Verification code sent to your email!');
-    }
-    
-    setIsSubmitting(false);
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otpValue.length !== 4) {
-      toast.error('Please enter the 4-digit code');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    const { error } = await verifyOtp(
+    const { error } = await sendMagicLink(
       signupEmail, 
-      otpValue, 
       signupFullName, 
       signupUsername.toLowerCase()
     );
     
     if (error) {
       toast.error(error.message);
-      setIsSubmitting(false);
     } else {
-      toast.success('Account verified successfully!');
-      // The redirect happens in verifyOtp via action_url
+      setMagicLinkSent(true);
+      toast.success('Magic link sent! Check your email.');
     }
+    
+    setIsSubmitting(false);
   };
 
   const handleBackToForm = () => {
-    setOtpSent(false);
-    setOtpValue('');
+    setMagicLinkSent(false);
   };
 
   if (isLoading) {
@@ -186,67 +163,50 @@ export default function Auth() {
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-bold">Welcome to Yourel</CardTitle>
           <CardDescription>
-            {otpSent ? 'Enter the verification code sent to your email' : 'Sign in or create a new account'}
+            {magicLinkSent ? 'Check your email for the magic link' : 'Sign in or create a new account'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {otpSent ? (
-            <div className="space-y-6">
-              <button 
-                onClick={handleBackToForm}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </button>
-              
-              <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  We sent a 4-digit code to
-                </p>
-                <p className="font-medium">{signupEmail}</p>
-              </div>
-              
+          {magicLinkSent ? (
+            <div className="space-y-6 text-center py-4">
               <div className="flex justify-center">
-                <InputOTP
-                  maxLength={4}
-                  value={otpValue}
-                  onChange={setOtpValue}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                  </InputOTPGroup>
-                </InputOTP>
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-primary" />
+                </div>
               </div>
               
-              <Button 
-                onClick={handleVerifyOtp} 
-                className="w-full" 
-                disabled={isSubmitting || otpValue.length !== 4}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify & Create Account'
-                )}
-              </Button>
+              <div className="space-y-2">
+                <p className="font-medium">Magic link sent!</p>
+                <p className="text-sm text-muted-foreground">
+                  We sent a sign-in link to
+                </p>
+                <p className="font-medium text-primary">{signupEmail}</p>
+              </div>
               
-              <p className="text-center text-xs text-muted-foreground">
-                Didn't receive the code?{' '}
-                <button 
-                  onClick={(e) => handleSendOtp(e as any)}
-                  className="text-primary hover:underline"
-                  disabled={isSubmitting}
-                >
-                  Resend
-                </button>
+              <p className="text-sm text-muted-foreground">
+                Click the link in the email to complete your sign up. The link will expire in 1 hour.
               </p>
+              
+              <div className="pt-4 space-y-3">
+                <Button 
+                  variant="outline" 
+                  onClick={handleBackToForm}
+                  className="w-full"
+                >
+                  Back to sign up
+                </Button>
+                
+                <p className="text-xs text-muted-foreground">
+                  Didn't receive the email?{' '}
+                  <button 
+                    onClick={(e) => handleSendMagicLink(e as any)}
+                    className="text-primary hover:underline"
+                    disabled={isSubmitting}
+                  >
+                    Resend link
+                  </button>
+                </p>
+              </div>
             </div>
           ) : (
             <Tabs defaultValue="signup" className="w-full">
@@ -310,7 +270,7 @@ export default function Auth() {
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSendOtp} className="space-y-4">
+                <form onSubmit={handleSendMagicLink} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="invite-code">Invite Code</Label>
                     <div className="relative">
@@ -391,7 +351,7 @@ export default function Auth() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      We'll send a verification code to this email
+                      We'll send a magic link to sign you in
                     </p>
                   </div>
                   
@@ -399,10 +359,10 @@ export default function Auth() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending code...
+                        Sending link...
                       </>
                     ) : (
-                      'Send Verification Code'
+                      'Send Magic Link'
                     )}
                   </Button>
                 </form>

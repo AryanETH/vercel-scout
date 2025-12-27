@@ -84,41 +84,21 @@ export function useSupabaseAuth() {
     }
   };
 
-  const sendOtp = async (email: string) => {
-    const { data, error } = await supabase.functions.invoke('send-otp', {
-      body: { email }
+  const sendMagicLink = async (email: string, fullName?: string, username?: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: fullName || '',
+          username: username || ''
+        }
+      }
     });
     
-    if (error) {
-      return { error };
-    }
-    
-    if (data?.error) {
-      return { error: new Error(data.error) };
-    }
-    
-    return { data, error: null };
-  };
-
-  const verifyOtp = async (email: string, code: string, fullName?: string, username?: string) => {
-    const { data, error } = await supabase.functions.invoke('verify-otp', {
-      body: { email, code, fullName, username }
-    });
-    
-    if (error) {
-      return { data: null, error };
-    }
-    
-    if (data?.error) {
-      return { data: null, error: new Error(data.error) };
-    }
-
-    // If we got an action URL, redirect to complete auth
-    if (data?.action_url) {
-      window.location.href = data.action_url;
-    }
-    
-    return { data, error: null };
+    return { data, error };
   };
 
   const signUp = async (email: string, password: string, fullName?: string, username?: string) => {
@@ -233,8 +213,7 @@ export function useSupabaseAuth() {
     isLoading,
     isAuthenticated: !!session,
     signUp,
-    sendOtp,
-    verifyOtp,
+    sendMagicLink,
     signIn,
     signOut,
     updateProfile,
