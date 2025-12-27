@@ -93,6 +93,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) {
       console.error("Email error:", emailError);
+      // Check if it's a domain verification error
+      const errorStr = JSON.stringify(emailError);
+      if (errorStr.includes('verify a domain') || errorStr.includes('403')) {
+        throw new Error("Email domain not verified. For testing, use the email associated with your Resend account.");
+      }
       throw new Error("Failed to send email");
     }
 
