@@ -69,11 +69,12 @@ export const searchApi = {
     query: string,
     platform: string = "all",
     page: number = 1,
-    limit: number = 50
+    limit: number = 50,
+    bundleSiteFilters?: string | null
   ): Promise<SearchResponse> {
     try {
       const { data, error } = await supabase.functions.invoke("web-search", {
-        body: { query, platform, limit },
+        body: { query, platform, limit, bundleSiteFilters },
       });
 
       if (error) {

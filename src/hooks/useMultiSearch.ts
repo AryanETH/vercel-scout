@@ -116,7 +116,7 @@ export function useMultiSearch() {
   }, []);
 
   const search = useCallback(
-    async (query: string, platform: Platform = "all", page: number = 1, favoriteMode: boolean = false) => {
+    async (query: string, platform: Platform = "all", page: number = 1, favoriteMode: boolean = false, bundleSiteFilters?: string | null) => {
       if (!query.trim()) return;
 
       setState((prev) => ({
@@ -130,13 +130,13 @@ export function useMultiSearch() {
       setLastQuery(query);
       setLastPlatform(platform);
 
-      const key = `${query}::${platform}::${favoriteMode ? "fav" : "all"}`;
+      const key = `${query}::${platform}::${favoriteMode ? "fav" : "all"}::${bundleSiteFilters || "none"}`;
 
       try {
         let computedFullResults = fullResults;
 
         if (key !== fullResultsKey) {
-          const webResponse = await searchApi.webSearch(query, platform, 1, MAX_RESULTS);
+          const webResponse = await searchApi.webSearch(query, platform, 1, MAX_RESULTS, bundleSiteFilters);
 
           if (!webResponse.success) {
             throw new Error(webResponse.error || "Search failed");

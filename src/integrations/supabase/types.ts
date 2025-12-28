@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bundles: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          name: string
+          updated_at: string
+          user_id: string | null
+          websites: Json
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name: string
+          updated_at?: string
+          user_id?: string | null
+          websites?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+          websites?: Json
+        }
+        Relationships: []
+      }
       daily_top_picks: {
         Row: {
           category: string

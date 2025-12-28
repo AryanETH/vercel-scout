@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { query, platform = "all", limit = 50 } = await req.json();
+    const { query, platform = "all", limit = 50, bundleSiteFilters } = await req.json();
 
     if (!query || typeof query !== "string" || !query.trim()) {
       return new Response(JSON.stringify({ success: false, error: "Query is required" }), {
@@ -77,12 +77,11 @@ Deno.serve(async (req) => {
 
     let results: any[] = [];
 
-    // When "all" is selected, search across all platform sites and combine results
-    if (!platform || platform === "all") {
-      const allSiteFilters = Object.values(PLATFORM_SITES).join(" OR ");
-      const effectiveQuery = `${query.trim()} (${allSiteFilters})`;
+    // If bundle site filters are provided, use them exclusively (ignore platform)
+    if (bundleSiteFilters && typeof bundleSiteFilters === "string") {
+      const effectiveQuery = `${query.trim()} (${bundleSiteFilters})`;
       
-      console.log("Web searching ALL platforms:", { query, effectiveQuery, limit: normalizedLimit });
+      console.log("Bundle search:", { query, bundleSiteFilters, effectiveQuery, limit: normalizedLimit });
 
       const firecrawlResp = await fetch("https://api.firecrawl.dev/v1/search", {
         method: "POST",
@@ -92,6 +91,55 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           query: effectiveQuery,
+          limit: normalizedLimit,
+        }),
+      });
+
+      const firecrawlJson = await firecrawlResp.json();
+
+      if (!firecrawlResp.ok || !firecrawlJson?.success) {
+        console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
+        return new Response(JSON.stringify({ success: false, error: firecrawlJson?.error || "Search failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const list = Array.isArray(firecrawlJson.data)
+        ? firecrawlJson.data
+        : Array.isArray(firecrawlJson.data?.data)
+          ? firecrawlJson.data.data
+          : [];
+
+      results = list
+        .filter((r: any) => r?.url)
+        .map((r: any) => {
+          const url = String(r.url);
+          return {
+            id: url,
+            url,
+            title: String(r.title || new URL(url).hostname),
+            description: r.description ? String(r.description) : null,
+            platform: "bundle",
+            favicon_url: faviconFor(url) || null,
+            search_score: 0,
+            tags: [],
+          };
+        });
+    } else if (!platform || platform === "all") {
+      // When "all" is selected, search across all platform sites and combine results
+      const allSiteFilters = Object.values(PLATFORM_SITES).join(" OR ");
+      const effectiveQueryAll = `${query.trim()} (${allSiteFilters})`;
+      
+      console.log("Web searching ALL platforms:", { query, effectiveQuery: effectiveQueryAll, limit: normalizedLimit });
+      const firecrawlResp = await fetch("https://api.firecrawl.dev/v1/search", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: effectiveQueryAll,
           limit: normalizedLimit,
         }),
       });
