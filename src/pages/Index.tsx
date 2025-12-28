@@ -19,11 +19,14 @@ import { AnimatedGrid } from "@/components/AnimatedGrid";
 import { AISummaryCard } from "@/components/AISummaryCard";
 import { RelatedSearches } from "@/components/RelatedSearches";
 import { TutorialCard } from "@/components/TutorialCard";
+import { BundleSelector } from "@/components/BundleSelector";
+import { CreateBundleModal } from "@/components/CreateBundleModal";
 
 import { Button } from "@/components/ui/button";
 import { Plus, Heart, LogIn } from "lucide-react";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { useBundles } from "@/hooks/useBundles";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -39,12 +42,23 @@ const Index = () => {
     addToFavorites,
     removeFromFavorites
   } = useSupabaseAuth();
+  const {
+    bundles,
+    activeBundle,
+    setActiveBundle,
+    clearActiveBundle,
+    createBundle,
+    deleteBundle,
+    getBundleSiteFilters,
+    sampleBundles,
+  } = useBundles();
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("all");
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showCreateBundleModal, setShowCreateBundleModal] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
@@ -100,7 +114,8 @@ const Index = () => {
     }
     setFromSuggestion(isSuggestion);
     setLastSearchQuery(query);
-    search(query, selectedPlatform, 1, searchMode === "favorites");
+    const bundleFilters = getBundleSiteFilters();
+    search(query, activeBundle ? "all" : selectedPlatform, 1, searchMode === "favorites", bundleFilters);
     // Reset the suggestion flag after a short delay
     if (isSuggestion) {
       setTimeout(() => setFromSuggestion(false), 500);
@@ -174,6 +189,15 @@ const Index = () => {
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
               <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+              <BundleSelector
+                bundles={bundles}
+                activeBundle={activeBundle}
+                onSelectBundle={setActiveBundle}
+                onCreateBundle={() => setShowCreateBundleModal(true)}
+                onDeleteBundle={deleteBundle}
+                sampleBundles={sampleBundles}
+                username={profile?.username || undefined}
+              />
               <div className="flex items-center gap-2 ml-auto">
                 {isAuthenticated && profile && (
                   <UserProfile
