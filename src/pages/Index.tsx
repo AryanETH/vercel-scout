@@ -23,7 +23,7 @@ import { BundleSelector } from "@/components/BundleSelector";
 import { CreateBundleModal } from "@/components/CreateBundleModal";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Heart, LogIn } from "lucide-react";
+import { Package, Heart, LogIn } from "lucide-react";
 import { useMultiSearch } from "@/hooks/useMultiSearch";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useBundles } from "@/hooks/useBundles";
@@ -228,11 +228,11 @@ const Index = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowSuggestModal(true)}
+                    onClick={() => setShowCreateBundleModal(true)}
                     className="px-2 sm:px-3"
                   >
-                    <Plus className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Add website</span>
+                    <Package className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Create Bundle</span>
                   </Button>
                   {profile && (
                     <UserProfile
@@ -447,6 +447,13 @@ const Index = () => {
         inviteText={inviteText}
         remainingInvites={0}
         generatePassword={() => ''}
+      />
+
+      <CreateBundleModal
+        isOpen={showCreateBundleModal}
+        onClose={() => setShowCreateBundleModal(false)}
+        onCreateBundle={createBundle}
+        username={profile?.username || undefined}
       />
 
       {/* Tutorial Card */}
