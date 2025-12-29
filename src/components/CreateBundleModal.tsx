@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import type { KeyboardEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -157,7 +158,7 @@ export function CreateBundleModal({
     onClose();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddWebsite();

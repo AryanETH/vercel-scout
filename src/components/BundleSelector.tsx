@@ -1,22 +1,23 @@
 import { useState } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Bundle, SAMPLE_BUNDLES, BundleWebsite } from "@/hooks/useBundles";
-import { 
-  ChevronDown, 
-  Package, 
-  X, 
-  Plus, 
-  Trash2, 
-  Share2, 
-  Globe, 
-  BookOpen, 
-  ShoppingCart, 
+import { Bundle, SAMPLE_BUNDLES } from "@/hooks/useBundles";
+import {
+  ChevronDown,
+  Package,
+  X,
+  Plus,
+  Trash2,
+  Share2,
+  Globe,
+  BookOpen,
+  ShoppingCart,
   Search as SearchIcon,
   Code,
   Palette,
   Newspaper,
   Sparkles,
-  Check
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -40,7 +41,7 @@ interface BundleSelectorProps {
   username?: string;
 }
 
-const categoryIcons: Record<string, React.ReactNode> = {
+const categoryIcons: Record<string, ReactNode> = {
   education: <BookOpen className="w-4 h-4" />,
   learning: <BookOpen className="w-4 h-4" />,
   shopping: <ShoppingCart className="w-4 h-4" />,
@@ -80,21 +81,21 @@ export function BundleSelector({
     setIsOpen(false);
   };
 
-  const handleClearBundle = (e: React.MouseEvent) => {
+  const handleClearBundle = (e: MouseEvent) => {
     e.stopPropagation();
     onSelectBundle(null);
   };
 
-  const handleShareBundle = (bundle: Bundle, e: React.MouseEvent) => {
+  const handleShareBundle = (bundle: Bundle, e: MouseEvent) => {
     e.stopPropagation();
-    const shareUrl = username 
+    const shareUrl = username
       ? `${window.location.origin}/u/${username}?bundle=${bundle.id}`
       : `${window.location.origin}?bundle=${bundle.id}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success("Bundle link copied to clipboard!");
   };
 
-  const handleDeleteBundle = (bundleId: string, e: React.MouseEvent) => {
+  const handleDeleteBundle = (bundleId: string, e: MouseEvent) => {
     e.stopPropagation();
     onDeleteBundle?.(bundleId);
     toast.success("Bundle deleted");

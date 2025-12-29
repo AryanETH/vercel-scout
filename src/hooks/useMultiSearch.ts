@@ -87,6 +87,7 @@ export function useMultiSearch() {
 
   const [lastQuery, setLastQuery] = useState("");
   const [lastPlatform, setLastPlatform] = useState<Platform>("all");
+  const [lastBundleSiteFilters, setLastBundleSiteFilters] = useState<string | null>(null);
 
   // Cache full result set so pagination doesn't re-hit the network
   const [fullResultsKey, setFullResultsKey] = useState("");
@@ -116,8 +117,16 @@ export function useMultiSearch() {
   }, []);
 
   const search = useCallback(
-    async (query: string, platform: Platform = "all", page: number = 1, favoriteMode: boolean = false, bundleSiteFilters?: string | null) => {
+    async (
+      query: string,
+      platform: Platform = "all",
+      page: number = 1,
+      favoriteMode: boolean = false,
+      bundleSiteFilters?: string | null
+    ) => {
       if (!query.trim()) return;
+
+      const effectivePlatform: Platform = bundleSiteFilters ? "all" : platform;
 
       setState((prev) => ({
         ...prev,
@@ -128,15 +137,22 @@ export function useMultiSearch() {
       }));
 
       setLastQuery(query);
-      setLastPlatform(platform);
+      setLastPlatform(effectivePlatform);
+      setLastBundleSiteFilters(bundleSiteFilters ?? null);
 
-      const key = `${query}::${platform}::${favoriteMode ? "fav" : "all"}::${bundleSiteFilters || "none"}`;
+      const key = `${query}::${effectivePlatform}::${favoriteMode ? "fav" : "all"}::${bundleSiteFilters || "none"}`;
 
       try {
         let computedFullResults = fullResults;
 
         if (key !== fullResultsKey) {
-          const webResponse = await searchApi.webSearch(query, platform, 1, MAX_RESULTS, bundleSiteFilters);
+          const webResponse = await searchApi.webSearch(
+            query,
+            effectivePlatform,
+            1,
+            MAX_RESULTS,
+            bundleSiteFilters
+          );
 
           if (!webResponse.success) {
             throw new Error(webResponse.error || "Search failed");
@@ -165,7 +181,7 @@ export function useMultiSearch() {
         });
 
         // Fetch AI summary in background
-        await runAISummary(query, platform, pageResults);
+        await runAISummary(query, effectivePlatform, pageResults);
       } catch (error) {
         setState({
           results: [],
@@ -184,16 +200,20 @@ export function useMultiSearch() {
 
   const changePage = useCallback(
     (page: number, favoriteMode: boolean = false) => {
-      search(lastQuery, lastPlatform, page, favoriteMode);
+      search(lastQuery, lastPlatform, page, favoriteMode, lastBundleSiteFilters);
     },
-    [lastPlatform, lastQuery, search]
+    [lastBundleSiteFilters, lastPlatform, lastQuery, search]
   );
 
   const changeFilter = useCallback(
     (platform: Platform, favoriteMode: boolean = false) => {
+      if (lastBundleSiteFilters) {
+        search(lastQuery, "all", 1, favoriteMode, lastBundleSiteFilters);
+        return;
+      }
       search(lastQuery, platform, 1, favoriteMode);
     },
-    [lastQuery, search]
+    [lastBundleSiteFilters, lastQuery, search]
   );
 
   return {
