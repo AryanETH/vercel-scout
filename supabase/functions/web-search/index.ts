@@ -95,7 +95,18 @@ Deno.serve(async (req) => {
         }),
       });
 
-      const firecrawlJson = await firecrawlResp.json();
+      // Handle non-JSON responses (e.g., 502 Bad Gateway)
+      const responseText = await firecrawlResp.text();
+      let firecrawlJson: any;
+      try {
+        firecrawlJson = JSON.parse(responseText);
+      } catch {
+        console.error("Firecrawl returned non-JSON:", firecrawlResp.status, responseText);
+        return new Response(JSON.stringify({ success: false, error: `Search service unavailable (${firecrawlResp.status})` }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       if (!firecrawlResp.ok || !firecrawlJson?.success) {
         console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
@@ -144,7 +155,18 @@ Deno.serve(async (req) => {
         }),
       });
 
-      const firecrawlJson = await firecrawlResp.json();
+      // Handle non-JSON responses (e.g., 502 Bad Gateway)
+      const responseText = await firecrawlResp.text();
+      let firecrawlJson: any;
+      try {
+        firecrawlJson = JSON.parse(responseText);
+      } catch {
+        console.error("Firecrawl returned non-JSON:", firecrawlResp.status, responseText);
+        return new Response(JSON.stringify({ success: false, error: `Search service unavailable (${firecrawlResp.status})` }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       if (!firecrawlResp.ok || !firecrawlJson?.success) {
         console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
@@ -195,7 +217,18 @@ Deno.serve(async (req) => {
         }),
       });
 
-      const firecrawlJson = await firecrawlResp.json();
+      // Handle non-JSON responses (e.g., 502 Bad Gateway)
+      const responseText = await firecrawlResp.text();
+      let firecrawlJson: any;
+      try {
+        firecrawlJson = JSON.parse(responseText);
+      } catch {
+        console.error("Firecrawl returned non-JSON:", firecrawlResp.status, responseText);
+        return new Response(JSON.stringify({ success: false, error: `Search service unavailable (${firecrawlResp.status})` }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       if (!firecrawlResp.ok || !firecrawlJson?.success) {
         console.error("Firecrawl search error:", firecrawlResp.status, firecrawlJson);
