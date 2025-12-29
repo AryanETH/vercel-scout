@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -20,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, X, Globe, Sparkles, Share2 } from "lucide-react";
+import { Plus, X, Globe, Sparkles } from "lucide-react";
 import { BundleWebsite, POPULAR_SUGGESTIONS } from "@/hooks/useBundles";
 import { toast } from "sonner";
 
@@ -32,9 +31,7 @@ interface CreateBundleModalProps {
     description?: string;
     category: string;
     websites: BundleWebsite[];
-    is_public?: boolean;
   }) => Promise<any>;
-  username?: string;
 }
 
 const CATEGORIES = [
@@ -53,7 +50,6 @@ export function CreateBundleModal({
   isOpen,
   onClose,
   onCreateBundle,
-  username,
 }: CreateBundleModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -61,7 +57,6 @@ export function CreateBundleModal({
   const [websites, setWebsites] = useState<BundleWebsite[]>([]);
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [websiteName, setWebsiteName] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get suggestions based on category and bundle name
@@ -131,7 +126,6 @@ export function CreateBundleModal({
         description: description.trim() || undefined,
         category,
         websites,
-        is_public: isPublic,
       });
 
       if (result) {
@@ -154,7 +148,6 @@ export function CreateBundleModal({
     setWebsites([]);
     setWebsiteUrl("");
     setWebsiteName("");
-    setIsPublic(false);
     onClose();
   };
 
@@ -311,22 +304,6 @@ export function CreateBundleModal({
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Share Option */}
-          {username && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <div className="flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Share this bundle</p>
-                  <p className="text-xs text-muted-foreground">
-                    Others can use your bundle via /u/{username}
-                  </p>
-                </div>
-              </div>
-              <Switch checked={isPublic} onCheckedChange={setIsPublic} />
             </div>
           )}
         </div>

@@ -492,7 +492,6 @@ const Index = () => {
         isOpen={showCreateBundleModal}
         onClose={() => setShowCreateBundleModal(false)}
         onCreateBundle={createBundle}
-        username={profile?.username || undefined}
       />
 
       {/* Tutorial Card */}
