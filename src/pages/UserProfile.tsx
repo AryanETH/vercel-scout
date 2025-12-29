@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Heart, User, ArrowLeft, Loader2 } from 'lucide-react';
+import { ExternalLink, Heart, User, ArrowLeft, Loader2, Package, Globe, Copy, Search } from 'lucide-react';
 import { Logo } from '@/components/Logo';
+import { toast } from 'sonner';
+import { BundleWebsite } from '@/hooks/useBundles';
 
 interface ProfileData {
   id: string;
@@ -20,15 +22,30 @@ interface FavoriteData {
   created_at: string;
 }
 
+interface BundleData {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  websites: BundleWebsite[];
+  is_public: boolean;
+  user_id: string;
+}
+
 export default function UserProfilePage() {
   const { username } = useParams<{ username: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const bundleId = searchParams.get('bundle');
+  
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [favorites, setFavorites] = useState<FavoriteData[]>([]);
+  const [bundle, setBundle] = useState<BundleData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       if (!username) {
         setNotFound(true);
         setIsLoading(false);
@@ -50,6 +67,23 @@ export default function UserProfilePage() {
 
       setProfile(profileData);
 
+      // If bundle ID is provided, fetch the bundle
+      if (bundleId) {
+        const { data: bundleData, error: bundleError } = await supabase
+          .from('bundles')
+          .select('*')
+          .eq('id', bundleId)
+          .eq('user_id', profileData.id)
+          .maybeSingle();
+
+        if (!bundleError && bundleData) {
+          const websites = typeof bundleData.websites === 'string' 
+            ? JSON.parse(bundleData.websites) 
+            : bundleData.websites || [];
+          setBundle({ ...bundleData, websites });
+        }
+      }
+
       // Fetch user's favorites
       const { data: favoritesData } = await supabase
         .from('favorites')
@@ -61,8 +95,8 @@ export default function UserProfilePage() {
       setIsLoading(false);
     };
 
-    fetchProfile();
-  }, [username]);
+    fetchData();
+  }, [username, bundleId]);
 
   if (isLoading) {
     return (
@@ -102,6 +136,19 @@ export default function UserProfilePage() {
   const displayName = profile?.full_name || profile?.username || 'User';
   const initials = displayName.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2) || 'U';
 
+  const handleCopyBundleLink = () => {
+    const url = `${window.location.origin}/u/${username}?bundle=${bundle?.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Bundle link copied!');
+  };
+
+  const handleSearchWithBundle = () => {
+    if (!bundle) return;
+    const siteFilters = bundle.websites.map(w => `site:${w.url}`).join(' OR ');
+    // Navigate to home with bundle filter in URL
+    navigate(`/?bundleFilter=${encodeURIComponent(siteFilters)}&bundleName=${encodeURIComponent(bundle.name)}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="px-4 py-4 md:px-12 border-b border-border">
@@ -123,6 +170,59 @@ export default function UserProfilePage() {
             <p className="text-muted-foreground">@{profile?.username}</p>
           </div>
         </div>
+
+        {/* Shared Bundle Section */}
+        {bundle && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              Shared Bundle
+            </h2>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{bundle.name}</CardTitle>
+                    {bundle.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{bundle.description}</p>
+                    )}
+                    <span className="inline-block mt-2 px-2 py-1 text-xs bg-primary/10 text-primary rounded-full capitalize">
+                      {bundle.category}
+                    </span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm font-medium mb-3">Websites in this bundle:</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {bundle.websites.map((website, index) => (
+                    <a
+                      key={index}
+                      href={`https://${website.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-lg bg-background hover:bg-muted transition-colors group"
+                    >
+                      <Globe className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">{website.name}</span>
+                      <span className="text-xs text-muted-foreground truncate">{website.url}</span>
+                      <ExternalLink className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button onClick={handleSearchWithBundle} className="flex-1">
+                    <Search className="w-4 h-4 mr-2" />
+                    Search with this Bundle
+                  </Button>
+                  <Button variant="outline" onClick={handleCopyBundleLink}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Favorites Section */}
         <div className="mb-8">
