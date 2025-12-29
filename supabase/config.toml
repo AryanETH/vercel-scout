@@ -49,3 +49,6 @@ verify_jwt = false
 [functions.update-daily-picks]
 verify_jwt = false
 
+[functions.get-shared-bundle]
+verify_jwt = false
+

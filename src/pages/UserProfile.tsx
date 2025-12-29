@@ -55,49 +55,45 @@ export default function UserProfilePage() {
         return;
       }
 
-      // If bundle ID is provided, fetch the bundle directly (skip profile check for shared bundles)
+      // If bundle ID is provided, fetch the bundle using Edge Function (bypasses RLS)
       if (bundleId) {
-        const { data: bundleData, error: bundleError } = await supabase
-          .from('bundles')
-          .select('*')
-          .eq('id', bundleId)
-          .maybeSingle();
+        try {
+          const { data, error } = await supabase.functions.invoke('get-shared-bundle', {
+            body: { bundleId }
+          });
 
-        if (!bundleError && bundleData) {
-          const websites = typeof bundleData.websites === 'string' 
-            ? JSON.parse(bundleData.websites) 
-            : bundleData.websites || [];
-          setBundle({ ...bundleData, websites });
-          
-          // Fetch bundle owner's profile
-          if (bundleData.user_id) {
-            const { data: ownerProfile } = await supabase
-              .from('profiles')
-              .select('id, full_name, username, avatar_url')
-              .eq('id', bundleData.user_id)
-              .maybeSingle();
+          if (!error && data?.success && data?.bundle) {
+            const bundleData = data.bundle;
+            setBundle(bundleData);
             
-            if (ownerProfile) {
-              setProfile(ownerProfile);
+            if (data.owner) {
+              setProfile(data.owner);
             }
-          }
-          
-          // Check if current user already has this bundle
-          if (user) {
-            const { data: existingBundles } = await supabase
-              .from('bundles')
-              .select('id')
-              .eq('user_id', user.id)
-              .eq('name', bundleData.name);
             
-            if (existingBundles && existingBundles.length > 0) {
-              setAlreadyAdded(true);
+            // Check if current user already has this bundle
+            if (user) {
+              const { data: existingBundles } = await supabase
+                .from('bundles')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('name', bundleData.name);
+              
+              if (existingBundles && existingBundles.length > 0) {
+                setAlreadyAdded(true);
+              }
             }
+            
+            setIsLoading(false);
+            return;
           }
-          
-          setIsLoading(false);
-          return;
+        } catch (err) {
+          console.error('Error fetching bundle:', err);
         }
+        
+        // If Edge Function fails, show not found
+        setNotFound(true);
+        setIsLoading(false);
+        return;
       }
 
       // Fetch profile by username

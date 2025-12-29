@@ -63,9 +63,18 @@ function getPlatformFromUrl(url: string): string | null {
 }
 
 function getScreenshotUrl(url: string): string {
-  // Use WordPress mShots (returns an image directly)
-  const encodedUrl = encodeURIComponent(url);
-  return `https://s.wordpress.com/mshots/v1/${encodedUrl}?w=900`;
+  // Ensure URL has protocol
+  let fullUrl = url;
+  if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+    fullUrl = `https://${fullUrl}`;
+  }
+  
+  // Use WordPress mShots with the full URL (not just domain)
+  // This will capture the exact page, not just the homepage
+  const encodedUrl = encodeURIComponent(fullUrl);
+  
+  // Add timestamp to prevent caching issues
+  return `https://s.wordpress.com/mshots/v1/${encodedUrl}?w=900&h=600`;
 }
 
 export function SearchResult({ 
@@ -83,6 +92,7 @@ export function SearchResult({
 }: SearchResultProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [faviconError, setFaviconError] = useState(false);
   const [showMobileActions, setShowMobileActions] = useState(false);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLongPressRef = useRef(false);
@@ -91,6 +101,9 @@ export function SearchResult({
   const detectedPlatform = platform || getPlatformFromUrl(link);
   const logoUrl = detectedPlatform ? platformLogos[detectedPlatform] : null;
   const gradient = detectedPlatform ? platformGradients[detectedPlatform] : "from-gray-600 to-gray-800";
+  
+  // Get favicon URL from Google's favicon service
+  const faviconUrl = `https://www.google.com/s2/favicons?domain=${displayUrl}&sz=32`;
   
   // Generate screenshot URL
   const screenshotUrl = getScreenshotUrl(link);
@@ -142,7 +155,14 @@ export function SearchResult({
         <div className="flex items-center gap-2.5 mb-2">
           {/* Favicon container - rounded circle like Google */}
           <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
-            {detectedPlatform && logoUrl ? (
+            {!faviconError ? (
+              <img 
+                src={faviconUrl} 
+                alt="" 
+                className="w-5 h-5 object-contain"
+                onError={() => setFaviconError(true)}
+              />
+            ) : detectedPlatform && logoUrl ? (
               <img 
                 src={logoUrl} 
                 alt={detectedPlatform} 
@@ -217,8 +237,24 @@ export function SearchResult({
       <div className="hidden md:flex">
         {/* Content - Left Side */}
         <div className="flex-1 p-4 min-w-0">
-          {/* Platform badge + URL */}
+          {/* Favicon + Platform badge + URL */}
           <div className="flex items-center gap-2 mb-2">
+            {/* Website Favicon */}
+            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {!faviconError ? (
+                <img 
+                  src={faviconUrl} 
+                  alt="" 
+                  className="w-4 h-4 object-contain"
+                  onError={() => setFaviconError(true)}
+                />
+              ) : (
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase">
+                  {displayUrl.charAt(0)}
+                </span>
+              )}
+            </div>
+            
             {detectedPlatform && logoUrl && (
               <div className="flex items-center gap-1.5 bg-muted/50 rounded-md px-2 py-0.5">
                 <img 
