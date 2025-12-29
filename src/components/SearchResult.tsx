@@ -22,7 +22,7 @@ const platformLogos: Record<string, string> = {
   netlify: "/logos/netlify.ico",
   railway: "/logos/railway.ico",
   onrender: "/logos/render.png",
-  bubble: "/logos/bubble.png",
+  bubble: "/logos/bubble.webp",
   framer: "/logos/framer.png",
   replit: "/logos/replit.png",
   bolt: "/logos/bolt.png",

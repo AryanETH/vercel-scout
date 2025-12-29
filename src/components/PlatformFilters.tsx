@@ -25,7 +25,7 @@ const platformConfig: Record<Platform, { label: string; logo: string; color: str
   netlify: { label: "Netlify", logo: "/logos/netlify.ico", color: "from-teal-400 to-teal-600" },
   railway: { label: "Railway", logo: "/logos/railway.ico", color: "from-purple-500 to-purple-700" },
   onrender: { label: "Render", logo: "/logos/render.png", color: "from-emerald-400 to-emerald-600" },
-  bubble: { label: "Bubble", logo: "/logos/bubble.png", color: "from-blue-400 to-blue-600" },
+  bubble: { label: "Bubble", logo: "/logos/bubble.webp", color: "from-blue-400 to-blue-600" },
   framer: { label: "Framer", logo: "/logos/framer.png", color: "from-pink-500 to-purple-500" },
   replit: { label: "Replit", logo: "/logos/replit.png", color: "from-orange-400 to-orange-600" },
   bolt: { label: "Bolt", logo: "/logos/bolt.png", color: "from-yellow-400 to-yellow-600" },
