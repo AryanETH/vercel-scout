@@ -88,8 +88,10 @@ export function BundleSelector({
 
   const handleShareBundle = (bundle: Bundle, e: MouseEvent) => {
     e.stopPropagation();
-    // Use the new dedicated bundle share URL (doesn't expose user profile)
-    const shareUrl = `${window.location.origin}/bundle/${bundle.id}`;
+    // Use the user profile URL with bundle parameter (works with existing RLS)
+    const shareUrl = username
+      ? `${window.location.origin}/u/${username}?bundle=${bundle.id}`
+      : `${window.location.origin}/u/shared?bundle=${bundle.id}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success("Bundle link copied to clipboard!");
   };
