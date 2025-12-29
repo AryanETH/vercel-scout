@@ -49,6 +49,16 @@ function faviconFor(url: string): string {
   }
 }
 
+// Fisher-Yates shuffle for anti-SEO randomization
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -261,12 +271,15 @@ Deno.serve(async (req) => {
         });
     }
 
+    // Anti-SEO: Shuffle results randomly so no website gets priority
+    const shuffledResults = shuffleArray(results);
+
     // Log for basic analytics
     try {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
-      await supabase.from("search_history").insert({ query, results_count: results.length });
+      await supabase.from("search_history").insert({ query, results_count: shuffledResults.length });
     } catch (e) {
       console.warn("Failed to log search_history:", e);
     }
@@ -274,8 +287,8 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        results,
-        total: results.length,
+        results: shuffledResults,
+        total: shuffledResults.length,
         page: 1,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
