@@ -175,13 +175,17 @@ export function useBundles() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       // Parse websites JSONB field
       const parsedBundles = (data || []).map((b: any) => ({
         ...b,
-        websites: Array.isArray(b.websites) ? b.websites : JSON.parse(b.websites || "[]"),
+        websites: Array.isArray(b.websites)
+          ? b.websites
+          : typeof b.websites === "string"
+            ? JSON.parse(b.websites || "[]")
+            : [],
       }));
-      
+
       setBundles(parsedBundles);
     } catch (error) {
       console.error("Error fetching bundles:", error);
@@ -212,21 +216,22 @@ export function useBundles() {
             name: bundle.name,
             description: bundle.description || null,
             category: bundle.category,
-            websites: JSON.stringify(bundle.websites) as unknown as any,
+            // IMPORTANT: store JSONB as an actual array (not a string)
+            websites: bundle.websites as unknown as any,
             is_public: bundle.is_public ?? false,
           })
           .select()
           .single();
 
         if (error) throw error;
-        
+
         const websitesData = data.websites;
-        const parsedWebsites: BundleWebsite[] = typeof websitesData === 'string' 
-          ? JSON.parse(websitesData) 
-          : Array.isArray(websitesData) 
+        const parsedWebsites: BundleWebsite[] = typeof websitesData === "string"
+          ? JSON.parse(websitesData)
+          : Array.isArray(websitesData)
             ? (websitesData as unknown as BundleWebsite[])
             : [];
-        
+
         const newBundle: Bundle = {
           id: data.id,
           user_id: data.user_id,
@@ -238,7 +243,7 @@ export function useBundles() {
           created_at: data.created_at,
           updated_at: data.updated_at,
         };
-        
+
         setBundles((prev) => [newBundle, ...prev]);
         return newBundle;
       } catch (error) {

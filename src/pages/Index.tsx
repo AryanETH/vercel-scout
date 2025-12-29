@@ -127,6 +127,10 @@ const Index = () => {
       navigate('/auth');
       return;
     }
+    if (activeBundle) {
+      toast('Clear the bundle filter to use platform filters');
+      return;
+    }
     setSelectedPlatform(platform);
     if (hasSearched) {
       changeFilter(platform, searchMode === "favorites");
@@ -136,10 +140,18 @@ const Index = () => {
   const handleSearchModeChange = (mode: SearchMode) => {
     setSearchMode(mode);
     if (hasSearched && lastSearchQuery) {
+      const bundleFilters = getBundleSiteFilters();
       // Re-run last search with new mode
-      search(lastSearchQuery, selectedPlatform, 1, mode === "favorites");
+      search(lastSearchQuery, activeBundle ? "all" : selectedPlatform, 1, mode === "favorites", bundleFilters);
     }
   };
+
+  // If a bundle is selected/cleared while results are shown, re-run the current query
+  useEffect(() => {
+    if (!isAuthenticated || !hasSearched || !lastSearchQuery) return;
+    const bundleFilters = getBundleSiteFilters();
+    search(lastSearchQuery, activeBundle ? "all" : selectedPlatform, 1, searchMode === "favorites", bundleFilters);
+  }, [activeBundle?.id, getBundleSiteFilters, hasSearched, isAuthenticated, lastSearchQuery, search, searchMode, selectedPlatform]);
 
 
 
@@ -180,6 +192,20 @@ const Index = () => {
                 </div>
               </div>
               <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
+              <div className="mt-2 flex items-center gap-2">
+                {!activeBundle && (
+                  <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+                )}
+                <BundleSelector
+                  bundles={bundles}
+                  activeBundle={activeBundle}
+                  onSelectBundle={setActiveBundle}
+                  onCreateBundle={() => setShowCreateBundleModal(true)}
+                  onDeleteBundle={deleteBundle}
+                  sampleBundles={sampleBundles}
+                  username={profile?.username || undefined}
+                />
+              </div>
             </div>
             
             {/* Desktop: Logo + search bar + filters + user in one row */}
@@ -188,7 +214,9 @@ const Index = () => {
               <div className="flex-1 max-w-md">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} externalQuery={lastSearchQuery} suppressSuggestions={fromSuggestion} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
-              <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+              {!activeBundle && (
+                <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} variant="dropdown" />
+              )}
               <BundleSelector
                 bundles={bundles}
                 activeBundle={activeBundle}
@@ -225,6 +253,15 @@ const Index = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               {isAuthenticated && (
                 <>
+                  <BundleSelector
+                    bundles={bundles}
+                    activeBundle={activeBundle}
+                    onSelectBundle={setActiveBundle}
+                    onCreateBundle={() => setShowCreateBundleModal(true)}
+                    onDeleteBundle={deleteBundle}
+                    sampleBundles={sampleBundles}
+                    username={profile?.username || undefined}
+                  />
                   <Button
                     variant="outline"
                     size="sm"
@@ -270,9 +307,11 @@ const Index = () => {
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
-              <div className="animate-fade-up stagger-3 mb-6 relative z-20">
-                <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
-              </div>
+              {!activeBundle && (
+                <div className="animate-fade-up stagger-3 mb-6 relative z-20">
+                  <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
+                </div>
+              )}
             </div>
           )}
 
