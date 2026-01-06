@@ -146,8 +146,11 @@ export function useMultiSearch() {
         let computedFullResults = fullResults;
 
         if (key !== fullResultsKey) {
+          // Prepend "free" to search queries internally for anti-SEO/free-focused results
+          const enhancedQuery = query.toLowerCase().includes('free') ? query : `free ${query}`;
+          
           const webResponse = await searchApi.webSearch(
-            query,
+            enhancedQuery,
             effectivePlatform,
             1,
             MAX_RESULTS,
