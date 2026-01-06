@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Heart, ExternalLink, Trash2, Share2, Copy } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Heart, ExternalLink, Trash2, Share2, Copy, Plus } from "lucide-react";
 import { FavoriteItem } from "@/hooks/useSupabaseAuth";
 import { toast } from "sonner";
 
@@ -9,10 +11,15 @@ interface FavoritesModalProps {
   onClose: () => void;
   favorites: FavoriteItem[];
   onRemoveFromFavorites: (url: string) => void;
+  onAddToFavorites?: (url: string, name: string) => void;
   username?: string | null;
 }
 
-export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorites, username }: FavoritesModalProps) {
+export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorites, onAddToFavorites, username }: FavoritesModalProps) {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUrl, setNewUrl] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+  
   const profileUrl = username ? `${window.location.origin}/u/${username}` : null;
 
   const handleShare = async () => {
@@ -40,6 +47,46 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
     if (profileUrl) {
       navigator.clipboard.writeText(profileUrl);
       toast.success('Profile link copied to clipboard!');
+    }
+  };
+
+  const handleAddSite = async () => {
+    if (!newUrl.trim()) {
+      toast.error('Please enter a URL');
+      return;
+    }
+
+    // Validate URL
+    let validUrl = newUrl.trim();
+    if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
+      validUrl = 'https://' + validUrl;
+    }
+
+    try {
+      new URL(validUrl);
+    } catch {
+      toast.error('Please enter a valid URL');
+      return;
+    }
+
+    // Check if already in favorites
+    if (favorites.some(fav => fav.url === validUrl)) {
+      toast.error('This site is already in your favorites');
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const siteName = new URL(validUrl).hostname.replace('www.', '');
+      if (onAddToFavorites) {
+        await onAddToFavorites(validUrl, siteName);
+      }
+      setNewUrl("");
+      setShowAddForm(false);
+    } catch {
+      toast.error('Failed to add site');
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -82,13 +129,44 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
           )}
         </DialogHeader>
         
+        {/* Add Site Section */}
+        <div className="mb-4">
+          {showAddForm ? (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter website URL (e.g., example.com)"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddSite()}
+                className="flex-1"
+              />
+              <Button onClick={handleAddSite} disabled={isAdding} size="sm">
+                {isAdding ? 'Adding...' : 'Add'}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => { setShowAddForm(false); setNewUrl(""); }}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAddForm(true)}
+              className="w-full gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add a site manually
+            </Button>
+          )}
+        </div>
+        
         <div className="space-y-3">
           {favorites.length === 0 ? (
             <div className="text-center py-8">
               <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">No favorites yet</p>
               <p className="text-sm text-muted-foreground">
-                Click the heart icon on search results to add them here
+                Click the heart icon on search results or add a site manually
               </p>
             </div>
           ) : (

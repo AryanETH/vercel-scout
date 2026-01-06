@@ -411,46 +411,13 @@ const Index = () => {
             </button>
           </p>
           
-          <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center text-[10px] md:text-xs">
-            <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Vercel
-            </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              GitHub
-            </a>
-            <a href="https://netlify.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Netlify
-            </a>
-            <a href="https://railway.app" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Railway
-            </a>
-            <a href="https://render.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Render
-            </a>
-            <a href="https://bubble.io" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Bubble
-            </a>
-            <a href="https://framer.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Framer
-            </a>
-            <a href="https://replit.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Replit
-            </a>
-            <a href="https://fly.io" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Fly.io
-            </a>
-            <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-              Lovable
-            </a>
-            {/* Desktop: Support link inline */}
-            <button 
-              onClick={() => setShowSupportModal(true)}
-              className="hidden md:inline-flex items-center gap-1 text-red-500 hover:text-red-400 transition-colors"
-            >
-              <Heart className="w-3 h-3" />
-              Support
-            </button>
-          </div>
+          <button 
+            onClick={() => setShowSupportModal(true)}
+            className="hidden md:inline-flex items-center gap-1 text-red-500 hover:text-red-400 transition-colors text-xs"
+          >
+            <Heart className="w-3 h-3" />
+            Support
+          </button>
         </div>
       </footer>
       </div>
@@ -460,6 +427,7 @@ const Index = () => {
         onClose={() => setShowFavoritesModal(false)}
         favorites={favorites}
         onRemoveFromFavorites={handleRemoveFromFavorites}
+        onAddToFavorites={handleAddToFavorites}
         username={profile?.username}
       />
 
