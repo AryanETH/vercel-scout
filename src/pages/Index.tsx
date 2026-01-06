@@ -416,7 +416,7 @@ const Index = () => {
             className="hidden md:inline-flex items-center gap-1 text-red-500 hover:text-red-400 transition-colors text-xs"
           >
             <Heart className="w-3 h-3" />
-            Support
+            Keep Yourel AD. Free
           </button>
         </div>
       </footer>
