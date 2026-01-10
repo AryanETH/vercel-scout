@@ -179,9 +179,9 @@ const Index = () => {
 
 
   return (
-    <div className={`min-h-screen relative overflow-hidden flex flex-col ${showBackgrounds && !isMobile ? 'bg-transparent' : 'bg-background'}`} style={{ zIndex: 1 }}>
-      {/* Dynamic Background with Vecteezy Images */}
-      <DynamicBackground />
+    <div className={`min-h-screen relative overflow-hidden flex flex-col ${showBackgrounds && !isMobile && !hasSearched && !isLoading ? 'bg-transparent' : 'bg-background'}`} style={{ zIndex: 1 }}>
+      {/* Dynamic Background with Unsplash Images */}
+      <DynamicBackground hasSearched={hasSearched || isLoading} />
       
       {/* Animated Grid Background - show when background images are OFF, or always on mobile */}
       {!hasSearched && !isLoading && (!showBackgrounds || isMobile) && <AnimatedGrid />}

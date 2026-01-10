@@ -19,7 +19,11 @@ function useIsMobile() {
   return isMobile;
 }
 
-export function DynamicBackground() {
+interface DynamicBackgroundProps {
+  hasSearched?: boolean;
+}
+
+export function DynamicBackground({ hasSearched = false }: DynamicBackgroundProps) {
   const [showBackgrounds, setShowBackgrounds] = useState(true);
   const [customBackground, setCustomBackground] = useState<string | null>(null);
   const [scrollBlur, setScrollBlur] = useState(0);
@@ -69,7 +73,8 @@ export function DynamicBackground() {
   }, []);
 
   // Don't render if backgrounds are disabled OR if on mobile (mobile uses comet animation)
-  if (!showBackgrounds || isMobile) return null;
+  // Also don't render on search results page - use normal theme background
+  if (!showBackgrounds || isMobile || hasSearched) return null;
 
   const isCustom = !!customBackground;
   // Use custom background if set, otherwise use Unsplash daily image
