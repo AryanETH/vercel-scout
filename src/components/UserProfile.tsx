@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Settings, Heart, Moon, Sun, LogOut, Users, Copy } from "lucide-react";
 import {
   DropdownMenu,
@@ -9,8 +9,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme";
+import { useBackground } from "@/contexts/BackgroundContext";
 import { FavoriteItem } from "@/hooks/useSupabaseAuth";
 import { toast } from "sonner";
+
+// Hook to detect if device is mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 interface UserProfileProps {
   user: {
@@ -26,7 +44,9 @@ interface UserProfileProps {
 
 export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShowSettings, onShowInvite }: UserProfileProps) {
   const { theme, toggleTheme } = useTheme();
+  const { showBackgrounds } = useBackground();
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const displayName = user.full_name || user.email || 'User';
   const initials = displayName.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2) || 'U';
@@ -47,8 +67,8 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
       <DropdownMenuContent align="end" className="w-56 glass-liquid">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{displayName}</p>
-            {user.email && <p className="text-xs leading-none text-muted-foreground">{user.email}</p>}
+            <p className={`text-sm leading-none ${showBackgrounds ? 'font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'font-medium'}`}>{displayName}</p>
+            {user.email && <p className={`text-xs leading-none ${showBackgrounds ? 'text-white/90 font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]' : 'text-muted-foreground'}`}>{user.email}</p>}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -79,10 +99,13 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
           </DropdownMenuItem>
         )}
         
-        <DropdownMenuItem onClick={closeAnd(onShowSettings)}>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
-        </DropdownMenuItem>
+        {/* Only show Settings (Customize Page) on PC/tablet, not mobile */}
+        {!isMobile && (
+          <DropdownMenuItem onClick={closeAnd(onShowSettings)}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Customize Page</span>
+          </DropdownMenuItem>
+        )}
         
         <DropdownMenuSeparator />
         

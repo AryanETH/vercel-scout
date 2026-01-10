@@ -403,6 +403,24 @@
   @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
 }
 
+/* Text shadow for readability on background images */
+.text-shadow-light {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8), 0 2px 6px rgba(255, 255, 255, 0.5);
+}
+
+.text-shadow-dark {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Auto text shadow based on theme */
+.text-shadow-contrast {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark .text-shadow-contrast {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5), 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
 /* Apple-style glossy liquid glass display elements */
 .glass-apple-display {
   position: relative;

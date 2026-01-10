@@ -21,6 +21,9 @@ import { RelatedSearches } from "@/components/RelatedSearches";
 import { TutorialCard } from "@/components/TutorialCard";
 import { BundleSelector } from "@/components/BundleSelector";
 import { CreateBundleModal } from "@/components/CreateBundleModal";
+import { DynamicBackground } from "@/components/DynamicBackground";
+import { ProfileSettingsCard } from "@/components/ProfileSettingsCard";
+import { useBackground } from "@/contexts/BackgroundContext";
 
 import { Button } from "@/components/ui/button";
 import { Package, Heart, LogIn } from "lucide-react";
@@ -29,8 +32,27 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useBundles } from "@/hooks/useBundles";
 import { toast } from "sonner";
 
+// Hook to detect if device is mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 const Index = () => {
   const navigate = useNavigate();
+  const { showBackgrounds } = useBackground();
+  const isMobile = useIsMobile();
   const { results, isLoading, error, hasSearched, totalResults, currentPage, totalPages, aiSummary, isAILoading, search, changePage, changeFilter } = useMultiSearch();
   const { 
     user,
@@ -59,6 +81,7 @@ const Index = () => {
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showCreateBundleModal, setShowCreateBundleModal] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
@@ -156,12 +179,15 @@ const Index = () => {
 
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
-      {/* Animated Grid Background - only on home page */}
-      {!hasSearched && !isLoading && <AnimatedGrid />}
+    <div className={`min-h-screen relative overflow-hidden flex flex-col ${showBackgrounds && !isMobile ? 'bg-transparent' : 'bg-background'}`} style={{ zIndex: 1 }}>
+      {/* Dynamic Background with Vecteezy Images */}
+      <DynamicBackground />
       
-      {/* Additional background decoration - only on home page */}
-      {!hasSearched && !isLoading && (
+      {/* Animated Grid Background - show when background images are OFF, or always on mobile */}
+      {!hasSearched && !isLoading && (!showBackgrounds || isMobile) && <AnimatedGrid />}
+      
+      {/* Additional background decoration - only when background images are OFF */}
+      {!hasSearched && !isLoading && !showBackgrounds && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/[0.03] to-blue-500/[0.03] rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-blue-500/[0.03] to-purple-500/[0.03] rounded-full blur-3xl" />
@@ -185,7 +211,7 @@ const Index = () => {
                       favorites={favorites}
                       onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
-                      onShowSettings={() => {}}
+                      onShowSettings={() => setShowProfileSettings(true)}
                       onShowInvite={() => setShowInviteModal(true)}
                     />
                   )}
@@ -233,7 +259,7 @@ const Index = () => {
                     favorites={favorites}
                     onLogout={handleLogout}
                     onShowFavorites={() => setShowFavoritesModal(true)}
-                    onShowSettings={() => {}}
+                    onShowSettings={() => setShowProfileSettings(true)}
                     onShowInvite={() => setShowInviteModal(true)}
                   />
                 )}
@@ -277,7 +303,7 @@ const Index = () => {
                       favorites={favorites}
                       onLogout={handleLogout}
                       onShowFavorites={() => setShowFavoritesModal(true)}
-                      onShowSettings={() => {}}
+                      onShowSettings={() => setShowProfileSettings(true)}
                       onShowInvite={() => setShowInviteModal(true)}
                     />
                   )}
@@ -301,7 +327,7 @@ const Index = () => {
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
               <AnimatedTitle />
-              <p className="text-sm md:text-base text-muted-foreground font-medium tracking-widest uppercase mb-8 animate-fade-up stagger-2">
+              <p className={`text-sm md:text-base font-bold tracking-widest uppercase mb-8 animate-fade-up stagger-2 ${showBackgrounds ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
                 F*CK SEO • FIND SITES & FREE TOOLS
               </p>
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
@@ -398,9 +424,9 @@ const Index = () => {
         )}
 
         {/* Footer */}
-        <footer className="relative z-20 border-t border-border py-3 md:py-6 px-4 md:px-12">
+        <footer className={`relative z-20 py-3 md:py-6 px-4 md:px-12 ${showBackgrounds && !isMobile ? '' : 'border-t border-border'}`}>
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 md:gap-4 text-sm text-muted-foreground">
-          <p className="flex items-center gap-2 text-xs md:text-sm">
+          <p className={`flex items-center gap-2 text-xs md:text-sm ${showBackgrounds ? 'text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
             Built for you 
             <Heart className="w-3 h-3 md:w-4 md:h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
             <button 
@@ -460,6 +486,11 @@ const Index = () => {
         isOpen={showCreateBundleModal}
         onClose={() => setShowCreateBundleModal(false)}
         onCreateBundle={createBundle}
+      />
+
+      <ProfileSettingsCard
+        isOpen={showProfileSettings}
+        onClose={() => setShowProfileSettings(false)}
       />
 
       {/* Tutorial Card */}
