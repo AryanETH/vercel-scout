@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Settings, Heart, Moon, Sun, LogOut, Users, Copy } from "lucide-react";
+import { User, Settings, Heart, Moon, Sun, LogOut, Users, Copy, Keyboard, Bot } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,9 +40,11 @@ interface UserProfileProps {
   onShowFavorites: () => void;
   onShowSettings: () => void;
   onShowInvite?: () => void;
+  onShowShortcuts?: () => void;
+  onShowAIAgent?: () => void;
 }
 
-export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShowSettings, onShowInvite }: UserProfileProps) {
+export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShowSettings, onShowInvite, onShowShortcuts, onShowAIAgent }: UserProfileProps) {
   const { theme, toggleTheme } = useTheme();
   const { showBackgrounds } = useBackground();
   const [isOpen, setIsOpen] = useState(false);
@@ -92,6 +94,15 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
           <span>Favorites ({favorites.length})</span>
         </DropdownMenuItem>
         
+        {/* AI Agent */}
+        {onShowAIAgent && (
+          <DropdownMenuItem onClick={closeAnd(onShowAIAgent)} className="bg-gradient-to-r from-purple-500/10 to-blue-500/10">
+            <Bot className="mr-2 h-4 w-4 text-purple-500" />
+            <span>AI Agent</span>
+            <span className="ml-auto text-[10px] px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full">New</span>
+          </DropdownMenuItem>
+        )}
+        
         {onShowInvite && (
           <DropdownMenuItem onClick={closeAnd(onShowInvite)}>
             <Users className="mr-2 h-4 w-4" />
@@ -104,6 +115,15 @@ export function UserProfile({ user, favorites, onLogout, onShowFavorites, onShow
           <DropdownMenuItem onClick={closeAnd(onShowSettings)}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Customize Page</span>
+          </DropdownMenuItem>
+        )}
+        
+        {/* Keyboard Shortcuts - only on desktop */}
+        {!isMobile && onShowShortcuts && (
+          <DropdownMenuItem onClick={closeAnd(onShowShortcuts)}>
+            <Keyboard className="mr-2 h-4 w-4" />
+            <span>Keyboard Shortcuts</span>
+            <kbd className="ml-auto text-[10px] px-1.5 py-0.5 bg-muted border border-border rounded">?</kbd>
           </DropdownMenuItem>
         )}
         

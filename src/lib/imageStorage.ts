@@ -1,8 +1,6 @@
-// IndexedDB storage for background images
-const DB_NAME = 'yourel-backgrounds';
-const STORE_NAME = 'images';
-const DB_VERSION = 1;
+import Dexie, { type Table } from 'dexie';
 
+// Define the stored image interface
 interface StoredImage {
   id: string;
   name: string;
@@ -10,139 +8,120 @@ interface StoredImage {
   timestamp: number;
 }
 
-class ImageStorage {
-  private db: IDBDatabase | null = null;
+// Create Dexie database
+class ImageDatabase extends Dexie {
+  images!: Table<StoredImage, string>;
 
-  async init(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-      request.onerror = () => {
-        console.error('Failed to open IndexedDB:', request.error);
-        reject(request.error);
-      };
-
-      request.onsuccess = () => {
-        this.db = request.result;
-        console.log('IndexedDB initialized successfully');
-        resolve();
-      };
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-          console.log('Object store created');
-        }
-      };
-    });
-  }
-
-  async saveImage(id: string, name: string, data: string): Promise<void> {
-    if (!this.db) await this.init();
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      
-      const image: StoredImage = {
-        id,
-        name,
-        data,
-        timestamp: Date.now()
-      };
-
-      const request = store.put(image);
-
-      request.onsuccess = () => {
-        console.log('Image saved to IndexedDB:', id);
-        resolve();
-      };
-
-      request.onerror = () => {
-        console.error('Failed to save image:', request.error);
-        reject(request.error);
-      };
-    });
-  }
-
-  async getImage(id: string): Promise<StoredImage | null> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get(id);
-
-      request.onsuccess = () => {
-        resolve(request.result || null);
-      };
-
-      request.onerror = () => {
-        console.error('Failed to get image:', request.error);
-        reject(request.error);
-      };
-    });
-  }
-
-  async getAllImages(): Promise<StoredImage[]> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.getAll();
-
-      request.onsuccess = () => {
-        resolve(request.result || []);
-      };
-
-      request.onerror = () => {
-        console.error('Failed to get all images:', request.error);
-        reject(request.error);
-      };
-    });
-  }
-
-  async deleteImage(id: string): Promise<void> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.delete(id);
-
-      request.onsuccess = () => {
-        console.log('Image deleted from IndexedDB:', id);
-        resolve();
-      };
-
-      request.onerror = () => {
-        console.error('Failed to delete image:', request.error);
-        reject(request.error);
-      };
-    });
-  }
-
-  async clearAll(): Promise<void> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.clear();
-
-      request.onsuccess = () => {
-        console.log('All images cleared from IndexedDB');
-        resolve();
-      };
-
-      request.onerror = () => {
-        console.error('Failed to clear images:', request.error);
-        reject(request.error);
-      };
+  constructor() {
+    super('yourel-backgrounds');
+    this.version(1).stores({
+      images: 'id, name, timestamp'
     });
   }
 }
 
-export const imageStorage = new ImageStorage();
+const db = new ImageDatabase();
+
+// localStorage key for the selected background
+const SELECTED_BG_KEY = 'yourel-selected-background';
+const SHOW_BG_KEY = 'yourel-show-backgrounds';
+
+export const imageStorage = {
+  // Save image to IndexedDB via Dexie
+  async saveImage(id: string, name: string, data: string): Promise<void> {
+    try {
+      await db.images.put({
+        id,
+        name,
+        data,
+        timestamp: Date.now()
+      });
+      console.log('Image saved to Dexie:', id);
+    } catch (error) {
+      console.error('Failed to save image to Dexie:', error);
+      throw error;
+    }
+  },
+
+  // Get a single image by ID
+  async getImage(id: string): Promise<StoredImage | undefined> {
+    try {
+      return await db.images.get(id);
+    } catch (error) {
+      console.error('Failed to get image:', error);
+      return undefined;
+    }
+  },
+
+  // Get all stored images
+  async getAllImages(): Promise<StoredImage[]> {
+    try {
+      return await db.images.toArray();
+    } catch (error) {
+      console.error('Failed to get all images:', error);
+      return [];
+    }
+  },
+
+  // Delete an image by ID
+  async deleteImage(id: string): Promise<void> {
+    try {
+      await db.images.delete(id);
+      console.log('Image deleted:', id);
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+    }
+  },
+
+  // Clear all images
+  async clearAll(): Promise<void> {
+    try {
+      await db.images.clear();
+      console.log('All images cleared');
+    } catch (error) {
+      console.error('Failed to clear images:', error);
+    }
+  },
+
+  // Save selected background URL to localStorage (for quick access on page load)
+  saveSelectedBackground(url: string | null): void {
+    if (url) {
+      localStorage.setItem(SELECTED_BG_KEY, url);
+    } else {
+      localStorage.removeItem(SELECTED_BG_KEY);
+    }
+  },
+
+  // Get selected background from localStorage
+  getSelectedBackground(): string | null {
+    return localStorage.getItem(SELECTED_BG_KEY);
+  },
+
+  // Save show backgrounds setting
+  saveShowBackgrounds(show: boolean): void {
+    localStorage.setItem(SHOW_BG_KEY, show.toString());
+  },
+
+  // Get show backgrounds setting
+  getShowBackgrounds(): boolean {
+    const saved = localStorage.getItem(SHOW_BG_KEY);
+    return saved === null ? true : saved === 'true';
+  }
+};
+
+// Apply background on page load
+export function applyStoredBackground(): void {
+  const showBg = imageStorage.getShowBackgrounds();
+  const bgUrl = imageStorage.getSelectedBackground();
+  
+  if (showBg && bgUrl) {
+    // Apply to body or create a background div
+    document.documentElement.style.setProperty('--custom-bg-url', `url(${bgUrl})`);
+  }
+}
+
+// Initialize on module load
+if (typeof window !== 'undefined') {
+  // Apply background immediately when script loads
+  applyStoredBackground();
+}

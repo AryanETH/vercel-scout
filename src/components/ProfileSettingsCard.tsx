@@ -131,42 +131,69 @@ export function ProfileSettingsCard({ isOpen, onClose }: ProfileSettingsCardProp
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Check if it's an image file
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+    if (!file) return;
+
+    // Check if it's an image file
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Check file size (max 15MB for GIFs, 10MB for others)
+    const maxSize = file.type === 'image/gif' ? 15 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert(`Image is too large. Please select an image under ${file.type === 'image/gif' ? '15MB' : '10MB'}.`);
+      return;
+    }
+
+    // Read file as data URL
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imageUrl = e.target?.result as string;
+      if (!imageUrl) {
+        alert('Failed to read image file.');
         return;
       }
-      
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const imageUrl = e.target?.result as string;
-        const imageId = `custom-${Date.now()}`;
-        const imageName = file.name.split('.')[0];
+
+      const imageId = `custom-${Date.now()}`;
+      const imageName = file.name.split('.')[0] || 'custom-background';
+
+      // Try to save to IndexedDB first
+      try {
+        await imageStorage.saveImage(imageId, imageName, imageUrl);
         
-        // Save to IndexedDB
-        try {
-          await imageStorage.saveImage(imageId, imageName, imageUrl);
-          
-          const newBg: BackgroundOption = {
-            id: imageId,
-            url: imageUrl,
-            name: imageName,
-            type: 'custom'
-          };
-          const updatedCustomBgs = [...customBackgrounds, newBg];
-          setCustomBackgrounds(updatedCustomBgs);
-          
-          // Auto-select the uploaded image
-          setSelectedBackground(imageUrl);
-          saveSettings(showBackgrounds, imageUrl);
-        } catch (error) {
-          console.error('Failed to save image:', error);
-          alert('Failed to save image. Please try again.');
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+        const newBg: BackgroundOption = {
+          id: imageId,
+          url: imageUrl,
+          name: imageName,
+          type: 'custom'
+        };
+        setCustomBackgrounds(prev => [...prev, newBg]);
+        setSelectedBackground(imageUrl);
+        saveSettings(showBackgrounds, imageUrl);
+      } catch (error) {
+        console.error('IndexedDB save failed, using direct URL:', error);
+        
+        // Fallback: just use the image URL directly without saving to IndexedDB
+        const newBg: BackgroundOption = {
+          id: imageId,
+          url: imageUrl,
+          name: imageName,
+          type: 'custom'
+        };
+        setCustomBackgrounds(prev => [...prev, newBg]);
+        setSelectedBackground(imageUrl);
+        saveSettings(showBackgrounds, imageUrl);
+      }
+    };
+
+    reader.onerror = () => {
+      console.error('FileReader error:', reader.error);
+      alert('Failed to read image file. Please try again.');
+    };
+
+    reader.readAsDataURL(file);
+
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';

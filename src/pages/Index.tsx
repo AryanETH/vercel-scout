@@ -24,8 +24,6 @@ import { CreateBundleModal } from "@/components/CreateBundleModal";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { ProfileSettingsCard } from "@/components/ProfileSettingsCard";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
-import { ShortcutHint } from "@/components/ShortcutHint";
-import { CommandPalette } from "@/components/CommandPalette";
 import { AIAgentModal } from "@/components/AIAgentModal";
 import { useBackground } from "@/contexts/BackgroundContext";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -92,7 +90,6 @@ const Index = () => {
   const [fromSuggestion, setFromSuggestion] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
-  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showAIAgent, setShowAIAgent] = useState(false);
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -241,14 +238,6 @@ const Index = () => {
   // Clear search / close modals
   const clearSearch = useCallback(() => {
     // Close any open modals first
-    if (showCommandPalette) {
-      setShowCommandPalette(false);
-      return;
-    }
-    if (showAIAgent) {
-      setShowAIAgent(false);
-      return;
-    }
     if (showShortcutsModal) {
       setShowShortcutsModal(false);
       return;
@@ -274,12 +263,7 @@ const Index = () => {
     if (searchInput) {
       searchInput.blur();
     }
-  }, [showCommandPalette, showAIAgent, showShortcutsModal, showProfileSettings, showCreateBundleModal, showFavoritesModal, showSupportModal]);
-
-  // Get selected result for keyboard actions
-  const selectedResult = selectedResultIndex >= 0 && selectedResultIndex < results.length
-    ? { title: results[selectedResultIndex].title, link: results[selectedResultIndex].link }
-    : null;
+  }, [showShortcutsModal, showProfileSettings, showCreateBundleModal, showFavoritesModal, showSupportModal]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -290,15 +274,10 @@ const Index = () => {
     onOpenBundles: () => {}, // Bundle selector is always visible
     onCreateBundle: () => setShowCreateBundleModal(true),
     onShowShortcuts: () => setShowShortcutsModal(true),
-    onOpenCommandPalette: () => setShowCommandPalette(true),
-    onOpenAIAgent: () => setShowAIAgent(true),
     onPlatformChange: handleFilterChange,
     onNavigateResults: navigateResults,
     onSelectResult: selectResult,
     onOpenInNewTab: openInNewTab,
-    onShowFavorites: () => setShowFavoritesModal(true),
-    selectedResult,
-    currentQuery: lastSearchQuery,
   }, true);
 
   // Reset selected result when results change
@@ -343,6 +322,8 @@ const Index = () => {
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => setShowProfileSettings(true)}
                       onShowInvite={() => setShowInviteModal(true)}
+                      onShowShortcuts={() => setShowShortcutsModal(true)}
+                      onShowAIAgent={() => setShowAIAgent(true)}
                     />
                   )}
                 </div>
@@ -391,6 +372,8 @@ const Index = () => {
                     onShowFavorites={() => setShowFavoritesModal(true)}
                     onShowSettings={() => setShowProfileSettings(true)}
                     onShowInvite={() => setShowInviteModal(true)}
+                    onShowShortcuts={() => setShowShortcutsModal(true)}
+                    onShowAIAgent={() => setShowAIAgent(true)}
                   />
                 )}
                 {!isAuthenticated && (
@@ -435,6 +418,8 @@ const Index = () => {
                       onShowFavorites={() => setShowFavoritesModal(true)}
                       onShowSettings={() => setShowProfileSettings(true)}
                       onShowInvite={() => setShowInviteModal(true)}
+                      onShowShortcuts={() => setShowShortcutsModal(true)}
+                      onShowAIAgent={() => setShowAIAgent(true)}
                     />
                   )}
                 </>
@@ -457,7 +442,7 @@ const Index = () => {
           {!hasSearched && !isLoading && (
             <div className="text-center py-16 md:py-24 transition-all duration-500">
               <AnimatedTitle />
-              <p className={`text-sm md:text-base font-bold tracking-widest uppercase mb-8 animate-fade-up stagger-2 ${showBackgrounds ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
+              <p className={`text-sm md:text-base font-bold tracking-widest uppercase mb-8 animate-fade-up stagger-2 ${showBackgrounds && !isMobile ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
                 F*CK SEO • FIND SITES & FREE TOOLS
               </p>
               <div className="animate-fade-up stagger-4 mb-8 relative z-30">
@@ -557,7 +542,7 @@ const Index = () => {
         {/* Footer */}
         <footer className={`relative z-20 py-3 md:py-6 px-4 md:px-12 ${showBackgrounds && !isMobile ? '' : 'border-t border-border'}`}>
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 md:gap-4 text-sm text-muted-foreground">
-          <p className={`flex items-center gap-2 text-xs md:text-sm ${showBackgrounds ? 'text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
+          <p className={`flex items-center gap-2 text-xs md:text-sm ${showBackgrounds && !isMobile ? 'text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
             Built for you 
             <Heart className="w-3 h-3 md:w-4 md:h-4 text-red-500 fill-red-500 animate-[pulse_1s_ease-in-out_infinite]" />
             <button 
@@ -630,40 +615,13 @@ const Index = () => {
         onClose={() => setShowShortcutsModal(false)}
       />
 
-      {/* Command Palette */}
-      <CommandPalette
-        open={showCommandPalette}
-        onOpenChange={setShowCommandPalette}
-        onSearch={handleSearch}
-        onToggleTheme={toggleTheme}
-        onOpenSettings={() => setShowProfileSettings(true)}
-        onOpenBundles={() => {}}
-        onCreateBundle={() => setShowCreateBundleModal(true)}
-        onShowFavorites={() => setShowFavoritesModal(true)}
-        onShowShortcuts={() => setShowShortcutsModal(true)}
-        onOpenAIAgent={() => setShowAIAgent(true)}
-        onPlatformChange={handleFilterChange}
-        onLogout={handleLogout}
-        isAuthenticated={isAuthenticated}
-        currentQuery={lastSearchQuery}
-        selectedResult={selectedResult}
-      />
-
       {/* AI Agent Modal */}
       <AIAgentModal
         isOpen={showAIAgent}
         onClose={() => setShowAIAgent(false)}
         onSearch={handleSearch}
         onAddToFavorites={handleAddToFavorites}
-        onCreateBundle={async (name, websites) => {
-          await createBundle({ name, category: 'AI Generated', websites: websites.map(url => ({ url, name: url })) });
-        }}
       />
-
-      {/* Shortcut Hint - show on desktop only */}
-      {!isMobile && !hasSearched && !isLoading && (
-        <ShortcutHint onShowShortcuts={() => setShowShortcutsModal(true)} onOpenCommandPalette={() => setShowCommandPalette(true)} />
-      )}
 
       {/* Tutorial Card */}
       {showTutorial && (
