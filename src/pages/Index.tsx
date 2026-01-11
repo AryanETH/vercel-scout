@@ -25,6 +25,8 @@ import { DynamicBackground } from "@/components/DynamicBackground";
 import { ProfileSettingsCard } from "@/components/ProfileSettingsCard";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { CommandPalette } from "@/components/CommandPalette";
+import { AIAgentModal } from "@/components/AIAgentModal";
 import { useBackground } from "@/contexts/BackgroundContext";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
@@ -90,6 +92,8 @@ const Index = () => {
   const [fromSuggestion, setFromSuggestion] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showAIAgent, setShowAIAgent] = useState(false);
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -234,9 +238,17 @@ const Index = () => {
     }
   }, [selectedResultIndex, results]);
 
-  // Clear search
+  // Clear search / close modals
   const clearSearch = useCallback(() => {
     // Close any open modals first
+    if (showCommandPalette) {
+      setShowCommandPalette(false);
+      return;
+    }
+    if (showAIAgent) {
+      setShowAIAgent(false);
+      return;
+    }
     if (showShortcutsModal) {
       setShowShortcutsModal(false);
       return;
@@ -262,7 +274,12 @@ const Index = () => {
     if (searchInput) {
       searchInput.blur();
     }
-  }, [showShortcutsModal, showProfileSettings, showCreateBundleModal, showFavoritesModal, showSupportModal]);
+  }, [showCommandPalette, showAIAgent, showShortcutsModal, showProfileSettings, showCreateBundleModal, showFavoritesModal, showSupportModal]);
+
+  // Get selected result for keyboard actions
+  const selectedResult = selectedResultIndex >= 0 && selectedResultIndex < results.length
+    ? { title: results[selectedResultIndex].title, link: results[selectedResultIndex].link }
+    : null;
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -273,10 +290,15 @@ const Index = () => {
     onOpenBundles: () => {}, // Bundle selector is always visible
     onCreateBundle: () => setShowCreateBundleModal(true),
     onShowShortcuts: () => setShowShortcutsModal(true),
+    onOpenCommandPalette: () => setShowCommandPalette(true),
+    onOpenAIAgent: () => setShowAIAgent(true),
     onPlatformChange: handleFilterChange,
     onNavigateResults: navigateResults,
     onSelectResult: selectResult,
     onOpenInNewTab: openInNewTab,
+    onShowFavorites: () => setShowFavoritesModal(true),
+    selectedResult,
+    currentQuery: lastSearchQuery,
   }, true);
 
   // Reset selected result when results change
@@ -608,9 +630,39 @@ const Index = () => {
         onClose={() => setShowShortcutsModal(false)}
       />
 
+      {/* Command Palette */}
+      <CommandPalette
+        open={showCommandPalette}
+        onOpenChange={setShowCommandPalette}
+        onSearch={handleSearch}
+        onToggleTheme={toggleTheme}
+        onOpenSettings={() => setShowProfileSettings(true)}
+        onOpenBundles={() => {}}
+        onCreateBundle={() => setShowCreateBundleModal(true)}
+        onShowFavorites={() => setShowFavoritesModal(true)}
+        onShowShortcuts={() => setShowShortcutsModal(true)}
+        onOpenAIAgent={() => setShowAIAgent(true)}
+        onPlatformChange={handleFilterChange}
+        onLogout={handleLogout}
+        isAuthenticated={isAuthenticated}
+        currentQuery={lastSearchQuery}
+        selectedResult={selectedResult}
+      />
+
+      {/* AI Agent Modal */}
+      <AIAgentModal
+        isOpen={showAIAgent}
+        onClose={() => setShowAIAgent(false)}
+        onSearch={handleSearch}
+        onAddToFavorites={handleAddToFavorites}
+        onCreateBundle={async (name, websites) => {
+          await createBundle({ name, category: 'AI Generated', websites: websites.map(url => ({ url, name: url })) });
+        }}
+      />
+
       {/* Shortcut Hint - show on desktop only */}
       {!isMobile && !hasSearched && !isLoading && (
-        <ShortcutHint onShowShortcuts={() => setShowShortcutsModal(true)} />
+        <ShortcutHint onShowShortcuts={() => setShowShortcutsModal(true)} onOpenCommandPalette={() => setShowCommandPalette(true)} />
       )}
 
       {/* Tutorial Card */}
