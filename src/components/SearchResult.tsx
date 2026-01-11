@@ -14,6 +14,7 @@ interface SearchResultProps {
   isLiked?: boolean;
   isDisliked?: boolean;
   isFavorite?: boolean;
+  isSelected?: boolean;
 }
 
 const platformLogos: Record<string, string> = {
@@ -58,6 +59,7 @@ function getPlatformFromUrl(url: string): string | null {
   if (lowercaseUrl.includes('bolt.new')) return 'bolt';
   if (lowercaseUrl.includes('fly.io') || lowercaseUrl.includes('fly.dev')) return 'fly';
   if (lowercaseUrl.includes('lovable.dev') || lowercaseUrl.includes('lovable.app')) return 'lovable';
+  if (lowercaseUrl.includes('emergent.host')) return 'emergent';
   
   return null;
 }

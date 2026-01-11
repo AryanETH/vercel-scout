@@ -6,80 +6,92 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
+    /* 
+     * LIGHT MODE - ChatGPT/Google inspired for better readability
+     * Psychology: Clean, trustworthy, professional
+     */
+    
+    /* Backgrounds - Pure white with subtle warm grays */
+    --background: 0 0% 100%;              /* #FFFFFF - Main background */
+    --foreground: 220 13% 9%;             /* #111827 - Primary text (high contrast) */
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 5%;
+    --card: 240 5% 97%;                   /* #F7F7F8 - Cards/sidebar (subtle distinction) */
+    --card-foreground: 220 13% 9%;        /* #111827 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;                 /* #FFFFFF */
+    --popover-foreground: 220 13% 9%;     /* #111827 */
 
-    --primary: 0 0% 5%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 224 76% 66%;               /* #5C82F4 - Yourel blue accent */
+    --primary-foreground: 0 0% 100%;      /* #FFFFFF */
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 240 5% 97%;              /* #F7F7F8 */
+    --secondary-foreground: 220 9% 26%;   /* #374151 - Secondary text */
 
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 240 5% 96%;                  /* #F3F4F6 */
+    --muted-foreground: 220 9% 46%;       /* #6B7280 - Muted/helper text */
 
-    --accent: 0 0% 92%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 263 70% 58%;                /* #774DE2 - Yourel purple accent */
+    --accent-foreground: 0 0% 100%;       /* #FFFFFF */
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 60%;             /* Red for errors */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 5%;
+    --border: 220 13% 91%;                /* #E5E7EB - Clean, visible borders */
+    --input: 220 13% 91%;                 /* #E5E7EB */
+    --ring: 224 76% 66%;                  /* #5C82F4 - Focus ring matches accent */
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --glass: 0 0% 100% / 0.7;
-    --glass-border: 0 0% 90% / 0.5;
-    --glow: 0 0% 0% / 0.05;
-    --gradient-subtle: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(0 0% 94%) 100%);
-    --shadow-soft: 0 4px 30px hsl(0 0% 0% / 0.08);
-    --shadow-glow: 0 0 40px hsl(0 0% 0% / 0.1);
+    --glass: 0 0% 100% / 0.8;
+    --glass-border: 220 13% 91% / 0.5;
+    --glow: 224 76% 66% / 0.1;
+    --gradient-subtle: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 5% 97%) 100%);
+    --shadow-soft: 0 4px 30px hsl(220 13% 9% / 0.08);
+    --shadow-glow: 0 0 40px hsl(224 76% 66% / 0.15);
   }
 
   .dark {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 98%;
+    /* 
+     * DARK MODE - ChatGPT/Google inspired for better readability
+     * Psychology: Focused, modern, easy on eyes, reduces eye strain
+     */
+    
+    /* Backgrounds - Warm dark grays (not pure black) */
+    --background: 240 6% 6%;              /* #0F0F10 - Main background (warmer than pure black) */
+    --foreground: 220 13% 91%;            /* #E5E7EB - Primary text (softer than pure white) */
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 9%;                      /* #171717 - Cards/elevated surfaces */
+    --card-foreground: 220 13% 91%;       /* #E5E7EB */
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 12%;                  /* #1E1E1E - Popovers/dropdowns */
+    --popover-foreground: 220 13% 91%;    /* #E5E7EB */
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 224 76% 66%;               /* #5C82F4 - Yourel blue accent */
+    --primary-foreground: 0 0% 100%;      /* #FFFFFF */
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 0 0% 12%;                /* #1E1E1E */
+    --secondary-foreground: 220 14% 84%;  /* #D1D5DB - Secondary text */
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 15%;                    /* #262626 */
+    --muted-foreground: 220 9% 66%;       /* #9CA3AF - Muted/helper text */
 
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 263 70% 58%;                /* #774DE2 - Yourel purple accent */
+    --accent-foreground: 0 0% 100%;       /* #FFFFFF */
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62% 50%;             /* Red for errors */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 0 0% 85%;
+    --border: 0 0% 16%;                   /* #2A2A2A - Subtle but visible borders */
+    --input: 0 0% 16%;                    /* #2A2A2A */
+    --ring: 224 76% 66%;                  /* #5C82F4 - Focus ring */
 
-    --glass: 0 0% 8% / 0.8;
+    --glass: 0 0% 9% / 0.9;
     --glass-border: 0 0% 20% / 0.5;
-    --glow: 0 0% 100% / 0.03;
-    --gradient-subtle: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 5%) 100%);
-    --shadow-soft: 0 4px 30px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 60px hsl(0 0% 100% / 0.05);
+    --glow: 224 76% 66% / 0.15;
+    --gradient-subtle: linear-gradient(135deg, hsl(0 0% 12%) 0%, hsl(0 0% 9%) 100%);
+    --shadow-soft: 0 4px 30px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 60px hsl(224 76% 66% / 0.1);
   }
 }
 

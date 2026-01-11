@@ -17,6 +17,7 @@ const PLATFORM_SITES: Record<string, string> = {
   bolt: "site:bolt.host",
   fly: "site:fly.dev",
   lovable: "site:lovable.app",
+  emergent: "site:emergent.host",
 };
 
 function detectPlatform(url: string): string {
@@ -32,6 +33,7 @@ function detectPlatform(url: string): string {
     bolt: /\.bolt\.host/i,
     fly: /\.fly\.dev/i,
     lovable: /\.lovable\.app/i,
+    emergent: /\.emergent\.host/i,
   };
 
   for (const [platform, pattern] of Object.entries(platformPatterns)) {

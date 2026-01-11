@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { UserProfile } from "@/components/UserProfile";
@@ -23,7 +23,10 @@ import { BundleSelector } from "@/components/BundleSelector";
 import { CreateBundleModal } from "@/components/CreateBundleModal";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { ProfileSettingsCard } from "@/components/ProfileSettingsCard";
+import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { useBackground } from "@/contexts/BackgroundContext";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 import { Button } from "@/components/ui/button";
 import { Package, Heart, LogIn } from "lucide-react";
@@ -86,6 +89,9 @@ const Index = () => {
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [fromSuggestion, setFromSuggestion] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Check if tutorial should be shown (first-time users)
   useEffect(() => {
@@ -175,6 +181,108 @@ const Index = () => {
     const bundleFilters = getBundleSiteFilters();
     search(lastSearchQuery, activeBundle ? "all" : selectedPlatform, 1, searchMode === "favorites", bundleFilters);
   }, [activeBundle?.id, getBundleSiteFilters, hasSearched, isAuthenticated, lastSearchQuery, search, searchMode, selectedPlatform]);
+
+  // Toggle theme function
+  const toggleTheme = useCallback(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+    toast.success(`Switched to ${isDark ? 'light' : 'dark'} mode`);
+  }, []);
+
+  // Focus search input
+  const focusSearch = useCallback(() => {
+    // Find the search input and focus it
+    const searchInput = document.querySelector('input[type="text"][placeholder*="Search"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.select();
+    }
+  }, []);
+
+  // Navigate results with keyboard
+  const navigateResults = useCallback((direction: 'up' | 'down') => {
+    if (!hasSearched || results.length === 0) return;
+    
+    setSelectedResultIndex(prev => {
+      if (direction === 'down') {
+        return prev < results.length - 1 ? prev + 1 : 0;
+      } else {
+        return prev > 0 ? prev - 1 : results.length - 1;
+      }
+    });
+  }, [hasSearched, results.length]);
+
+  // Select current result
+  const selectResult = useCallback(() => {
+    if (selectedResultIndex >= 0 && selectedResultIndex < results.length) {
+      const result = results[selectedResultIndex];
+      window.open(result.link, '_blank');
+    }
+  }, [selectedResultIndex, results]);
+
+  // Open in new tab
+  const openInNewTab = useCallback(() => {
+    if (selectedResultIndex >= 0 && selectedResultIndex < results.length) {
+      const result = results[selectedResultIndex];
+      window.open(result.link, '_blank');
+    }
+  }, [selectedResultIndex, results]);
+
+  // Clear search
+  const clearSearch = useCallback(() => {
+    // Close any open modals first
+    if (showShortcutsModal) {
+      setShowShortcutsModal(false);
+      return;
+    }
+    if (showProfileSettings) {
+      setShowProfileSettings(false);
+      return;
+    }
+    if (showCreateBundleModal) {
+      setShowCreateBundleModal(false);
+      return;
+    }
+    if (showFavoritesModal) {
+      setShowFavoritesModal(false);
+      return;
+    }
+    if (showSupportModal) {
+      setShowSupportModal(false);
+      return;
+    }
+    // Blur search input
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.blur();
+    }
+  }, [showShortcutsModal, showProfileSettings, showCreateBundleModal, showFavoritesModal, showSupportModal]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onFocusSearch: focusSearch,
+    onClearSearch: clearSearch,
+    onToggleTheme: toggleTheme,
+    onOpenSettings: () => setShowProfileSettings(true),
+    onOpenBundles: () => {}, // Bundle selector is always visible
+    onCreateBundle: () => setShowCreateBundleModal(true),
+    onShowShortcuts: () => setShowShortcutsModal(true),
+    onPlatformChange: handleFilterChange,
+    onNavigateResults: navigateResults,
+    onSelectResult: selectResult,
+    onOpenInNewTab: openInNewTab,
+  }, true);
+
+  // Reset selected result when results change
+  useEffect(() => {
+    setSelectedResultIndex(-1);
+  }, [results]);
 
 
 
@@ -387,6 +495,7 @@ const Index = () => {
                           index={index}
                           onAddToFavorites={handleAddToFavorites}
                           isFavorite={favorites?.some(fav => fav.url === result.link) || false}
+                          isSelected={selectedResultIndex === index}
                         />
                       ))}
                       <ResultsPagination
@@ -492,6 +601,17 @@ const Index = () => {
         isOpen={showProfileSettings}
         onClose={() => setShowProfileSettings(false)}
       />
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
+
+      {/* Shortcut Hint - show on desktop only */}
+      {!isMobile && !hasSearched && !isLoading && (
+        <ShortcutHint onShowShortcuts={() => setShowShortcutsModal(true)} />
+      )}
 
       {/* Tutorial Card */}
       {showTutorial && (

@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Layers } from "lucide-react";
 
-export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable";
+export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable" | "emergent";
 
 interface PlatformFiltersProps {
   selected: Platform;
@@ -31,9 +31,10 @@ const platformConfig: Record<Platform, { label: string; logo: string; color: str
   bolt: { label: "Bolt", logo: "/logos/bolt.png", color: "from-yellow-400 to-yellow-600" },
   fly: { label: "Fly.io", logo: "/logos/fly.svg", color: "from-violet-500 to-violet-700" },
   lovable: { label: "Lovable", logo: "/logos/lovable.ico", color: "from-pink-500 to-rose-500" },
+  emergent: { label: "Emergent", logo: "/logos/emergent.jpg", color: "from-cyan-500 to-blue-600" },
 };
 
-const filters: Platform[] = ["all", "vercel", "github", "netlify", "railway", "onrender", "bubble", "framer", "replit", "bolt", "fly", "lovable"];
+const filters: Platform[] = ["all", "vercel", "github", "netlify", "railway", "onrender", "bubble", "framer", "replit", "bolt", "fly", "lovable", "emergent"];
 
 function PlatformIcon({ platform, size = 16 }: { platform: Platform; size?: number }) {
   const config = platformConfig[platform];
