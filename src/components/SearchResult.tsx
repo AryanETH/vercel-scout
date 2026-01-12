@@ -1,6 +1,6 @@
 import { ExternalLink, ThumbsUp, ThumbsDown, Heart, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 interface SearchResultProps {
   title: string;
@@ -64,16 +64,28 @@ function getPlatformFromUrl(url: string): string | null {
   return null;
 }
 
-function getScreenshotUrl(url: string): string {
-  // Ensure URL has protocol
-  let fullUrl = url;
-  if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
-    fullUrl = `https://${fullUrl}`;
+// Fetch OG image using microlink API (like Bing - extracts actual images, not screenshots)
+async function fetchOgImage(url: string): Promise<string | null> {
+  try {
+    let fullUrl = url;
+    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+      fullUrl = `https://${fullUrl}`;
+    }
+    
+    const encodedUrl = encodeURIComponent(fullUrl);
+    const response = await fetch(`https://api.microlink.io/?url=${encodedUrl}&meta=false`);
+    const data = await response.json();
+    
+    // Get og:image or logo from the response
+    if (data.status === 'success' && data.data) {
+      // Prefer og:image, then logo, then any image
+      if (data.data.image?.url) return data.data.image.url;
+      if (data.data.logo?.url) return data.data.logo.url;
+    }
+    return null;
+  } catch {
+    return null;
   }
-  
-  // Use thum.io for fast, cached website thumbnails (free tier, no API key needed)
-  const encodedUrl = encodeURIComponent(fullUrl);
-  return `https://image.thum.io/get/width/400/crop/250/${fullUrl}`;
 }
 
 export function SearchResult({ 
@@ -89,6 +101,7 @@ export function SearchResult({
   isDisliked = false,
   isFavorite = false
 }: SearchResultProps) {
+  const [ogImage, setOgImage] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [faviconError, setFaviconError] = useState(false);
@@ -104,8 +117,23 @@ export function SearchResult({
   // Get favicon URL from Google's favicon service
   const faviconUrl = `https://www.google.com/s2/favicons?domain=${displayUrl}&sz=32`;
   
-  // Generate screenshot URL
-  const screenshotUrl = getScreenshotUrl(link);
+  // Fetch OG image on mount
+  useEffect(() => {
+    let cancelled = false;
+    
+    fetchOgImage(link).then((url) => {
+      if (!cancelled) {
+        if (url) {
+          setOgImage(url);
+        } else {
+          setImageError(true);
+          setImageLoading(false);
+        }
+      }
+    });
+    
+    return () => { cancelled = true; };
+  }, [link]);
 
   // Long press handlers for mobile
   const handleTouchStart = useCallback(() => {
@@ -321,9 +349,9 @@ export function SearchResult({
           </div>
         </div>
         
-        {/* Website Preview Image - Right Side (Desktop only) */}
-        <div className="relative w-48 flex-shrink-0 overflow-hidden bg-muted rounded-md">
-          {!imageError ? (
+        {/* Website Preview Image - Right Side (Desktop only) - Shows OG images like Bing */}
+        <div className="relative w-48 h-28 flex-shrink-0 overflow-hidden bg-muted rounded-md">
+          {ogImage && !imageError ? (
             <>
               {imageLoading && (
                 <div className={`absolute inset-0 bg-gradient-to-br ${gradient} animate-pulse`}>
@@ -339,9 +367,9 @@ export function SearchResult({
                 </div>
               )}
               <img 
-                src={screenshotUrl}
+                src={ogImage}
                 alt={`Preview of ${title}`}
-                className={`w-full h-full object-cover object-top transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                className={`w-full h-full object-contain bg-black/5 transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                 onLoad={() => setImageLoading(false)}
                 onError={() => {
                   setImageError(true);
