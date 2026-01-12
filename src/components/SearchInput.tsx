@@ -194,15 +194,21 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions) return;
 
+    const safeQuery = query || "";
+    const { historyMatches, regularSuggestions } = getCombinedSuggestions();
+    const showHistory = safeQuery.length === 0 ? searchHistory : historyMatches;
+    const allItems = [...showHistory.slice(0, 5), ...regularSuggestions];
+    const totalItems = allItems.length;
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      setSelectedIndex((prev) => (prev < totalItems - 1 ? prev + 1 : 0));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
-    } else if (e.key === "Enter" && selectedIndex >= 0) {
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : totalItems - 1));
+    } else if (e.key === "Enter" && selectedIndex >= 0 && selectedIndex < totalItems) {
       e.preventDefault();
-      handleSuggestionClick(suggestions[selectedIndex]);
+      handleSuggestionClick(allItems[selectedIndex]);
     } else if (e.key === "Escape") {
       setShowSuggestions(false);
       setDropdownPos(null);
@@ -251,7 +257,12 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
             updateDropdownPos();
           }}
           onBlur={() => {
-            setTimeout(() => setIsFocused(false), 150);
+            // Delay to allow click events on suggestions to fire first
+            setTimeout(() => {
+              setIsFocused(false);
+              setShowSuggestions(false);
+              setDropdownPos(null);
+            }, 200);
           }}
           onKeyDown={handleKeyDown}
           placeholder={isFocused ? "Search Anything..." : animatedPlaceholder}

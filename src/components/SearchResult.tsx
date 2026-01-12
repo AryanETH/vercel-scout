@@ -71,12 +71,9 @@ function getScreenshotUrl(url: string): string {
     fullUrl = `https://${fullUrl}`;
   }
   
-  // Use WordPress mShots with the full URL (not just domain)
-  // This will capture the exact page, not just the homepage
+  // Use thum.io for fast, cached website thumbnails (free tier, no API key needed)
   const encodedUrl = encodeURIComponent(fullUrl);
-  
-  // Add timestamp to prevent caching issues
-  return `https://s.wordpress.com/mshots/v1/${encodedUrl}?w=900&h=600`;
+  return `https://image.thum.io/get/width/400/crop/250/${fullUrl}`;
 }
 
 export function SearchResult({ 
