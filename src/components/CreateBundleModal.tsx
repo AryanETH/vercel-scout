@@ -32,6 +32,7 @@ interface CreateBundleModalProps {
     category: string;
     websites: BundleWebsite[];
   }) => Promise<any>;
+  editingBundle?: any;
 }
 
 const CATEGORIES = [
@@ -50,11 +51,12 @@ export function CreateBundleModal({
   isOpen,
   onClose,
   onCreateBundle,
+  editingBundle,
 }: CreateBundleModalProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("custom");
-  const [websites, setWebsites] = useState<BundleWebsite[]>([]);
+  const [name, setName] = useState(editingBundle?.name || "");
+  const [description, setDescription] = useState(editingBundle?.description || "");
+  const [category, setCategory] = useState(editingBundle?.category || "custom");
+  const [websites, setWebsites] = useState<BundleWebsite[]>(editingBundle?.websites || []);
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [websiteName, setWebsiteName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -164,7 +166,7 @@ export function CreateBundleModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="w-5 h-5" />
-            Create New Bundle
+            {editingBundle ? "Edit Bundle" : "Create New Bundle"}
           </DialogTitle>
           <DialogDescription>
             Create a collection of websites to search within. Max 10 websites per bundle.
@@ -316,7 +318,7 @@ export function CreateBundleModal({
             onClick={handleSubmit}
             disabled={isSubmitting || !name.trim() || websites.length === 0}
           >
-            {isSubmitting ? "Creating..." : "Create Bundle"}
+            {isSubmitting ? (editingBundle ? "Updating..." : "Creating...") : (editingBundle ? "Update Bundle" : "Create Bundle")}
           </Button>
         </div>
       </DialogContent>

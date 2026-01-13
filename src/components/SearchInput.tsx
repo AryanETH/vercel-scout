@@ -338,10 +338,14 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
                           key={`history-${index}`}
                           type="button"
                           onClick={() => handleSuggestionClick(historyItem)}
-                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 group ${
+                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 group relative ${
                             index === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
                           }`}
                         >
+                          {/* Blue indicator line - Brave style */}
+                          {index === selectedIndex && (
+                            <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-primary rounded-r-full" />
+                          )}
                           <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                           <span className="text-sm text-foreground truncate flex-1">{historyItem}</span>
                           <button
@@ -365,19 +369,26 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
                           Suggestions
                         </div>
                       )}
-                      {regularSuggestions.map((suggestion, index) => (
-                        <button
-                          key={`suggestion-${index}`}
-                          type="button"
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 ${
-                            index + showHistory.length === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
-                          }`}
-                        >
-                          <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm text-foreground truncate">{suggestion}</span>
-                        </button>
-                      ))}
+                      {regularSuggestions.map((suggestion, index) => {
+                        const actualIndex = index + showHistory.slice(0, 5).length;
+                        return (
+                          <button
+                            key={`suggestion-${index}`}
+                            type="button"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 relative ${
+                              actualIndex === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
+                            }`}
+                          >
+                            {/* Blue indicator line - Brave style */}
+                            {actualIndex === selectedIndex && (
+                              <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-primary rounded-r-full" />
+                            )}
+                            <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm text-foreground truncate">{suggestion}</span>
+                          </button>
+                        );
+                      })}
                     </>
                   )}
                 </>

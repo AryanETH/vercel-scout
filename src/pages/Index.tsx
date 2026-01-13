@@ -7,8 +7,10 @@ import { FavoritesModal } from "@/components/FavoritesModal";
 import { InviteModal } from "@/components/InviteModal";
 import { SearchInput } from "@/components/SearchInput";
 import { SearchResult } from "@/components/SearchResult";
+import { AdResult } from "@/components/AdResult";
 import { SearchSkeleton } from "@/components/SearchSkeleton";
 import { EmptyState } from "@/components/EmptyState";
+import { adStorage, Ad } from "@/lib/adStorage";
 import { AnimatedTitle } from "@/components/AnimatedTitle";
 import { PlatformFilters, Platform } from "@/components/PlatformFilters";
 import { ResultsPagination } from "@/components/ResultsPagination";
@@ -84,6 +86,7 @@ const Index = () => {
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showCreateBundleModal, setShowCreateBundleModal] = useState(false);
+  const [editingBundle, setEditingBundle] = useState<any>(null);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [searchMode, setSearchMode] = useState<SearchMode>("general");
   const [lastSearchQuery, setLastSearchQuery] = useState("");
@@ -92,6 +95,7 @@ const Index = () => {
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [showAIAgent, setShowAIAgent] = useState(false);
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+  const [matchingAds, setMatchingAds] = useState<Ad[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Check if tutorial should be shown (first-time users)
@@ -125,6 +129,11 @@ const Index = () => {
     toast.success('Removed from favorites');
   };
 
+  const handleEditBundle = (bundle: any) => {
+    setEditingBundle(bundle);
+    setShowCreateBundleModal(true);
+  };
+
   useEffect(() => {
     // Hidden admin access with keyboard shortcut
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -144,6 +153,9 @@ const Index = () => {
     }
     setFromSuggestion(isSuggestion);
     setLastSearchQuery(query);
+    // Find matching ads for this query
+    const ads = adStorage.getMatchingAds(query);
+    setMatchingAds(ads);
     const bundleFilters = getBundleSiteFilters();
     search(query, activeBundle ? "all" : selectedPlatform, 1, searchMode === "favorites", bundleFilters);
     // Reset the suggestion flag after a short delay
@@ -338,6 +350,7 @@ const Index = () => {
                   activeBundle={activeBundle}
                   onSelectBundle={setActiveBundle}
                   onCreateBundle={() => setShowCreateBundleModal(true)}
+                  onEditBundle={handleEditBundle}
                   onDeleteBundle={deleteBundle}
                   sampleBundles={sampleBundles}
                   username={profile?.username || undefined}
@@ -359,6 +372,7 @@ const Index = () => {
                 activeBundle={activeBundle}
                 onSelectBundle={setActiveBundle}
                 onCreateBundle={() => setShowCreateBundleModal(true)}
+                onEditBundle={handleEditBundle}
                 onDeleteBundle={deleteBundle}
                 sampleBundles={sampleBundles}
                 username={profile?.username || undefined}
@@ -388,7 +402,10 @@ const Index = () => {
         ) : (
           /* Home page header layout */
           <div className="flex items-center justify-between">
-            <Logo />
+            {/* Logo hidden on landing page, only show on search results */}
+            <div className="invisible">
+              <Logo />
+            </div>
             <div className="flex items-center gap-2 sm:gap-3">
               {isAuthenticated && (
                 <>
@@ -397,6 +414,7 @@ const Index = () => {
                     activeBundle={activeBundle}
                     onSelectBundle={setActiveBundle}
                     onCreateBundle={() => setShowCreateBundleModal(true)}
+                    onEditBundle={handleEditBundle}
                     onDeleteBundle={deleteBundle}
                     sampleBundles={sampleBundles}
                     username={profile?.username || undefined}
@@ -492,6 +510,16 @@ const Index = () => {
                       <p className="text-xs text-muted-foreground mb-2 md:mb-4 animate-fade-in">
                         About {totalResults} results
                       </p>
+                      
+                      {/* Sponsored Ads - Google style */}
+                      {matchingAds.length > 0 && currentPage === 1 && (
+                        <div className="mb-4">
+                          {matchingAds.map((ad) => (
+                            <AdResult key={ad.id} ad={ad} />
+                          ))}
+                        </div>
+                      )}
+                      
                       {results.map((result, index) => (
                         <SearchResult
                           key={`${result.link}-${index}`}
@@ -600,8 +628,12 @@ const Index = () => {
 
       <CreateBundleModal
         isOpen={showCreateBundleModal}
-        onClose={() => setShowCreateBundleModal(false)}
+        onClose={() => {
+          setShowCreateBundleModal(false);
+          setEditingBundle(null);
+        }}
         onCreateBundle={createBundle}
+        editingBundle={editingBundle}
       />
 
       <ProfileSettingsCard

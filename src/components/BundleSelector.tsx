@@ -18,6 +18,7 @@ import {
   Newspaper,
   Sparkles,
   Check,
+  Edit2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ interface BundleSelectorProps {
   activeBundle: Bundle | null;
   onSelectBundle: (bundle: Bundle | null) => void;
   onCreateBundle: () => void;
+  onEditBundle?: (bundle: Bundle) => void;
   onDeleteBundle?: (bundleId: string) => void;
   sampleBundles?: typeof SAMPLE_BUNDLES;
   username?: string;
@@ -58,6 +60,7 @@ export function BundleSelector({
   activeBundle,
   onSelectBundle,
   onCreateBundle,
+  onEditBundle,
   onDeleteBundle,
   sampleBundles = SAMPLE_BUNDLES,
   username,
@@ -100,6 +103,12 @@ export function BundleSelector({
     e.stopPropagation();
     onDeleteBundle?.(bundleId);
     toast.success("Bundle deleted");
+  };
+
+  const handleEditBundle = (bundle: Bundle, e: MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen(false);
+    onEditBundle?.(bundle);
   };
 
   return (
@@ -176,7 +185,17 @@ export function BundleSelector({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
+                      onClick={(e) => handleEditBundle(bundle, e)}
+                      title="Edit bundle"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
                       onClick={(e) => handleShareBundle(bundle, e)}
+                      title="Share bundle"
                     >
                       <Share2 className="w-3 h-3" />
                     </Button>
@@ -185,6 +204,7 @@ export function BundleSelector({
                       size="icon"
                       className="h-6 w-6 text-destructive hover:text-destructive"
                       onClick={(e) => handleDeleteBundle(bundle.id, e)}
+                      title="Delete bundle"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>

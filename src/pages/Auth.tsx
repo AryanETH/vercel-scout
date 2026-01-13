@@ -387,8 +387,11 @@ export default function Auth() {
                         <button
                           key={suggestion}
                           type="button"
-                          onClick={() => handleSelectSuggestion(suggestion)}
-                          className="px-3 py-1 text-xs rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors"
+                          onMouseDown={(e) => {
+                            e.preventDefault(); // Prevent blur from firing
+                            handleSelectSuggestion(suggestion);
+                          }}
+                          className="px-3 py-1 text-xs rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer"
                         >
                           @{suggestion}
                         </button>
