@@ -156,7 +156,7 @@ export function BundleSelector({
               {bundles.map((bundle) => (
                 <DropdownMenuItem
                   key={bundle.id}
-                  className="flex items-start gap-3 p-3 cursor-pointer"
+                  className="flex items-start gap-3 p-3 cursor-pointer !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-800 focus:!bg-gray-100 dark:focus:!bg-gray-800 data-[highlighted]:!bg-gray-100 dark:data-[highlighted]:!bg-gray-800"
                   onClick={() => handleSelectBundle(bundle)}
                 >
                   <div className="flex-shrink-0 mt-0.5">
@@ -170,7 +170,7 @@ export function BundleSelector({
                       )}
                     </div>
                     {bundle.description && (
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                         {bundle.description}
                       </p>
                     )}
@@ -222,7 +222,7 @@ export function BundleSelector({
           {sampleBundles.map((bundle, index) => (
             <DropdownMenuItem
               key={index}
-              className="flex items-start gap-3 p-3 cursor-pointer"
+              className="flex items-start gap-3 p-3 cursor-pointer !bg-transparent hover:!bg-accent/50 focus:!bg-accent/50 data-[highlighted]:!bg-accent/50 focus-visible:!bg-accent/50"
               onClick={() => handleSelectBundle(bundle)}
             >
               <div className="flex-shrink-0 mt-0.5">
@@ -236,7 +236,7 @@ export function BundleSelector({
                   )}
                 </div>
                 {bundle.description && (
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                     {bundle.description}
                   </p>
                 )}
