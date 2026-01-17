@@ -1,10 +1,6 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-interface MousePosition {
-  x: number;
-  y: number;
-}
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { MousePosition } from '../types';
 
 // A collection of high-quality, creepy, human-free Unsplash image IDs for "no-man's land"
 const CREEPY_IMAGE_IDS = [
@@ -18,13 +14,12 @@ const CREEPY_IMAGE_IDS = [
   'photo-1516214104703-d870798883c5', // Dark tunnel
 ];
 
-const NotFound = () => {
-  const navigate = useNavigate();
+const Spotlight404: React.FC = () => {
   const [mousePos, setMousePos] = useState<MousePosition>({ x: -1000, y: -1000 });
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  
   // Pick a random scary image on mount
   const imageUrl = useMemo(() => {
     const randomId = CREEPY_IMAGE_IDS[Math.floor(Math.random() * CREEPY_IMAGE_IDS.length)];
@@ -66,14 +61,14 @@ const NotFound = () => {
     const dist = Math.sqrt(Math.pow(mousePos.x - cx, 2) + Math.pow(mousePos.y - cy, 2));
     const maxDist = Math.sqrt(Math.pow(cx, 2) + Math.pow(cy, 2));
     const ratio = Math.min(dist / maxDist, 1);
-
+    
     const baseSize = 800;
-    const multiplier = 0.6 - (ratio * 0.5);
+    const multiplier = 0.6 - (ratio * 0.5); 
     return baseSize * multiplier;
   }, [mousePos, dimensions]);
 
   return (
-    <div
+    <div 
       ref={containerRef}
       className="relative w-full h-screen overflow-hidden bg-[#020202] select-none cursor-none"
     >
@@ -105,7 +100,7 @@ const NotFound = () => {
         .signal-bar:nth-child(2) { animation-delay: 0.3s; }
         .signal-bar:nth-child(3) { animation-delay: 0.6s; }
         .signal-bar:nth-child(4) { animation-delay: 0.9s; }
-
+        
         @keyframes beep {
           0%, 100% { opacity: 0.2; transform: scale(0.9); }
           50% { opacity: 1; transform: scale(1.1); }
@@ -114,15 +109,15 @@ const NotFound = () => {
       `}</style>
 
       {/* 1. Base Layer */}
-      <div
+      <div 
         className="absolute inset-0 bg-cover bg-center opacity-[0.03] grayscale"
         style={{ backgroundImage: `url('${imageUrl}')` }}
       />
 
       {/* 2. Spotlight Layer */}
-      <div
+      <div 
         className="absolute inset-0 bg-cover bg-center transition-all duration-100 ease-out"
-        style={{
+        style={{ 
           backgroundImage: `url('${imageUrl}')`,
           WebkitMaskImage: `radial-gradient(circle ${dynamicRadius}px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
           maskImage: `radial-gradient(circle ${dynamicRadius}px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
@@ -134,6 +129,7 @@ const NotFound = () => {
 
       {/* HUD UI Elements */}
       <div className="relative z-50 h-full w-full pointer-events-none p-10 font-mono text-[10px] uppercase tracking-[0.3em]">
+        
         {/* Top Left: Signal Lost + Animated Network */}
         <div className="absolute top-10 left-10 flex flex-col gap-2">
           <div className="flex items-center gap-3">
@@ -164,10 +160,10 @@ const NotFound = () => {
           <p className="mt-8 text-white/20 tracking-[0.8em]">
             SUBJECT_ABSENT_IN_THIS_COORD
           </p>
-
-          <button
+          
+          <button 
             className="mt-16 px-10 py-3 bg-transparent border border-white/10 text-white/40 text-[9px] hover:bg-white hover:text-black hover:border-white transition-all duration-300 pointer-events-auto"
-            onClick={() => navigate('/')}
+            onClick={() => window.location.reload()}
           >
             RELINK_TERMINAL
           </button>
@@ -183,15 +179,15 @@ const NotFound = () => {
         <div className="absolute bottom-10 right-10 flex items-center gap-6 text-white/30">
           <div className="flex items-center gap-2">
             <div className="relative w-6 h-3 border border-white/30 rounded-[1px] p-[1px]">
-              <div
-                className="h-full bg-white/40 transition-all duration-1000"
-                style={{ width: `${batteryLevel ?? 0}%` }}
+              <div 
+                className="h-full bg-white/40 transition-all duration-1000" 
+                style={{ width: `${batteryLevel ?? 0}%` }} 
               />
               <div className="absolute -right-[3px] top-1/2 -translate-y-1/2 w-1 h-1.5 bg-white/30 rounded-r-[1px]" />
             </div>
             <span>{batteryLevel !== null ? `${batteryLevel}%` : '--%'}</span>
           </div>
-
+          
           <div className="flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
               <path d="M5 12.55a11 11 0 0 1 14.08 0" />
@@ -205,7 +201,7 @@ const NotFound = () => {
       </div>
 
       {/* Subtle Halo around cursor */}
-      <div
+      <div 
         className="fixed pointer-events-none z-40 rounded-full mix-blend-screen transition-all duration-100 ease-out"
         style={{
           left: mousePos.x,
@@ -226,4 +222,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default Spotlight404;
