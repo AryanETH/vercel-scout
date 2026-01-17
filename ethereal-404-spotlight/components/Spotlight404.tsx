@@ -158,7 +158,7 @@ const Spotlight404: React.FC = () => {
             </h1>
           </div>
           <p className="mt-8 text-white/20 tracking-[0.8em]">
-            SUBJECT_ABSENT_IN_THIS_COORD
+            ITS_NOTHING_HERE_BETTER_GO_HOME
           </p>
           
           <button 
