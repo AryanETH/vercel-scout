@@ -169,7 +169,7 @@ const NotFound = () => {
             className="mt-16 px-10 py-3 bg-transparent border border-white/10 text-white/40 text-[9px] hover:bg-white hover:text-black hover:border-white transition-all duration-300 pointer-events-auto"
             onClick={() => navigate('/')}
           >
-            RELINK_TERMINAL
+            GO_HOME
           </button>
         </div>
 
