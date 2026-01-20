@@ -164,7 +164,7 @@ export function useSupabaseAuth() {
     return { data, error };
   };
 
-  const addToFavorites = async (url: string, name: string) => {
+  const addToFavorites = async (url: string, name: string, folder?: string) => {
     if (!user) return { error: new Error('Not authenticated') };
     
     const { data, error } = await supabase
@@ -172,7 +172,8 @@ export function useSupabaseAuth() {
       .upsert({ 
         user_id: user.id, 
         url, 
-        name 
+        name,
+        folder: folder || 'Uncategorized'
       }, { 
         onConflict: 'user_id,url' 
       })

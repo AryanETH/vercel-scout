@@ -19,9 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, X, Globe, Sparkles } from "lucide-react";
+import { Plus, X, Globe, Sparkles, Heart, FolderOpen } from "lucide-react";
 import { BundleWebsite, POPULAR_SUGGESTIONS } from "@/hooks/useBundles";
 import { toast } from "sonner";
+
+interface FavoriteItem {
+  url: string;
+  name: string;
+  folder?: string;
+}
 
 interface CreateBundleModalProps {
   isOpen: boolean;
@@ -33,6 +39,7 @@ interface CreateBundleModalProps {
     websites: BundleWebsite[];
   }) => Promise<any>;
   editingBundle?: any;
+  favorites?: FavoriteItem[];
 }
 
 const CATEGORIES = [
@@ -52,6 +59,7 @@ export function CreateBundleModal({
   onClose,
   onCreateBundle,
   editingBundle,
+  favorites = [],
 }: CreateBundleModalProps) {
   const [name, setName] = useState(editingBundle?.name || "");
   const [description, setDescription] = useState(editingBundle?.description || "");
@@ -60,6 +68,20 @@ export function CreateBundleModal({
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [websiteName, setWebsiteName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFavoritesImport, setShowFavoritesImport] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<string>("all");
+
+  // Get unique folders from favorites
+  const folders = useMemo(() => {
+    const folderSet = new Set(favorites.map(f => f.folder || 'Uncategorized'));
+    return ['all', ...Array.from(folderSet)];
+  }, [favorites]);
+
+  // Filter favorites by selected folder
+  const filteredFavorites = useMemo(() => {
+    if (selectedFolder === 'all') return favorites;
+    return favorites.filter(f => (f.folder || 'Uncategorized') === selectedFolder);
+  }, [favorites, selectedFolder]);
 
   // Get suggestions based on category and bundle name
   const suggestions = useMemo(() => {
@@ -105,6 +127,23 @@ export function CreateBundleModal({
       return;
     }
     setWebsites([...websites, suggestion]);
+  };
+
+  const handleImportFromFavorites = () => {
+    const favoritesToImport = filteredFavorites.slice(0, 10 - websites.length);
+    const newWebsites: BundleWebsite[] = favoritesToImport.map(fav => ({
+      url: fav.url.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0],
+      name: fav.name,
+    }));
+    
+    // Filter out duplicates
+    const uniqueWebsites = newWebsites.filter(
+      nw => !websites.some(w => w.url === nw.url)
+    );
+    
+    setWebsites([...websites, ...uniqueWebsites]);
+    setShowFavoritesImport(false);
+    toast.success(`Added ${uniqueWebsites.length} favorites to bundle`);
   };
 
   const handleRemoveWebsite = (url: string) => {
@@ -223,7 +262,63 @@ export function CreateBundleModal({
 
           {/* Add Website */}
           <div className="space-y-2">
-            <Label>Add Websites ({websites.length}/10)</Label>
+            <div className="flex items-center justify-between">
+              <Label>Add Websites ({websites.length}/10)</Label>
+              {favorites.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFavoritesImport(!showFavoritesImport)}
+                  className="h-7 text-xs"
+                >
+                  <Heart className="w-3 h-3 mr-1" />
+                  Import from Favorites
+                </Button>
+              )}
+            </div>
+
+            {/* Favorites Import Panel */}
+            {showFavoritesImport && (
+              <div className="p-3 rounded-lg border border-border bg-muted/30 space-y-3">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4" />
+                  <Label className="text-sm">Select Folder</Label>
+                </div>
+                <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    {folders.map((folder) => (
+                      <SelectItem key={folder} value={folder}>
+                        {folder === 'all' ? 'All Favorites' : folder} ({folder === 'all' ? favorites.length : favorites.filter(f => (f.folder || 'Uncategorized') === folder).length})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleImportFromFavorites}
+                    disabled={filteredFavorites.length === 0 || websites.length >= 10}
+                    className="flex-1"
+                  >
+                    Import {Math.min(filteredFavorites.length, 10 - websites.length)} Sites
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFavoritesImport(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <div className="flex-1 space-y-2">
                 <Input

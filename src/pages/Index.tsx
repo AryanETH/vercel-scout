@@ -634,6 +634,7 @@ const Index = () => {
         }}
         onCreateBundle={createBundle}
         editingBundle={editingBundle}
+        favorites={favorites || []}
       />
 
       <ProfileSettingsCard
