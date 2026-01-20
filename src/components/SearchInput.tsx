@@ -59,6 +59,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
   // Remove from history
   const removeFromHistory = (searchQuery: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     const updatedHistory = searchHistory.filter(h => h !== searchQuery);
     setSearchHistory(updatedHistory);
     localStorage.setItem("yourel_search_history", JSON.stringify(updatedHistory));
@@ -350,7 +351,7 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
                           <span className="text-sm text-foreground truncate flex-1">{historyItem}</span>
                           <button
                             type="button"
-                            onClick={(e) => removeFromHistory(historyItem, e)}
+                            onMouseDown={(e) => removeFromHistory(historyItem, e)}
                             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/20 rounded transition-all"
                             title="Remove from history"
                           >
