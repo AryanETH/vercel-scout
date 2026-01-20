@@ -338,7 +338,13 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
                         <button
                           key={`history-${index}`}
                           type="button"
-                          onClick={() => handleSuggestionClick(historyItem)}
+                          onClick={(e) => {
+                            // Don't trigger if clicking on delete button
+                            if ((e.target as HTMLElement).closest('[data-delete-button]')) {
+                              return;
+                            }
+                            handleSuggestionClick(historyItem);
+                          }}
                           className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-colors duration-150 group relative ${
                             index === selectedIndex ? "bg-muted" : "hover:bg-muted/50"
                           }`}
@@ -351,7 +357,16 @@ export function SearchInput({ onSearch, isLoading, externalQuery, suppressSugges
                           <span className="text-sm text-foreground truncate flex-1">{historyItem}</span>
                           <button
                             type="button"
-                            onMouseDown={(e) => removeFromHistory(historyItem, e)}
+                            data-delete-button
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              removeFromHistory(historyItem, e);
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
                             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/20 rounded transition-all"
                             title="Remove from history"
                           >
