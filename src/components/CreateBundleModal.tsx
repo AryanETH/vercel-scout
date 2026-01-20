@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { KeyboardEvent } from "react";
 import {
   Dialog,
@@ -70,6 +70,25 @@ export function CreateBundleModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFavoritesImport, setShowFavoritesImport] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<string>("all");
+
+  // Update form when editingBundle changes
+  useEffect(() => {
+    if (editingBundle) {
+      setName(editingBundle.name || "");
+      setDescription(editingBundle.description || "");
+      setCategory(editingBundle.category || "custom");
+      setWebsites(editingBundle.websites || []);
+    } else {
+      // Reset form when creating new bundle
+      setName("");
+      setDescription("");
+      setCategory("custom");
+      setWebsites([]);
+    }
+    setWebsiteUrl("");
+    setWebsiteName("");
+    setShowFavoritesImport(false);
+  }, [editingBundle, isOpen]);
 
   // Get unique folders from favorites
   const folders = useMemo(() => {
