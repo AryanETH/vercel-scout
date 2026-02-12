@@ -19,7 +19,7 @@ export function AnimatedTitle() {
   }, []);
 
   return (
-    <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-4 animate-fade-up text-white dark:text-black">
+    <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-4 animate-fade-up text-black dark:text-white">
       Find{" "}
       <span
         className={`inline-block transition-all duration-400 ${
