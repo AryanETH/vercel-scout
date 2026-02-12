@@ -61,7 +61,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
         <DialogHeader className="pb-1">
           <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
             <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-            Support Yourel
+            Buy Me a Coffee
           </DialogTitle>
         </DialogHeader>
         

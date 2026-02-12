@@ -577,7 +577,7 @@ const Index = () => {
               onClick={() => setShowSupportModal(true)}
               className="md:hidden text-red-500 hover:text-red-400 transition-colors"
             >
-              Support Yourel
+              Buy Me a Coffee
             </button>
           </p>
           
