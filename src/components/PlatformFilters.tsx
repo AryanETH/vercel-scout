@@ -7,9 +7,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Layers } from "lucide-react";
+import { ChevronDown, Layers, Sparkles } from "lucide-react";
 
-export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable" | "emergent";
+export type Platform = "all" | "vercel" | "github" | "onrender" | "netlify" | "railway" | "bubble" | "framer" | "replit" | "bolt" | "fly" | "lovable" | "emergent" | "huggingface";
 
 interface PlatformFiltersProps {
   selected: Platform;
@@ -18,7 +18,7 @@ interface PlatformFiltersProps {
 }
 
 // Platform configurations with logos and colors
-const platformConfig: Record<Platform, { label: string; logo: string; color: string }> = {
+const platformConfig: Record<Platform, { label: string; logo: string; color: string; hasSparkle?: boolean }> = {
   all: { label: "All", logo: "", color: "from-blue-500 to-purple-500" },
   vercel: { label: "Vercel", logo: "/logos/vercel.ico", color: "from-black to-gray-800" },
   github: { label: "GitHub", logo: "/logos/github.svg", color: "from-gray-700 to-gray-900" },
@@ -32,9 +32,10 @@ const platformConfig: Record<Platform, { label: string; logo: string; color: str
   fly: { label: "Fly.io", logo: "/logos/fly.svg", color: "from-violet-500 to-violet-700" },
   lovable: { label: "Lovable", logo: "/logos/lovable.ico", color: "from-pink-500 to-rose-500" },
   emergent: { label: "Emergent", logo: "/logos/emergent.jpg", color: "from-cyan-500 to-blue-600" },
+  huggingface: { label: "Hugging Face", logo: "/logos/huggingface.png", color: "from-yellow-400 to-orange-500", hasSparkle: true },
 };
 
-const filters: Platform[] = ["all", "vercel", "github", "netlify", "railway", "onrender", "bubble", "framer", "replit", "bolt", "fly", "lovable", "emergent"];
+const filters: Platform[] = ["all", "vercel", "github", "netlify", "railway", "onrender", "bubble", "framer", "replit", "bolt", "fly", "lovable", "emergent", "huggingface"];
 
 function PlatformIcon({ platform, size = 16 }: { platform: Platform; size?: number }) {
   const config = platformConfig[platform];
@@ -119,13 +120,16 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
               onChange(platform);
             }}
             className={cn(
-              "group flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
+              "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
               "border hover:scale-[1.02] active:scale-[0.98]",
               isSelected
                 ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
                 : "bg-background/50 text-muted-foreground border-border/50 hover:bg-background hover:text-foreground hover:border-border"
             )}
           >
+            {config.hasSparkle && (
+              <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500 animate-pulse" />
+            )}
             <span className={cn(
               "flex items-center justify-center w-5 h-5 rounded transition-transform",
               isSelected ? "scale-110" : "group-hover:scale-105"

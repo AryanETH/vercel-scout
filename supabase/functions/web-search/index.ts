@@ -18,6 +18,7 @@ const PLATFORM_SITES: Record<string, string> = {
   fly: "site:fly.dev",
   lovable: "site:lovable.app",
   emergent: "site:emergent.host",
+  huggingface: "inurl:huggingface.co/spaces/",
 };
 
 function detectPlatform(url: string): string {
@@ -34,6 +35,7 @@ function detectPlatform(url: string): string {
     fly: /\.fly\.dev/i,
     lovable: /\.lovable\.app/i,
     emergent: /\.emergent\.host/i,
+    huggingface: /huggingface\.co\/spaces/i,
   };
 
   for (const [platform, pattern] of Object.entries(platformPatterns)) {
@@ -74,6 +76,23 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Special handling for Hugging Face - return redirect URL instead of searching
+    if (platform === "huggingface") {
+      const encodedQuery = encodeURIComponent(query.trim().replace(/\s+/g, '+'));
+      const redirectUrl = `https://huggingface.co/spaces?q=${encodedQuery}`;
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          redirect: redirectUrl,
+          results: [],
+          total: 0,
+          page: 1,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const apiKey = Deno.env.get("FIRECRAWL_API_KEY");

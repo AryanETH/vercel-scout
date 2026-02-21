@@ -291,6 +291,7 @@ export function AdminPanel({ isOpen, onClose, initialTab }: AdminPanelProps) {
     { name: "Fly.io", domain: "fly.dev", color: "bg-violet-600" },
     { name: "Lovable", domain: "lovable.app", color: "bg-pink-500" },
     { name: "Emergent", domain: "emergent.host", color: "bg-cyan-500" },
+    { name: "Hugging Face", domain: "huggingface.co/spaces", color: "bg-yellow-400" },
   ];
 
   if (!isAuthenticated) {

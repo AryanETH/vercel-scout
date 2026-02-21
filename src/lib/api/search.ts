@@ -82,6 +82,14 @@ export const searchApi = {
         return { success: false, results: [], total: 0, page, error: error.message };
       }
 
+      // Handle redirect response (e.g., for Hugging Face)
+      if (data?.redirect) {
+        console.log('Redirect detected:', data.redirect);
+        window.open(data.redirect, '_blank');
+        return { success: true, results: [], total: 0, page };
+      }
+
+      console.log('Web search response:', data);
       return data as SearchResponse;
     } catch (err) {
       console.error("Web search error:", err);
