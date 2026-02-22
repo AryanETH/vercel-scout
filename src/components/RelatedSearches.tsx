@@ -91,14 +91,14 @@ export function RelatedSearches({ query, onSearch }: RelatedSearchesProps) {
   if (!query) return null;
 
   return (
-    <div className="mt-8 pt-6 border-t border-border">
-      <h3 className="text-sm font-medium text-muted-foreground mb-4">You might like</h3>
-      <div className="grid grid-cols-2 gap-3">
+    <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border">
+      <h3 className="text-sm font-medium text-muted-foreground mb-3 sm:mb-4">You might like</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
             onClick={() => onSearch(suggestion, true)}
-            className="flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted rounded-md text-left transition-colors group"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-muted/50 hover:bg-muted rounded-md text-left transition-colors group"
           >
             <Search className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
             <span className="text-sm text-foreground truncate">{suggestion}</span>

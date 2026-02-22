@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -45,18 +46,21 @@ export function ResultsPagination({
   };
 
   return (
-    <Pagination className="mt-8">
-      <PaginationContent>
+    <Pagination className="mt-6 sm:mt-8">
+      <PaginationContent className="gap-0.5 sm:gap-1">
         <PaginationItem>
           <PaginationPrevious
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            className={cn(
+              currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer",
+              "px-2 sm:px-4"
+            )}
           />
         </PaginationItem>
 
         {getVisiblePages().map((page, index) =>
           page === "ellipsis" ? (
-            <PaginationItem key={`ellipsis-${index}`}>
+            <PaginationItem key={`ellipsis-${index}`} className="hidden sm:flex">
               <PaginationEllipsis />
             </PaginationItem>
           ) : (
@@ -64,7 +68,7 @@ export function ResultsPagination({
               <PaginationLink
                 onClick={() => onPageChange(page)}
                 isActive={currentPage === page}
-                className="cursor-pointer"
+                className="cursor-pointer w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm"
               >
                 {page}
               </PaginationLink>
@@ -75,7 +79,10 @@ export function ResultsPagination({
         <PaginationItem>
           <PaginationNext
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            className={cn(
+              currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer",
+              "px-2 sm:px-4"
+            )}
           />
         </PaginationItem>
       </PaginationContent>

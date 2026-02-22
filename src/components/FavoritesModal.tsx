@@ -92,11 +92,11 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto w-[95vw] rounded-xl">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-pink-600" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
               Your Favorites ({favorites.length})
             </DialogTitle>
             {username && (
@@ -105,18 +105,18 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
                   variant="outline"
                   size="sm"
                   onClick={copyProfileLink}
-                  className="gap-2"
+                  className="gap-1.5 h-8 text-xs sm:text-sm"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3.5 h-3.5" />
                   Copy Link
                 </Button>
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleShare}
-                  className="gap-2"
+                  className="gap-1.5 h-8 text-xs sm:text-sm"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5" />
                   Share
                 </Button>
               </div>

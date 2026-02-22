@@ -458,16 +458,16 @@ const Index = () => {
         <div className={hasSearched || isLoading ? "" : "max-w-4xl mx-auto"}>
           {/* Hero section */}
           {!hasSearched && !isLoading && (
-            <div className="text-center py-16 md:py-24 transition-all duration-500">
+            <div className="text-center py-10 sm:py-16 md:py-24 transition-all duration-500">
               <AnimatedTitle />
-              <p className={`text-sm md:text-base font-bold tracking-widest uppercase mb-8 animate-fade-up stagger-2 ${showBackgrounds ? 'text-black dark:text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
+              <p className={`text-xs sm:text-sm md:text-base font-bold tracking-widest uppercase mb-6 sm:mb-8 animate-fade-up stagger-2 ${showBackgrounds ? 'text-black dark:text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-muted-foreground'}`}>
                 F*CK SEO • FIND SITES & FREE TOOLS
               </p>
-              <div className="animate-fade-up stagger-4 mb-8 relative z-30">
+              <div className="animate-fade-up stagger-4 mb-6 sm:mb-8 relative z-30">
                 <SearchInput onSearch={handleSearch} isLoading={isLoading} requireAuth isAuthenticated={isAuthenticated} onAuthRequired={() => navigate('/auth')} />
               </div>
               {!activeBundle && (
-                <div className="animate-fade-up stagger-3 mb-6 relative z-20">
+                <div className="animate-fade-up stagger-3 mb-4 sm:mb-6 relative z-20">
                   <PlatformFilters selected={selectedPlatform} onChange={handleFilterChange} />
                 </div>
               )}
@@ -558,9 +558,9 @@ const Index = () => {
       <div className="mt-auto">
         {/* Big Brand Text - only show on home, not results */}
         {!hasSearched && !isLoading && (
-          <div className="relative z-20 py-6 md:py-12 px-6 md:px-12 overflow-hidden">
+          <div className="relative z-20 py-4 sm:py-6 md:py-12 px-4 sm:px-6 md:px-12 overflow-hidden">
             <div className="max-w-8xl mx-auto text-center">
-              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-black via-gray-900 to-gray-800 dark:from-white dark:via-white/80 dark:to-white/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
+              <h2 className="font-display text-3xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter bg-gradient-to-r from-black via-gray-900 to-gray-800 dark:from-white dark:via-white/80 dark:to-white/60 bg-clip-text text-transparent whitespace-nowrap animate-slide-in-right">
                 #YOUREL
               </h2>
             </div>

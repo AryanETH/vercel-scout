@@ -191,7 +191,7 @@ export function TopPicks() {
           </div>
         </div>
       )}
-      <div className="text-center rounded-2xl p-8 mb-8">
+      <div className="text-center rounded-2xl p-4 sm:p-8 mb-4 sm:mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
           {isLoading ? (
             <>
@@ -203,9 +203,9 @@ export function TopPicks() {
           ) : (
             <>
               <div className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? 'bg-orange-500' : 'bg-green-500'}`}></div>
-              <span className={`text-xs font-medium uppercase tracking-wider ${usingFallback ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
+              <span className={`text-[10px] sm:text-xs font-medium uppercase tracking-wider ${usingFallback ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
                 Updated Daily at 12:00 AM • {lastUpdated?.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
+                  weekday: 'short', 
                   month: 'short', 
                   day: 'numeric' 
                 })}
@@ -220,10 +220,10 @@ export function TopPicks() {
             </>
           )}
         </div>
-        <h2 className="font-display text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+        <h2 className="font-display text-2xl sm:text-3xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Top Picks from Search
         </h2>
-        <p className="text-muted-foreground text-lg mb-4">
+        <p className="text-muted-foreground text-sm sm:text-lg mb-2 sm:mb-4">
           {usingFallback 
             ? 'Curated examples of real user-created websites'
             : 'Fresh picks discovered and updated daily at midnight'
@@ -249,14 +249,14 @@ export function TopPicks() {
               animationFillMode: "forwards" 
             }}
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className={`p-2 rounded-lg bg-gradient-to-r ${category.gradient} backdrop-blur-sm`}>
-                <Icon className="w-5 h-5" />
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className={`p-1.5 sm:p-2 rounded-lg bg-gradient-to-r ${category.gradient} backdrop-blur-sm`}>
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <h3 className="font-display text-xl font-semibold">
+              <h3 className="font-display text-lg sm:text-xl font-semibold">
                 {category.title}
               </h3>
-              <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-full">
+              <span className="text-[10px] sm:text-xs text-muted-foreground bg-secondary px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                 {categoryItems.length} sites
               </span>
             </div>
@@ -288,7 +288,7 @@ export function TopPicks() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`
-                      group glass rounded-xl p-6 hover-lift opacity-0 animate-slide-up
+                      group glass rounded-xl p-4 sm:p-6 hover-lift opacity-0 animate-slide-up
                       hover:bg-accent/50 transition-all duration-300
                       border border-border/50 hover:border-border
                     `}
@@ -301,14 +301,14 @@ export function TopPicks() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wider">
                             Rank #{item.rank} • {item.searchTerm}
                           </span>
                         </div>
-                        <h4 className="font-display text-lg font-semibold mb-2 group-hover:text-foreground transition-colors line-clamp-1">
+                        <h4 className="font-display text-base sm:text-lg font-semibold mb-1 sm:mb-2 group-hover:text-foreground transition-colors line-clamp-1">
                           {item.title}
                         </h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                           {item.snippet}
                         </p>
                         <div className="mt-3 flex items-center justify-between">

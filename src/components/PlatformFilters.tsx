@@ -113,7 +113,7 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
   }
 
   return (
-    <div className="flex items-center justify-center gap-1.5 flex-wrap px-2">
+    <div className="flex items-center justify-center gap-1 sm:gap-1.5 flex-wrap px-1 sm:px-2">
       {visibleFilters.map((platform) => {
         const config = platformConfig[platform];
         const isSelected = selected === platform;
@@ -126,7 +126,7 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
               onChange(platform);
             }}
             className={cn(
-              "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
+              "group relative flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
               "border hover:scale-[1.02] active:scale-[0.98]",
               isSelected
                 ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
@@ -137,10 +137,10 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
               <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500 animate-pulse" />
             )}
             <span className={cn(
-              "flex items-center justify-center w-5 h-5 rounded transition-transform",
+              "flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded transition-transform",
               isSelected ? "scale-110" : "group-hover:scale-105"
             )}>
-              <PlatformIcon platform={platform} size={16} />
+              <PlatformIcon platform={platform} size={14} />
             </span>
             <span className="hidden sm:inline">{config.label}</span>
           </button>

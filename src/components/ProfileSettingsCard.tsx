@@ -229,23 +229,22 @@ export function ProfileSettingsCard({ isOpen, onClose }: ProfileSettingsCardProp
 
   if (!isOpen) return null;
 
-  // Don't show on mobile - background customization is PC/tablet only
-  if (isMobile) {
-    onClose();
-    return null;
-  }
-
+  // On mobile, show as a bottom sheet style overlay
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start justify-end p-4 pt-16"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-start sm:justify-end p-0 sm:p-4 sm:pt-16"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div 
-        className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl animate-scale-in overflow-hidden"
+        className="w-full sm:max-w-md bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl animate-scale-in overflow-hidden max-h-[85vh] sm:max-h-auto"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile drag handle */}
+        <div className="sm:hidden flex justify-center pt-2 pb-1">
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="font-display text-lg font-semibold">Customize Page</h2>
