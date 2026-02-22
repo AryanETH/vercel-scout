@@ -92,60 +92,55 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto w-[95vw] rounded-xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto overflow-x-hidden w-[92vw] max-w-[92vw] sm:max-w-2xl rounded-xl p-4 sm:p-6">
         <DialogHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
-              Your Favorites ({favorites.length})
-            </DialogTitle>
-            {username && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={copyProfileLink}
-                  className="gap-1.5 h-8 text-xs sm:text-sm"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Copy Link
-                </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleShare}
-                  className="gap-1.5 h-8 text-xs sm:text-sm"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  Share
-                </Button>
-              </div>
-            )}
-          </div>
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600 flex-shrink-0" />
+            Your Favorites ({favorites.length})
+          </DialogTitle>
           {username && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Public profile: {profileUrl}
-            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyProfileLink}
+                className="gap-1 h-7 text-xs px-2"
+              >
+                <Copy className="w-3 h-3" />
+                Copy
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleShare}
+                className="gap-1 h-7 text-xs px-2"
+              >
+                <Share2 className="w-3 h-3" />
+                Share
+              </Button>
+            </div>
           )}
         </DialogHeader>
         
         {/* Add Site Section */}
         <div className="mb-4">
           {showAddForm ? (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
-                placeholder="Enter website URL (e.g., example.com)"
+                placeholder="Enter URL (e.g., example.com)"
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddSite()}
-                className="flex-1"
+                className="flex-1 text-sm"
               />
-              <Button onClick={handleAddSite} disabled={isAdding} size="sm">
-                {isAdding ? 'Adding...' : 'Add'}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => { setShowAddForm(false); setNewUrl(""); }}>
-                Cancel
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleAddSite} disabled={isAdding} size="sm" className="flex-1 sm:flex-none">
+                  {isAdding ? 'Adding...' : 'Add'}
+                </Button>
+                <Button variant="ghost" size="sm" className="flex-1 sm:flex-none" onClick={() => { setShowAddForm(false); setNewUrl(""); }}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           ) : (
             <Button
@@ -174,26 +169,26 @@ export function FavoritesModal({ isOpen, onClose, favorites, onRemoveFromFavorit
               const displayUrl = favorite.url.replace(/^https?:\/\//, "").split("/")[0];
               
               return (
-                <div key={favorite.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1 min-w-0">
+                <div key={favorite.id} className="flex items-center gap-2 p-2 sm:p-3 border rounded-lg min-w-0">
+                  <div className="flex-1 w-0">
                     <a 
                       href={favorite.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline font-medium flex items-center gap-2"
+                      className="text-primary hover:underline font-medium flex items-center gap-1 text-sm"
                     >
                       <span className="truncate">{favorite.name || displayUrl}</span>
-                      <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
                     </a>
-                    <p className="text-xs text-muted-foreground truncate mt-1">
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
                       {displayUrl}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => onRemoveFromFavorites(favorite.url)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 flex-shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
