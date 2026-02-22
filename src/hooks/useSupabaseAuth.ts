@@ -164,27 +164,25 @@ export function useSupabaseAuth() {
     return { data, error };
   };
 
-  const addToFavorites = async (url: string, name: string, folder?: string) => {
+  const addToFavorites = async (url: string, name: string) => {
     if (!user) return { error: new Error('Not authenticated') };
+
+    // Check if already favorited
+    const existing = favorites.find(f => f.url === url);
+    if (existing) return { data: existing, error: null };
     
     const { data, error } = await supabase
       .from('favorites')
-      .upsert({ 
+      .insert({ 
         user_id: user.id, 
         url, 
-        name,
-        folder: folder || 'Uncategorized'
-      }, { 
-        onConflict: 'user_id,url' 
+        name
       })
       .select()
       .single();
     
     if (!error && data) {
-      setFavorites(prev => {
-        const filtered = prev.filter(f => f.url !== url);
-        return [data, ...filtered];
-      });
+      setFavorites(prev => [data, ...prev]);
     }
     
     return { data, error };
