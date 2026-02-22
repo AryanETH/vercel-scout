@@ -64,6 +64,12 @@ function PlatformIcon({ platform, size = 16 }: { platform: Platform; size?: numb
 
 export function PlatformFilters({ selected, onChange, variant = "pills" }: PlatformFiltersProps) {
   const selectedConfig = platformConfig[selected];
+  const isHuggingFaceMode = selected === "huggingface";
+
+  // When huggingface is selected, only show "all" and "huggingface"
+  const visibleFilters = isHuggingFaceMode
+    ? filters.filter((p) => p === "all" || p === "huggingface")
+    : filters;
 
   if (variant === "dropdown") {
     return (
@@ -82,7 +88,7 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52 bg-background/95 backdrop-blur-xl border border-border/50 shadow-xl">
-          {filters.map((platform) => {
+          {visibleFilters.map((platform) => {
             const config = platformConfig[platform];
             return (
               <DropdownMenuItem
@@ -108,7 +114,7 @@ export function PlatformFilters({ selected, onChange, variant = "pills" }: Platf
 
   return (
     <div className="flex items-center justify-center gap-1.5 flex-wrap px-2">
-      {filters.map((platform) => {
+      {visibleFilters.map((platform) => {
         const config = platformConfig[platform];
         const isSelected = selected === platform;
         
