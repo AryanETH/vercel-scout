@@ -143,6 +143,18 @@ export function useMultiSearch() {
       const key = `${query}::${effectivePlatform}::${favoriteMode ? "fav" : "all"}::${bundleSiteFilters || "none"}`;
 
       try {
+        // Handle Hugging Face redirect directly on client side
+        if (effectivePlatform === "huggingface") {
+          const encodedQuery = encodeURIComponent(query.trim().replace(/\s+/g, '+'));
+          window.open(`https://huggingface.co/spaces?q=${encodedQuery}`, '_blank');
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            hasSearched: true,
+          }));
+          return;
+        }
+
         let computedFullResults = fullResults;
 
         if (key !== fullResultsKey) {
